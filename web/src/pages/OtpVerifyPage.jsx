@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { authService } from "../services/authService";    
+import { authService } from "../services/authService";
 import "./OtpVerifyPage.css";
 import otpImg from "../assets/sign/welcome.png";
 import Toast from "../components/Toast";
@@ -10,16 +10,16 @@ export default function OtpVerifyPage() {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
-  const [toast, setToast] = useState({message: "", type: ""});
+  const [toast, setToast] = useState({ message: "", type: "" });
   const inputRefs = useRef([]);
 
-  const location = useLocation();         
+  const location = useLocation();
   const email = location.state?.email;
   const navigate = useNavigate();
 
   const showToast = (message, type = "info") => {
-    setToast({ message: "", type: ""});
-    setTimeout(() => setToast({ message, type}), 10);
+    setToast({ message: "", type: "" });
+    setTimeout(() => setToast({ message, type }), 10);
   };
 
   const handleChange = (index, value) => {
@@ -91,75 +91,75 @@ export default function OtpVerifyPage() {
   };
 
   return (
-      <div className="otp-page">
-        <SEO
-          title="Verify OTP | FAYWALK"
-          robots="noindex, nofollow"
-        />
+    <div className="otp-page">
+      <SEO
+        title="Verify OTP | FAYWALK"
+        robots="noindex, nofollow"
+      />
 
-        <div className="otp-left">
-          <img src={otpImg} alt="OTP Image" />
-        </div>
-
-        <div className="otp-right">
-          <div className="otp-form-wrapper">
-
-            <h1 className="otp-title">Enter OTP</h1>
-            <p className="otp-subtitle">
-              6-digit code sent to {email ?? "your email"}
-            </p>
-
-            <div className="otp-boxes">
-              {otp.map((digit, index) => (
-                <input
-                  key={index}
-                  ref={(el) => (inputRefs.current[index] = el)}
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={1}
-                  className="otp-box"
-                  value={digit}
-                  onChange={(e) => handleChange(index, e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(index, e)}
-                  onPaste={handlePaste}
-                  disabled={loading}
-                />
-              ))}
-            </div>
-
-            <button
-              className="otp-btn-verify"
-              onClick={handleVerify}
-              disabled={loading}
-            >
-              {loading ? (
-                <span className="otp-btn-loading">
-                  <span className="otp-spinner" />
-                  Verifying...
-                </span>
-              ) : (
-                "Verify"
-              )}
-            </button>
-
-            <p className="otp-resend-text">
-              Resend OTP Now!{" "}
-              <button 
-                className="otp-resend-link"
-                onClick={handleResend}
-                disabled={loading || resending}
-              >
-                {resending ? "Resending..." : "Click Here"}
-              </button>
-            </p>
-
-          </div>
-        </div>
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast({ message: "", type: ""})}
-        />
+      <div className="otp-left">
+        <img src={otpImg} alt="OTP Image" />
       </div>
+
+      <div className="otp-right">
+        <div className="otp-form-wrapper">
+
+          <h1 className="otp-title">Enter OTP</h1>
+          <p className="otp-subtitle">
+            6-digit code sent to {email ?? "your email"}
+          </p>
+
+          <div className="otp-boxes">
+            {otp.map((digit, index) => (
+              <input
+                key={index}
+                ref={(el) => (inputRefs.current[index] = el)}
+                type="text"
+                inputMode="numeric"
+                maxLength={1}
+                className="otp-box"
+                value={digit}
+                onChange={(e) => handleChange(index, e.target.value)}
+                onKeyDown={(e) => handleKeyDown(index, e)}
+                onPaste={handlePaste}
+                disabled={loading}
+              />
+            ))}
+          </div>
+
+          <button
+            className="otp-btn-verify"
+            onClick={handleVerify}
+            disabled={loading}
+          >
+            {loading ? (
+              <span className="otp-btn-loading">
+                <span className="otp-spinner" />
+                Verifying...
+              </span>
+            ) : (
+              "Verify"
+            )}
+          </button>
+
+          <p className="otp-resend-text">
+            Resend OTP Now!{" "}
+            <button
+              className="otp-resend-link"
+              onClick={handleResend}
+              disabled={loading || resending}
+            >
+              {resending ? "Resending..." : "Click Here"}
+            </button>
+          </p>
+
+        </div>
+      </div>
+      <Toast
+        message={toast.message}
+        type={toast.type}
+        onClose={() => setToast({ message: "", type: "" })}
+      />
+    </div>
   );
 }
