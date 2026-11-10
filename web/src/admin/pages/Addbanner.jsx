@@ -1,0 +1,477 @@
+import React, { useState, useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
+import "./Addbanner.css";
+import { bannerService } from "../../services/bannerService";
+
+const LinkIcon = () => (
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+    <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+  </svg>
+);
+
+const UploadIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+    <polyline points="17 8 12 3 7 8" />
+    <line x1="12" y1="3" x2="12" y2="15" />
+  </svg>
+);
+
+const BackIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="19" y1="12" x2="5" y2="12" />
+    <polyline points="12 19 5 12 12 5" />
+  </svg>
+);
+
+const EditIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+  </svg>
+);
+
+const TrashIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="3 6 5 6 21 6" />
+    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+  </svg>
+);
+
+const DesktopIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="2" y="3" width="20" height="14" rx="2" />
+    <line x1="8" y1="21" x2="16" y2="21" />
+    <line x1="12" y1="17" x2="12" y2="21" />
+  </svg>
+);
+
+const MobileIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="5" y="2" width="14" height="20" rx="2" />
+    <line x1="12" y1="18" x2="12" y2="18.01" />
+  </svg>
+);
+
+const AddBanner = ({ onBack, onPublish, initialData }) => {
+  const location = useLocation();
+  const bannerData = location.state?.banner || initialData;
+
+  const [editingId] = useState(() => {
+    if (!bannerData) return null;
+    return bannerData.id ?? bannerData._id ?? bannerData.banner_id ?? bannerData.uuid ?? null;
+  });
+  const [previewImage, setPreviewImage] = useState(() => bannerData?.image_url || bannerData?.image || null);
+  const [imageFile, setImageFile] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  // Mobile Image State
+  const [previewMobileImage, setPreviewMobileImage] = useState(() => bannerData?.mobile_url || bannerData?.mobile_image_url || null);
+  const [mobileImageFile, setMobileImageFile] = useState(null);
+  const [isDraggingMobile, setIsDraggingMobile] = useState(false);
+
+  // Product Link State
+  const [productLink, setProductLink] = useState(() => bannerData?.link_url || bannerData?.product_link || bannerData?.linkUrl || "");
+
+  useEffect(() => {
+    if (bannerData) {
+      if (bannerData.link_url !== undefined || bannerData.product_link !== undefined || bannerData.linkUrl !== undefined) {
+        setProductLink(bannerData.link_url || bannerData.product_link || bannerData.linkUrl || "");
+      }
+      if (bannerData.image_url || bannerData.image) {
+        setPreviewImage(bannerData.image_url || bannerData.image);
+      }
+      if (bannerData.mobile_url || bannerData.mobile_image_url) {
+        setPreviewMobileImage(bannerData.mobile_url || bannerData.mobile_image_url);
+      }
+    }
+  }, [bannerData]);
+
+  const [previewMode, setPreviewMode] = useState("desktop"); // 'desktop' | 'mobile'
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const fileInputRef = useRef(null);
+  const mobileFileInputRef = useRef(null);
+
+  const handleFileSelect = (file) => {
+    if (file && file.type.startsWith("image/")) {
+      setImageFile(file);
+      const url = URL.createObjectURL(file);
+      setPreviewImage(url);
+      setErrorMsg("");
+    }
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target?.files?.[0];
+    if (file) {
+      handleFileSelect(file);
+    }
+    e.target.value = "";
+  };
+
+  const handleFileDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer?.files?.[0];
+    if (file) {
+      handleFileSelect(file);
+    }
+  };
+
+  // Mobile File Handlers
+  const handleMobileFileSelect = (file) => {
+    if (file && file.type.startsWith("image/")) {
+      setMobileImageFile(file);
+      const url = URL.createObjectURL(file);
+      setPreviewMobileImage(url);
+      setErrorMsg("");
+    }
+  };
+
+  const handleMobileFileChange = (e) => {
+    const file = e.target?.files?.[0];
+    if (file) {
+      handleMobileFileSelect(file);
+    }
+    e.target.value = "";
+  };
+
+  const handleMobileFileDrop = (e) => {
+    e.preventDefault();
+    setIsDraggingMobile(false);
+    const file = e.dataTransfer?.files?.[0];
+    if (file) {
+      handleMobileFileSelect(file);
+    }
+  };
+
+  const handleDiscard = () => {
+    if (onBack) onBack();
+  };
+
+  const isEditing = editingId !== null && editingId !== undefined;
+
+  const handlePublish = async () => {
+    if (isSubmitting) return;
+    if (!previewImage && !imageFile) {
+      setErrorMsg("Please select or drop a desktop banner image");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      setErrorMsg("");
+
+      let finalImageUrl = previewImage;
+      let finalMobileUrl = previewMobileImage;
+
+      // 1. Upload Desktop image to Cloudflare R2 if new file selected
+      if (imageFile) {
+        const { publicUrl } = await bannerService.uploadBannerImage(imageFile);
+        finalImageUrl = publicUrl;
+        setImageFile(null);
+      }
+
+      // 2. Upload Mobile image to Cloudflare R2 if new file selected
+      if (mobileImageFile) {
+        const { publicUrl } = await bannerService.uploadBannerImage(mobileImageFile);
+        finalMobileUrl = publicUrl;
+        setMobileImageFile(null);
+      }
+
+      // 3. Save or update banner data in Supabase banners table
+      let bannerResult;
+      if (isEditing) {
+        bannerResult = await bannerService.updateBanner(editingId, {
+          imageUrl: finalImageUrl,
+          mobileUrl: finalMobileUrl,
+          linkUrl: productLink,
+        });
+      } else {
+        bannerResult = await bannerService.createBanner({
+          imageUrl: finalImageUrl,
+          mobileUrl: finalMobileUrl,
+          linkUrl: productLink,
+        });
+      }
+
+      if (onPublish) {
+        onPublish(bannerResult);
+      } else if (onBack) {
+        onBack();
+      }
+    } catch (err) {
+      console.error("Failed to save banner:", err);
+      setErrorMsg(err.message || "Failed to save banner. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="ab">
+      {/* Hidden File Inputs outside container */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        style={{ display: "none" }}
+        onChange={handleFileChange}
+      />
+      <input
+        ref={mobileFileInputRef}
+        type="file"
+        accept="image/*"
+        style={{ display: "none" }}
+        onChange={handleMobileFileChange}
+      />
+
+
+
+      <div className="ab__body">
+        {errorMsg && (
+          <div className="ab__error-banner" style={{ background: "#fee2e2", color: "#991b1b", padding: "10px 14px", borderRadius: "8px", marginBottom: "12px", fontSize: "13px" }}>
+            {errorMsg}
+          </div>
+        )}
+
+        {/* Banner Images Row (Desktop + Mobile) */}
+        <div className="ab__row">
+          {/* Desktop Banner Image */}
+          <div className="ab__col">
+            <label className="ab__label">Desktop Banner Image <span style={{ color: "#ef4444" }}>*</span></label>
+            <div
+              className={`ab__upload-zone${isDragging ? " ab__upload-zone--dragging" : ""}${previewImage ? " ab__upload-zone--has-image" : ""}`}
+              onClick={() => {
+                if (!previewImage) fileInputRef.current?.click();
+              }}
+              onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+              onDragLeave={() => setIsDragging(false)}
+              onDrop={handleFileDrop}
+            >
+              {previewImage ? (
+                <div className="ab__image-container">
+                  <img src={previewImage} alt="Desktop Banner preview" className="ab__upload-preview" />
+                  <div className="ab__image-overlay">
+                    <button
+                      type="button"
+                      className="ab__image-btn ab__image-btn--change"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        fileInputRef.current?.click();
+                      }}
+                    >
+                      <EditIcon /> Change Image
+                    </button>
+                    <button
+                      type="button"
+                      className="ab__image-btn ab__image-btn--remove"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setPreviewImage(null);
+                        setImageFile(null);
+                      }}
+                    >
+                      <TrashIcon /> Remove
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="ab__upload-placeholder">
+                  <div className="ab__upload-icon-wrap">
+                    <UploadIcon />
+                  </div>
+                  <span className="ab__upload-text">Click or drop desktop image</span>
+                  <span className="ab__upload-hint">1920×600px recommended · Stored in Cloudflare</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Mobile Banner Image (Optional) */}
+          <div className="ab__col">
+            <label className="ab__label">Mobile Banner Image <span style={{ color: "#9ca3af", fontWeight: "normal" }}>(Optional)</span></label>
+            <div
+              className={`ab__upload-zone${isDraggingMobile ? " ab__upload-zone--dragging" : ""}${previewMobileImage ? " ab__upload-zone--has-image" : ""}`}
+              onClick={() => {
+                if (!previewMobileImage) mobileFileInputRef.current?.click();
+              }}
+              onDragOver={(e) => { e.preventDefault(); setIsDraggingMobile(true); }}
+              onDragLeave={() => setIsDraggingMobile(false)}
+              onDrop={handleMobileFileDrop}
+            >
+              {previewMobileImage ? (
+                <div className="ab__image-container">
+                  <img src={previewMobileImage} alt="Mobile Banner preview" className="ab__upload-preview" />
+                  <div className="ab__image-overlay">
+                    <button
+                      type="button"
+                      className="ab__image-btn ab__image-btn--change"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        mobileFileInputRef.current?.click();
+                      }}
+                    >
+                      <EditIcon /> Change Mobile Image
+                    </button>
+                    <button
+                      type="button"
+                      className="ab__image-btn ab__image-btn--remove"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setPreviewMobileImage(null);
+                        setMobileImageFile(null);
+                      }}
+                    >
+                      <TrashIcon /> Remove
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="ab__upload-placeholder">
+                  <div className="ab__upload-icon-wrap">
+                    <UploadIcon />
+                  </div>
+                  <span className="ab__upload-text">Click or drop mobile image</span>
+                  <span className="ab__upload-hint">800×1000px portrait · Saved in mobile_url</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Product / Destination Link */}
+        <div className="ab__link-section">
+          <label className="ab__label" style={{ fontWeight: 600, fontSize: "13.5px", marginBottom: "4px" }}>
+            Product Link / Destination URL <span style={{ color: "#9ca3af", fontWeight: "normal" }}>(Optional)</span>
+          </label>
+          <span className="ab__hint" style={{ marginTop: 0, marginBottom: "8px" }}>
+            When customers click this banner on the home page, they will navigate to this link.
+          </span>
+
+          <div className="ab__link-input-wrap">
+            <span className="ab__link-icon">
+              <LinkIcon />
+            </span>
+            <input
+              type="text"
+              className="ab__input ab__input--link"
+              placeholder="e.g. /product/35 or /rings or https://..."
+              value={productLink}
+              onChange={(e) => setProductLink(e.target.value)}
+            />
+            {productLink && (
+              <button
+                type="button"
+                className="ab__link-clear-btn"
+                onClick={() => setProductLink("")}
+                title="Clear link"
+              >
+                &times;
+              </button>
+            )}
+          </div>
+
+          {productLink && (
+            <div className="ab__link-preview-badge">
+              <span>Customer action: Clicking this banner navigates to <strong>{productLink}</strong></span>
+              {productLink.startsWith("/") && (
+                <a
+                  href={productLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ marginLeft: "8px" }}
+                >
+                  Test Link ↗
+                </a>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Home Page Hero Preview */}
+        <div className="ab__section">
+          <div className="ab__preview-header">
+            <div>
+              <label className="ab__label" style={{ margin: 0, fontWeight: 700, fontSize: "15px" }}>Home Page Hero Preview</label>
+              <div className="ab__preview-subtitle">
+                Interactive preview of storefront hero banner
+              </div>
+            </div>
+            <div className="ab__view-toggle" role="tablist" aria-label="Hero preview viewport">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={previewMode === "desktop"}
+                className={`ab__toggle-btn ${previewMode === "desktop" ? "ab__toggle-btn--active" : ""}`}
+                onClick={() => setPreviewMode("desktop")}
+              >
+                <DesktopIcon />
+                <span>Desktop</span>
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={previewMode === "mobile"}
+                className={`ab__toggle-btn ${previewMode === "mobile" ? "ab__toggle-btn--active" : ""}`}
+                onClick={() => setPreviewMode("mobile")}
+              >
+                <MobileIcon />
+                <span>Mobile</span>
+              </button>
+            </div>
+          </div>
+
+          <div className={`ab__preview-stage ab__preview-stage--${previewMode}`}>
+            <div className={`ab__hero-preview ab__hero-preview--${previewMode}`}>
+              {((previewMode === 'mobile' ? previewMobileImage || previewImage : previewImage)) ? (
+                <div className="ab__hero-img-wrap">
+                  <img
+                    src={previewMode === 'mobile' ? previewMobileImage || previewImage : previewImage}
+                    alt="Hero preview"
+                    className="ab__hero-img"
+                  />
+                  {/* Storefront pagination dots */}
+                  <div className="ab__hero-dots">
+                    <span className="ab__hero-dot ab__hero-dot--active" />
+                    <span className="ab__hero-dot" />
+                    <span className="ab__hero-dot" />
+                  </div>
+                </div>
+              ) : (
+                <div className="ab__preview-placeholder">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                    <circle cx="8.5" cy="8.5" r="1.5" />
+                    <polyline points="21 15 16 10 5 21" />
+                  </svg>
+                  <span>Upload an image to see Hero preview</span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Footer Actions */}
+      <div className="ab__footer">
+        <button className="ab__btn ab__btn--discard" onClick={handleDiscard} disabled={isSubmitting}>Discard</button>
+        <button className="ab__btn ab__btn--publish admin-btn-with-spinner" onClick={handlePublish} disabled={isSubmitting}>
+          {isSubmitting ? (
+            <>
+              <span className="admin-btn-spinner" />
+              {isEditing ? "Updating..." : "Uploading..."}
+            </>
+          ) : (
+            isEditing ? "Update Banner" : "Publish Banner"
+          )}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default AddBanner;

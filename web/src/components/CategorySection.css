@@ -1,0 +1,375 @@
+/* ══════════════════════════════════════════════════════════
+   CHOOSE BY CATEGORY SECTION (Fixed Size Only, No Section BG)
+   ══════════════════════════════════════════════════════════ */
+.category-section {
+  max-width: 1600px;
+  width: calc(100% - 30px);
+  margin: 32px auto 48px;
+  padding: 0 10px;
+  background: transparent !important;
+  box-sizing: border-box;
+}
+
+/* ── Header: Center-Aligned Bold Uppercase Title & Clean Subtitle ── */
+.category-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.category-title {
+  font-family: 'Niquitta Mirzani Sans', var(--title-font-family), sans-serif !important;
+  font-weight: 400 !important;
+  font-style: normal !important;
+  font-size: 48px !important;
+  line-height: 60px !important;
+  letter-spacing: 0% !important;
+  text-transform: uppercase !important;
+  text-align: center !important;
+  color: #111827 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.category-subtitle {
+  font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: clamp(14px, 1.2vw, 16px) !important;
+  font-weight: 400 !important;
+  color: #1a1a1a !important;
+  margin: 6px 0 0 0 !important;
+  line-height: 1.4 !important;
+  text-align: center !important;
+  letter-spacing: normal !important;
+}
+
+/* ── Category Tabs (Men / Women) ── */
+.category-tabs {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 12px !important;
+  margin-top: 18px !important;
+  margin-bottom: 6px !important;
+}
+
+.category-tab-btn {
+  font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.5px !important;
+  text-transform: uppercase !important;
+  padding: 8px 24px !important;
+  border-radius: 4px !important;
+  border: none !important;
+  background: #f0f4fa !important;
+  color: #002277 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  outline: none !important;
+  user-select: none !important;
+  box-sizing: border-box !important;
+  box-shadow: none !important;
+}
+
+.category-tab-btn:hover {
+  background: #e2ecf9 !important;
+  border: none !important;
+  color: #002277 !important;
+  box-shadow: none !important;
+}
+
+.category-tab-btn.active {
+  background: #002277 !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+
+
+/* ── View All Category Products Link ── */
+.category-view-all-wrap {
+  display: flex !important;
+  justify-content: center !important;
+  margin-top: 28px !important;
+}
+
+.category-view-all-link {
+  font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: #002277 !important;
+  background: transparent !important;
+  border: none !important;
+  cursor: pointer !important;
+  padding: 6px 14px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  text-decoration: underline !important;
+  text-decoration-color: #002277 !important;
+  text-underline-offset: 4px !important;
+  text-decoration-thickness: 1.5px !important;
+  transition: all 0.2s ease !important;
+}
+
+.category-view-all-link:hover {
+  color: #00185e !important;
+  text-decoration-color: #00185e !important;
+  opacity: 0.85 !important;
+}
+
+
+
+/* ── Empty Subcategories State ── */
+.category-empty-wrap {
+  text-align: center !important;
+  padding: 40px 20px !important;
+}
+
+.category-empty-text {
+  font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 15px !important;
+  color: #666666 !important;
+  margin: 0 0 16px 0 !important;
+}
+
+/* ── Layout for Category Cards (Centered Flexbox) ── */
+.category-grid,
+.category-wrapper {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  justify-content: center !important;
+  align-items: flex-start !important;
+  gap: 20px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* ── Category Card (Fixed Width, No Hover Animation) ── */
+.category-card,
+.category-item {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  cursor: pointer !important;
+  text-decoration: none !important;
+  width: 240px !important;
+  max-width: 100% !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  box-sizing: border-box !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+/* ── Category Image Container: STRICT FIXED SIZE ONLY (240px x 340px) ── */
+.category-img-container,
+.category-item .category-img-container {
+  width: 240px !important;
+  min-width: 240px !important;
+  max-width: 240px !important;
+  height: 340px !important;
+  min-height: 340px !important;
+  max-height: 340px !important;
+  border-radius: 0 !important;
+  opacity: 1 !important;
+  transform: none !important;
+  overflow: hidden !important;
+  position: relative !important;
+  background-color: #f5f5f5 !important;
+  display: block !important;
+  margin: 0 auto !important;
+  box-sizing: border-box !important;
+}
+
+/* ── Image Inside Container: Strict Fixed Size & Proportional Cover Fill ── */
+.category-card img,
+.category-item img,
+.category-img-container img {
+  width: 100% !important;
+  height: 100% !important;
+  border-radius: 0 !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  display: block !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+/* Hover effects completely removed */
+.category-card:hover,
+.category-item:hover,
+.category-card:hover .category-img-container img,
+.category-card:hover img,
+.category-item:hover img {
+  transform: none !important;
+  filter: none !important;
+}
+
+/* ── Category Name Below Image (Left-Aligned, Bold Sans-Serif) ── */
+.category-name,
+.category-card h3,
+.category-item p {
+  font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 17px !important;
+  font-weight: 700 !important;
+  color: #000000 !important;
+  text-align: left !important;
+  width: 100% !important;
+  margin: 12px 0 0 0 !important;
+  padding: 0 !important;
+  letter-spacing: -0.01em !important;
+  text-transform: capitalize !important;
+  line-height: 1.25 !important;
+  transition: none !important;
+}
+
+.category-card:hover .category-name,
+.category-item:hover p {
+  color: #000000 !important;
+}
+
+/* ── Tablet Responsiveness (769px to 1024px) ── */
+@media (max-width: 1024px) {
+
+  .category-grid,
+  .category-wrapper {
+    gap: 16px !important;
+
+  }
+
+  .category-title {
+    font-size: 38px !important;
+    line-height: 48px !important;
+  }
+
+  .category-name,
+  .category-card h3,
+  .category-item p {
+    font-size: 16px !important;
+    margin-top: 10px !important;
+  }
+}
+
+/* ── Mobile Responsiveness (<= 768px): Uniform Fixed-Ratio 2-Column Grid ── */
+@media (max-width: 768px) {
+  .category-section {
+    margin: 20px auto 30px !important;
+    padding: 0 12px !important;
+    width: 100% !important;
+    background: transparent !important;
+  }
+
+  .category-header {
+    margin-bottom: 16px !important;
+  }
+
+  .category-title {
+    font-size: 28px !important;
+    line-height: 36px !important;
+  }
+
+  .category-subtitle {
+    font-size: 13px !important;
+  }
+
+  .category-grid,
+  .category-wrapper {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+    align-items: flex-start !important;
+    gap: 14px 10px !important;
+    overflow-x: visible !important;
+    padding: 0 !important;
+    width: 100% !important;
+  }
+
+  .category-card,
+  .category-item {
+    width: calc(50% - 6px) !important;
+    max-width: 240px !important;
+    align-items: flex-start !important;
+  }
+
+  .category-grid:has(> .category-card:only-child) .category-card,
+  .category-grid.single-item .category-card {
+    max-width: 240px !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+  }
+
+  .category-img-container,
+  .category-item .category-img-container {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    min-height: unset !important;
+    max-height: unset !important;
+    aspect-ratio: 240 / 340 !important;
+    border-radius: 0 !important;
+    margin: 0 !important;
+  }
+
+  .category-card img,
+  .category-item img {
+    width: 100% !important;
+    height: 100% !important;
+    border-radius: 0 !important;
+    object-fit: cover !important;
+  }
+
+  .category-name,
+  .category-card h3,
+  .category-item p {
+    font-size: 14px !important;
+    font-weight: 700 !important;
+    margin-top: 8px !important;
+    text-align: left !important;
+    width: 100% !important;
+  }
+
+  .category-tabs {
+    gap: 8px !important;
+    margin-top: 12px !important;
+    margin-bottom: 4px !important;
+  }
+
+  .category-tab-btn {
+    font-size: 12px !important;
+    padding: 6px 18px !important;
+  }
+
+  .category-view-all-wrap {
+    margin-top: 20px !important;
+  }
+
+  .category-view-all-link {
+    font-size: 13px !important;
+  }
+}
+
+/* ── Small Mobile Responsiveness (<= 480px) ── */
+@media (max-width: 480px) {
+  .category-title {
+    font-size: 24px !important;
+    line-height: 30px !important;
+  }
+}
+
+/* ── Extra Small Mobile (<= 360px) ── */
+@media (max-width: 360px) {
+  .category-title {
+    font-size: 21px !important;
+    line-height: 26px !important;
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "short_name": "FAYWALK",
+  "name": "FAYWALK Innerwear & Clothing",
+  "description": "Premium Innerwear and Comfortable Clothing for Men and Women",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#002277",
+  "background_color": "#ffffff"
+}

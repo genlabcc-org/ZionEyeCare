@@ -1,0 +1,603 @@
+/* ================================================================
+   Allcustomers.css
+   Modern, elegant customer dashboard design matching exact mockup
+   ================================================================ */
+
+.ac {
+  background: #ffffff;
+  padding: 32px 36px 48px;
+  font-family: inherit;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Header ──────────────────────────────────────────────────────── */
+.ac__header-block {
+  margin-bottom: 24px;
+}
+
+.ac__page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #111827;
+  margin: 0;
+  line-height: 1.2;
+}
+
+
+
+/* ── 4 Stat Cards in Pastel Theme ───────────────────────────────── */
+.ac__stats-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-bottom: 28px;
+}
+
+.ac__stat-card {
+  border-radius: 16px;
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 122px;
+  box-sizing: border-box;
+}
+
+/* Pastel Variants */
+.ac__stat-card--green {
+  background-color: #EAF8E7;
+}
+
+.ac__stat-card--yellow {
+  background-color: #FEF7D6;
+}
+
+.ac__stat-card--purple {
+  background-color: #EDE7FE;
+}
+
+.ac__stat-card--blue {
+  background-color: #BFDBFE;
+}
+
+.ac__stat-label {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #2D3748;
+  margin-bottom: 8px;
+}
+
+.ac__stat-value {
+  font-size: 32px;
+  font-weight: 700;
+  color: #0F172A;
+  line-height: 1.1;
+  margin-bottom: 6px;
+  letter-spacing: -0.02em;
+}
+
+.ac__stat-sub {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #718096;
+}
+
+/* ── Filter / Search Toolbar ────────────────────────────────────── */
+.ac__toolbar-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.ac__toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ac__select-pill-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.ac__select-pill {
+  appearance: none;
+  -webkit-appearance: none;
+  background: #ffffff;
+  border: 1px solid #E2E8F0;
+  border-radius: 10px;
+  padding: 9px 34px 9px 16px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #1E293B;
+  cursor: pointer;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.ac__select-pill:hover,
+.ac__select-pill:focus {
+  border-color: #CBD5E1;
+}
+
+.ac__select-pill-wrapper svg {
+  position: absolute;
+  right: 14px;
+  pointer-events: none;
+  color: #64748B;
+}
+
+.ac__toolbar-right {
+  flex: 1;
+  max-width: 380px;
+  min-width: 240px;
+}
+
+.ac__search-box {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  background: #F0F4FA !important;
+  border: 1px solid transparent !important;
+  border-radius: 10px !important;
+  padding: 0 14px !important;
+  height: 40px !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  transition: all 0.15s ease !important;
+}
+
+.ac__search-box:focus-within {
+  border-color: #CBD5E1 !important;
+  background: #E8EDF5 !important;
+}
+
+.ac__search-box .ac__search-input,
+.ac__search-input {
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  font-size: 13.5px !important;
+  color: #1E293B !important;
+  width: 100% !important;
+  padding: 0 !important;
+  box-sizing: border-box !important;
+}
+
+.ac__search-input::placeholder {
+  color: #94A3B8 !important;
+}
+
+/* ── Custom Checkbox ────────────────────────────────────────────── */
+.ac__custom-checkbox {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  user-select: none;
+  margin: 0;
+}
+
+.ac__custom-checkbox input {
+  position: absolute;
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.ac__checkmark {
+  width: 17px;
+  height: 17px;
+  background-color: #ffffff;
+  border: 1.5px solid #CBD5E1;
+  border-radius: 4px;
+  display: inline-block;
+  position: relative;
+  transition: all 0.15s ease;
+}
+
+.ac__custom-checkbox:hover input ~ .ac__checkmark {
+  border-color: #94A3B8;
+}
+
+.ac__custom-checkbox input:checked ~ .ac__checkmark {
+  background-color: #002244;
+  border-color: #002244;
+}
+
+.ac__custom-checkbox input:checked ~ .ac__checkmark::after {
+  content: "";
+  position: absolute;
+  left: 5px;
+  top: 1.5px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* ── Table (Desktop & Tablet) ───────────────────────────────────── */
+.ac__table-container {
+  width: 100%;
+  overflow-x: auto;
+  margin-bottom: 24px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.ac__table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.ac__table thead tr {
+  border-bottom: 1px solid #F1F5F9;
+}
+
+.ac__table th {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #111827;
+  padding: 14px 16px;
+  white-space: nowrap;
+}
+
+.ac__th-check,
+.ac__td-check {
+  width: 44px;
+  padding-left: 8px !important;
+  padding-right: 8px !important;
+  text-align: center;
+}
+
+.ac__row {
+  border-bottom: 1px solid #F8FAFC;
+  transition: background-color 0.12s ease;
+}
+
+.ac__row:hover {
+  background-color: #FAFAFA;
+}
+
+.ac__table td {
+  padding: 16px;
+  font-size: 13.5px;
+  vertical-align: middle;
+}
+
+.ac__customer-name {
+  font-size: 14px;
+  font-weight: 500;
+  color: #1E293B;
+}
+
+.ac__td-contact {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ac__contact-email {
+  font-size: 13px;
+  color: #334155;
+}
+
+.ac__contact-phone {
+  font-size: 12.5px;
+  color: #64748B;
+}
+
+.ac__orders-count {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.ac__spent-amount {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.ac__joined-date {
+  font-size: 13px;
+  color: #334155;
+  white-space: nowrap;
+}
+
+.ac__action-view {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #111827;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.ac__action-view:hover {
+  opacity: 0.7;
+}
+
+/* ── Empty State in Table ───────────────────────────────────────── */
+.ac__empty-cell {
+  padding: 48px 16px !important;
+  text-align: center;
+}
+
+.ac__empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.ac__empty-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #334155;
+  margin: 0 0 4px;
+}
+
+.ac__empty-sub {
+  font-size: 13px;
+  color: #94A3B8;
+  margin: 0;
+}
+
+/* ── Mobile Cards (Phone View) ──────────────────────────────────── */
+.ac__mobile-cards-list {
+  display: none;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.ac__mobile-card {
+  background: #ffffff;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.ac__mobile-top {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ac__mobile-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1E293B;
+  flex: 1;
+}
+
+.ac__mobile-badge {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  text-transform: capitalize;
+}
+
+.ac__mobile-badge--active {
+  background: #DCFCE7;
+  color: #15803D;
+}
+
+.ac__mobile-badge--disabled {
+  background: #FEE2E2;
+  color: #B91C1C;
+}
+
+.ac__mobile-body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ac__mobile-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  font-size: 13px;
+}
+
+.ac__mobile-lbl {
+  color: #64748B;
+  font-weight: 400;
+}
+
+.ac__mobile-val {
+  color: #1E293B;
+}
+
+.ac__mobile-footer {
+  border-top: 1px solid #F1F5F9;
+  padding-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* ── Footer / Infinite Scroll Pagination (Same as Orders List) ───── */
+.ac__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #F1F5F9;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.ac__showing-text {
+  font-size: 13px;
+  color: #64748B;
+  font-weight: 500;
+}
+
+.ac__infinite-loader {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #0A2582;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 6px 14px;
+  background: #EFF6FF;
+  border: 1px solid #BFDBFE;
+  border-radius: 20px;
+}
+
+.ac__all-loaded-text {
+  font-size: 12.5px;
+  color: #94A3B8;
+  font-weight: 500;
+}
+
+.ac__infinite-sentinel {
+  height: 20px;
+  width: 100%;
+  pointer-events: none;
+}
+
+/* ── Modal Form Styles ──────────────────────────────────────────── */
+.ac__modal-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.ac__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ac__field-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1E293B;
+}
+
+.ac__required {
+  color: #EF4444;
+}
+
+.ac__field-input {
+  width: 100%;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 13.5px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.ac__field-input:focus {
+  border-color: #002244;
+}
+
+.ac__field-input--error {
+  border-color: #EF4444;
+}
+
+.ac__field-error {
+  font-size: 11.5px;
+  color: #EF4444;
+}
+
+.ac__modal-cancel-btn {
+  background: #ffffff;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #475569;
+  cursor: pointer;
+}
+
+.ac__modal-submit-btn {
+  background: #002244;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 18px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+/* ── Responsive Breakpoints ─────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .ac__stats-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .ac {
+    padding: 20px 16px 36px;
+  }
+
+  .ac__toolbar-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ac__toolbar-right {
+    max-width: 100%;
+  }
+
+  .ac__table-container {
+    display: none;
+  }
+
+  .ac__mobile-cards-list {
+    display: flex;
+  }
+
+  .ac__modal-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .ac__stats-row {
+    grid-template-columns: 1fr;
+  }
+
+  .ac__toolbar-left {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .ac__select-pill-wrapper {
+    width: 100%;
+  }
+
+  .ac__select-pill {
+    width: 100%;
+  }
+}

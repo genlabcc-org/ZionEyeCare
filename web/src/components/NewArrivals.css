@@ -1,0 +1,645 @@
+/* ══════════════════════════════════════════════════════════
+   NEW ARRIVALS SECTION (Style matching Reference Image)
+   ══════════════════════════════════════════════════════════ */
+.new-arrivals-section {
+  max-width: 1600px;
+  width: calc(100% - 30px);
+  margin: 36px auto 56px;
+  padding: 0 10px;
+  background: transparent !important;
+  box-sizing: border-box;
+}
+
+/* ── Header: Centered Title & Subtitle ── */
+.new-arrivals-header-row {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  text-align: center !important;
+  margin-bottom: 28px !important;
+  gap: 6px !important;
+}
+
+.new-arrivals-header-left {
+  text-align: center !important;
+  width: 100% !important;
+}
+
+.new-arrivals-title {
+  font-family: 'Niquitta Mirzani Sans', var(--title-font-family), sans-serif !important;
+  font-weight: 400 !important;
+  font-style: normal !important;
+  font-size: 48px !important;
+  line-height: 60px !important;
+  letter-spacing: 0% !important;
+  text-transform: uppercase !important;
+  text-align: center !important;
+  color: #111827 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.new-arrivals-subtitle {
+  font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: clamp(14px, 1.3vw, 17px) !important;
+  font-weight: 400 !important;
+  color: #1a1a1a !important;
+  margin: 6px 0 0 0 !important;
+  line-height: 1.4 !important;
+  text-align: center !important;
+  letter-spacing: normal !important;
+}
+
+
+/* ── Men / Women Filter Buttons ── */
+.new-arrivals-tabs {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.new-arrivals-tab-btn {
+  font-family: 'Outfit', 'Inter', sans-serif;
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 6px 20px;
+  border-radius: 6px;
+  cursor: pointer;
+  background: #ffffff;
+  color: #111111;
+  border: 1.5px solid #111111;
+  transition: all 0.2s ease;
+  line-height: 1.2;
+}
+
+.new-arrivals-tab-btn.active {
+  background: var(--blue-mid) !important;
+  color: #ffffff !important;
+  border-color: var(--blue-mid) !important;
+}
+
+.new-arrivals-tab-btn:hover:not(.active) {
+  background: #f8f8f8;
+}
+
+/* ── Slider Wrapper (Enables left/right navigation controls) ── */
+.new-arrivals-slider-wrap {
+  position: relative !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* ── 1-Line Horizontal Slider Rail ── */
+.new-arrivals-grid {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: nowrap !important;
+  justify-content: center !important;
+  justify-content: safe center !important;
+  align-items: stretch !important;
+  gap: 20px !important;
+  width: 100% !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  scroll-behavior: smooth !important;
+  scroll-snap-type: x mandatory !important;
+  -webkit-overflow-scrolling: touch !important;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+  padding: 6px 2px 16px !important;
+  box-sizing: border-box !important;
+}
+
+
+.new-arrivals-grid::-webkit-scrollbar {
+  display: none !important;
+}
+
+/* ── Navigation Arrows ── */
+.new-arrivals-nav-btn {
+  position: absolute !important;
+  top: 42% !important;
+  transform: translateY(-50%) !important;
+  width: 44px !important;
+  height: 44px !important;
+  border-radius: 50% !important;
+  background: rgba(255, 255, 255, 0.96) !important;
+  backdrop-filter: blur(8px) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.14) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #111827 !important;
+  cursor: pointer !important;
+  z-index: 10 !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  padding: 0 !important;
+}
+
+.new-arrivals-nav-btn:hover {
+  background: #ffffff !important;
+  color: var(--blue-primary, #002277) !important;
+  box-shadow: 0 6px 22px rgba(0, 0, 0, 0.22) !important;
+  transform: translateY(-50%) !important;
+}
+
+.new-arrivals-nav-prev {
+  left: -14px !important;
+}
+
+.new-arrivals-nav-next {
+  right: -14px !important;
+}
+
+/* ── Product Card: Full Size (340px) ── */
+.new-arrival-card {
+  display: flex !important;
+  flex-direction: column !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  cursor: pointer !important;
+  position: relative !important;
+  flex: 0 0 340px !important;
+  width: 340px !important;
+  max-width: 340px !important;
+  scroll-snap-align: start !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.new-arrival-skeleton-item {
+  flex: 0 0 340px !important;
+  width: 340px !important;
+  max-width: 340px !important;
+  scroll-snap-align: start !important;
+}
+
+/* ── Compact Portrait Image Box (Sharp Rectangular Edges) ── */
+.new-arrival-img-box {
+  position: relative !important;
+  width: 100% !important;
+  aspect-ratio: 3 / 4 !important;
+  background: #f5f5f5 !important;
+  overflow: hidden !important;
+  border-radius: 0 !important;
+  display: block !important;
+}
+
+.new-arrival-img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center top !important;
+  display: block !important;
+  border-radius: 0 !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* ── Floating 'Add To Cart' Button at Bottom-Right Inside Image ── */
+.new-arrival-add-cart-btn {
+  position: absolute !important;
+  bottom: 12px !important;
+  right: 12px !important;
+  background: #ffffff !important;
+  border: none !important;
+  border-radius: 4px !important;
+  padding: 6px 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+  color: var(--blue-primary, #002277) !important;
+  font-family: var(--font-body) !important;
+  font-size: 11.5px !important;
+  font-weight: 700 !important;
+  cursor: pointer !important;
+  box-shadow: none !important;
+  z-index: 2 !important;
+  transition: all 0.2s ease !important;
+  white-space: nowrap !important;
+}
+
+.new-arrival-add-cart-btn:hover {
+  background: var(--blue-primary, #002277) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.new-arrival-add-cart-btn:disabled,
+.new-arrival-add-cart-btn.in-cart {
+  background: #f3f4f6 !important;
+  color: #9ca3af !important;
+  cursor: not-allowed !important;
+  opacity: 0.8 !important;
+  box-shadow: none !important;
+  pointer-events: none !important;
+}
+
+.new-arrival-add-cart-btn svg {
+  stroke: currentColor !important;
+}
+
+/* ── Product Info Below Image (Left-Aligned Title & Price) ── */
+.new-arrival-info {
+  padding: 12px 0 0 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  text-align: left !important;
+  align-items: flex-start !important;
+}
+
+.new-arrival-name {
+  font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 16px !important;
+  font-weight: 700 !important;
+  color: #000000 !important;
+  margin: 0 0 4px 0 !important;
+  line-height: 1.35 !important;
+  text-align: left !important;
+  text-transform: capitalize !important;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.new-arrival-price-row {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: flex-start !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+  margin-top: 2px !important;
+}
+
+.new-arrival-price {
+  font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: #111111 !important;
+  margin: 0 !important;
+  text-align: left !important;
+  line-height: 1.2 !important;
+}
+
+.new-arrival-mrp-cut {
+  font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 13.5px !important;
+  font-weight: 400 !important;
+  color: #888888 !important;
+  text-decoration: line-through !important;
+  line-height: 1.2 !important;
+}
+
+.new-arrival-discount-badge {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  background: var(--blue-primary, #002277) !important;
+  color: #ffffff !important;
+  font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.5px !important;
+  padding: 5px 8px !important;
+  border-radius: 0 !important;
+  line-height: 1.2 !important;
+  text-align: center !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 2 !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12) !important;
+  text-transform: uppercase !important;
+  pointer-events: none !important;
+  box-sizing: border-box !important;
+}
+
+.new-arrivals-empty {
+  text-align: center;
+  padding: 40px 20px;
+  color: #888;
+  font-size: 15px;
+}
+
+/* ── Tablet Responsiveness (769px to 1024px) ── */
+@media (max-width: 1024px) {
+  .new-arrivals-section {
+    width: calc(100% - 24px);
+    margin: 32px auto 48px;
+    padding: 0 8px;
+  }
+
+  .new-arrivals-title {
+    font-size: 38px !important;
+    line-height: 48px !important;
+    text-align: center !important;
+  }
+
+  .new-arrivals-grid {
+    gap: 20px !important;
+  }
+
+  .new-arrival-card,
+  .new-arrival-skeleton-item {
+    flex: 0 0 340px !important;
+    width: 340px !important;
+    max-width: 340px !important;
+  }
+
+  .new-arrival-name {
+    font-size: 15px !important;
+  }
+
+  .new-arrival-price {
+    font-size: 14px !important;
+  }
+}
+
+/* ── Mobile Responsiveness (<= 768px): 2 Columns ── */
+@media (max-width: 768px) {
+  .new-arrivals-section {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin: 24px auto 36px !important;
+    padding: 0 16px !important;
+    box-sizing: border-box !important;
+  }
+
+  .new-arrivals-header-row {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-align: center !important;
+    gap: 6px !important;
+    margin-bottom: 18px !important;
+  }
+
+  .new-arrivals-title {
+    font-size: 28px !important;
+    line-height: 36px !important;
+    text-align: center !important;
+  }
+
+  .new-arrivals-subtitle {
+    font-size: 13.5px !important;
+    margin-top: 4px !important;
+    text-align: center !important;
+  }
+
+  .new-arrivals-tabs {
+    gap: 8px !important;
+  }
+
+  .new-arrivals-tab-btn {
+    font-size: 12px !important;
+    padding: 5px 14px !important;
+    border-radius: 5px !important;
+  }
+
+  .new-arrivals-grid {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 16px 12px !important;
+    overflow-x: visible !important;
+    overflow-y: visible !important;
+    scroll-snap-type: none !important;
+    padding: 0 !important;
+    justify-content: center !important;
+    justify-items: center !important;
+  }
+
+  .new-arrivals-grid:has(> .new-arrival-card:only-child),
+  .new-arrivals-grid.single-item {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+  }
+
+  .new-arrivals-grid:has(> .new-arrival-card:only-child) .new-arrival-card,
+  .new-arrivals-grid.single-item .new-arrival-card {
+    max-width: 320px !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+  }
+
+  .new-arrival-card,
+  .new-arrival-skeleton-item {
+    flex: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .new-arrivals-nav-btn {
+    display: none !important;
+  }
+
+  .new-arrival-card,
+  .new-arrival-img-box,
+  .new-arrival-img {
+    border-radius: 0 !important;
+  }
+
+  .new-arrival-add-cart-btn {
+    bottom: 8px !important;
+    right: 8px !important;
+    padding: 5px 8px !important;
+    font-size: 10.5px !important;
+    gap: 4px !important;
+    border-radius: 4px !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12) !important;
+    max-width: calc(100% - 16px) !important;
+  }
+
+  .new-arrival-add-cart-btn svg {
+    width: 12px !important;
+    height: 12px !important;
+  }
+
+  .new-arrival-info {
+    padding: 6px 0 0 0 !important;
+    align-items: flex-start !important;
+    text-align: left !important;
+  }
+
+  .new-arrival-name {
+    font-size: 13.5px !important;
+    line-height: 1.25 !important;
+    margin: 0 0 2px 0 !important;
+    min-height: unset !important;
+    text-align: left !important;
+  }
+
+  .new-arrival-price-row {
+    justify-content: flex-start !important;
+  }
+
+  .new-arrival-price {
+    font-size: 13.5px !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+    margin: 0 !important;
+    text-align: left !important;
+  }
+
+  .new-arrival-mrp-cut {
+    font-size: 12px !important;
+  }
+
+  .new-arrival-discount-badge {
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    font-size: 10px !important;
+    padding: 4px 6px !important;
+  }
+}
+
+/* ── Small Mobile (<= 480px) ── */
+@media (max-width: 480px) {
+  .new-arrivals-section {
+    margin: 20px auto 30px !important;
+    padding: 0 12px !important;
+  }
+
+  .new-arrivals-header-row {
+    gap: 10px !important;
+    margin-bottom: 14px !important;
+  }
+
+  .new-arrivals-title {
+    font-size: 24px !important;
+    line-height: 30px !important;
+    text-align: center !important;
+  }
+
+  .new-arrivals-subtitle {
+    font-size: 12.5px !important;
+    text-align: center !important;
+  }
+
+
+  .new-arrivals-tab-btn {
+    font-size: 11.5px !important;
+    padding: 4px 12px !important;
+  }
+
+  .new-arrivals-grid {
+    gap: 14px 10px !important;
+  }
+
+  .new-arrival-card,
+  .new-arrival-skeleton-item {
+    flex: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .new-arrival-add-cart-btn {
+    bottom: 6px !important;
+    right: 6px !important;
+    padding: 4px 7px !important;
+    font-size: 10px !important;
+    gap: 3px !important;
+  }
+
+  .new-arrival-add-cart-btn svg {
+    width: 11px !important;
+    height: 11px !important;
+  }
+
+  .new-arrival-info {
+    padding: 5px 0 0 0 !important;
+  }
+
+  .new-arrival-name {
+    font-size: 12.5px !important;
+    line-height: 1.25 !important;
+    margin: 0 0 1px 0 !important;
+    min-height: unset !important;
+  }
+
+  .new-arrival-price {
+    font-size: 12.5px !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+    margin: 0 !important;
+  }
+
+  .new-arrival-mrp-cut {
+    font-size: 11px !important;
+  }
+
+  .new-arrival-discount-badge {
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    font-size: 9.5px !important;
+    padding: 3px 5px !important;
+    border-radius: 0 !important;
+  }
+}
+
+/* ── Extra Small Mobile (<= 360px) ── */
+@media (max-width: 360px) {
+  .new-arrivals-section {
+    padding: 0 10px !important;
+  }
+
+  .new-arrivals-title {
+    font-size: 21px !important;
+    line-height: 26px !important;
+    text-align: center !important;
+  }
+
+  .new-arrivals-subtitle {
+    font-size: 11.5px !important;
+  }
+
+  .new-arrivals-grid {
+    gap: 12px 8px !important;
+  }
+
+  .new-arrival-card,
+  .new-arrival-skeleton-item {
+    flex: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .new-arrival-add-cart-btn {
+    padding: 3px 6px !important;
+    font-size: 9.5px !important;
+  }
+
+  .new-arrival-info {
+    padding: 4px 0 0 0 !important;
+  }
+
+  .new-arrival-name {
+    font-size: 11.5px !important;
+    line-height: 1.2 !important;
+    margin: 0 0 1px 0 !important;
+    min-height: unset !important;
+  }
+
+  .new-arrival-price {
+    font-size: 11.5px !important;
+    line-height: 1.2 !important;
+    margin: 0 !important;
+  }
+}

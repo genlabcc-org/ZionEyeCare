@@ -1,0 +1,204 @@
+/* ── AdminAccount.css ── */
+
+.aa {
+  width: 100%;
+  padding: 24px 32px;
+  box-sizing: border-box;
+  background: #ffffff;
+  min-height: 100%;
+  font-family: inherit;
+}
+
+@media (max-width: 768px) {
+  .aa {
+    padding: 16px;
+  }
+}
+
+/* Page header is managed via Dashboard top navbar */
+.aa__page-header {
+  display: none !important;
+}
+
+
+
+/* ── 2-column grid ── */
+.aa__grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px 20px;
+}
+
+@media (max-width: 768px) {
+  .aa__grid-2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Field ── */
+.aa__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.aa__label {
+  font-size: 13px;
+  font-weight: 500;
+  color: #334155;
+}
+
+.aa__input {
+  height: 40px;
+  padding: 0 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 13.5px;
+  color: #0f172a;
+  background: #ffffff;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  box-sizing: border-box;
+  width: 100%;
+  font-family: inherit;
+}
+
+.aa__input::placeholder {
+  color: #94a3b8;
+}
+
+.aa__input:focus {
+  border-color: #0A2582;
+  box-shadow: 0 0 0 2px rgba(10, 37, 130, 0.1);
+}
+
+
+
+.aa__btn-save {
+  height: 40px;
+  padding: 0 22px;
+  background: var(--admin-primary);
+  color: #ffffff;
+  font-size: 13.5px;
+  font-weight: 600;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: opacity 0.15s ease, background 0.15s ease;
+  font-family: inherit;
+}
+
+.aa__btn-save:hover {
+  background: var(--admin-primary-hover);
+  opacity: 0.95;
+}
+
+/* ── User Avatar & Info inside Table ── */
+.aa__user-cell {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.aa__avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #0f172a;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  letter-spacing: -0.5px;
+}
+
+.aa__user-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.aa__user-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.aa__user-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.aa__you-pill {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  background: #eff6ff;
+  color: #2563eb;
+  padding: 2px 7px;
+  border-radius: 999px;
+  letter-spacing: 0.5px;
+  border: 1px solid #bfdbfe;
+}
+
+.aa__user-sub {
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* ── Empty State ── */
+.aa__empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #64748b;
+}
+
+.aa__empty-state-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 4px;
+}
+
+
+
+.aa__btn-secondary {
+  height: 40px;
+  padding: 0 18px;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: #334155;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  font-family: inherit;
+}
+
+.aa__btn-secondary:hover {
+  background: #f1f5f9;
+  border-color: #cbd5e1;
+}
+
+.aa__btn-danger {
+  height: 40px;
+  padding: 0 18px;
+  background: #dc2626;
+  border: none;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #ffffff;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  font-family: inherit;
+}
+
+.aa__btn-danger:hover {
+  opacity: 0.9;
+}
