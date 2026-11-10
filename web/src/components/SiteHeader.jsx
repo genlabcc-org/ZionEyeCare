@@ -502,7 +502,7 @@ export default function SiteHeader({ activeLink = "", onLinkClick }) {
             onClick={() => navigate("/")}
             style={{ cursor: "pointer" }}
           >
-            <img src="/logo.png" alt="FAY WALK" className="header-logo-img" />
+            <img src="/zionlogo.png" alt="Zion Eye Care" className="header-logo-img" />
           </div>
 
           {/* Center: Desktop Navigation Links */}

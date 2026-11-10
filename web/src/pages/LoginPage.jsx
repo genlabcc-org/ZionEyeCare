@@ -106,11 +106,6 @@ export default function LoginPage() {
 
       {/* RIGHT — login form */}
       <div className="jewelry-right">
-        <Link to="/">
-          <div className="jewelry-logo">
-            <img src="/logo.png" alt="Faywalk Logo" style={{ borderRadius: 0, height: 42, width: 135 }} />
-          </div>
-        </Link>
         <div className="jewelry-form-wrapper">
 
           <h2 className="jewelry-title">Login</h2>

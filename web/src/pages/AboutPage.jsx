@@ -43,7 +43,7 @@ export default function AboutPage() {
         <div className="policy-card about-card">
           {/* Top Logo */}
           <div className="about-logo-header">
-            <img src="/logo.png" alt="Faywalk Logo" className="about-top-logo" />
+            <img src="/zionlogo.png" alt="Zion Eye Care Logo" className="about-top-logo" />
           </div>
 
           <div className="about-header-center">

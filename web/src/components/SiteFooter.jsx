@@ -22,13 +22,13 @@ const SiteFooter = () => {
 
           {/* Column 1: Brand Info */}
           <div className="fw-col fw-brand-col">
-            <Link to="/" className="fw-logo-wrap" aria-label="Faywalk Home">
-              <img src="/logo.png" alt="FAYWALK" className="fw-logo-img" />
+            <Link to="/" className="fw-logo-wrap" aria-label="Zion Eye Care Home">
+              <img src="/zionlogo.png" alt="Zion Eye Care" className="fw-logo-img" />
             </Link>
             <p className="fw-brand-desc">Refined everyday essentials crafted for effortless elegance.</p>
 
             <div className="fw-brand-bottom fw-desktop-only">
-              <p className="fw-copy">&copy; {new Date().getFullYear()} FAYWALK</p>
+              <p className="fw-copy">&copy; {new Date().getFullYear()} Zion Eye Care</p>
               <Link to="/privacy" className="fw-privacy-link">
                 Privacy Policy
               </Link>
@@ -92,7 +92,7 @@ const SiteFooter = () => {
 
         {/* Mobile / Tablet Bottom Bar */}
         <div className="fw-mobile-bottom-bar">
-          <p className="fw-copy">&copy; {new Date().getFullYear()} FAYWALK</p>
+          <p className="fw-copy">&copy; {new Date().getFullYear()} Zion Eye Care</p>
           <Link to="/privacy" className="fw-privacy-link">
             Privacy Policy
           </Link>
@@ -101,7 +101,7 @@ const SiteFooter = () => {
 
       {/* Giant Bottom Watermark */}
       <div className="fw-giant-watermark" aria-hidden="true">
-        FAYWALKVIBEE
+        ZION EYE CARE
       </div>
     </footer>
   );

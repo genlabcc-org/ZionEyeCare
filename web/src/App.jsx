@@ -49,7 +49,7 @@ function ScrollToTop() {
 }
 
 // Custom Category / Products Page
-function CategoryBySlug(){
+function CategoryBySlug() {
   const { slug } = useParams();
   const categories = useStore(state => state.categories);
   const fetchCategories = useStore(state => state.fetchCategories);
@@ -75,11 +75,11 @@ function CategoryBySlug(){
 
   const match = categories.find(
     c => c.slug === slug ||
-         c.slug === normalizedSlug ||
-         (c.name || '').toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') === normalizedSlug
+      c.slug === normalizedSlug ||
+      (c.name || '').toLowerCase().trim().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '') === normalizedSlug
   );
 
-  if (!checked){
+  if (!checked) {
     return null;
   }
 

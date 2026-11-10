@@ -2748,7 +2748,7 @@ const Dashboard = () => {
         {/* Sidebar */}
         <aside className={`db__sidebar${sidebarOpen ? " db__sidebar--open" : ""}`}>
           <div className="db__sidebar-brand">
-            <img src="/logo.png" alt="FAYWALK" className="db__brand-logo" style={{ borderRadius: 0 }} />
+            <img src="/zionlogo.png" alt="Zion Eye Care" className="db__brand-logo" style={{ borderRadius: 0, height: 40, width: "auto", objectFit: "contain" }} />
           </div>
           <nav className="db__sidenav">
             {menuItems.map((item) => {

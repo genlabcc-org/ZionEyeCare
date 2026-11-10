@@ -32,9 +32,9 @@
   box-shadow: none;
 }
 
-/* Left Section: Navy background with monospace text */
+/* Left Section: Monospace text */
 .split-btn-text {
-  background-color: var(--blue-darker);
+  background-color: #3B71C1;
   color: #ffffff;
   font-family: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
   font-size: 16px;
@@ -49,12 +49,12 @@
 }
 
 .split-btn:hover .split-btn-text {
-  background-color: var(--blue-deep);
+  background-color: #3262aa;
 }
 
-/* Right Section: Vibrant Red icon block */
+/* Right Section: Icon block */
 .split-btn-icon {
-  background-color: #e5281b;
+  background-color: #51ADE8;
   color: #ffffff;
   width: 48px;
   display: flex;
@@ -66,7 +66,7 @@
 }
 
 .split-btn:hover .split-btn-icon {
-  background-color: #f02f21;
+  background-color: #439dd8;
 }
 
 .split-btn-arrow {
