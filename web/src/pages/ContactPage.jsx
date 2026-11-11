@@ -9,11 +9,11 @@ export default function ContactPage() {
   const contactSchema = {
     '@context': 'https://schema.org',
     '@type': 'ContactPage',
-    name: 'FAYWALK Customer Support',
-    description: 'Contact FAYWALK for support, order inquiries, and customer service.',
+    name: 'Zion Eye Care Clinic Support',
+    description: 'Contact Zion Eye Care Clinic for vision care appointments, optical lens inquiries, and eyewear consultations.',
     mainEntity: {
       '@type': 'Organization',
-      name: 'FAYWALK',
+      name: 'Zion Eye Care Clinic',
       telephone: '+91-63798-38682',
       email: 'faywalkvibee@gmail.com',
       address: {
@@ -30,9 +30,9 @@ export default function ContactPage() {
   return (
     <div className="homepage">
       <SEO
-        title="Contact Us | Customer Support & Inquiries"
-        description="Have questions about your order, sizing, or product details? Contact FAYWALK customer care via email, phone, or message. We are here to help."
-        canonical="https://www.faywalk.com/contact"
+        title="Contact Us | Zion Eye Care Clinic"
+        description="Have questions about our eye tests, prescription lenses, or eyeglasses? Contact Zion Eye Care Clinic via email, phone, or visit our clinic. We are here to help."
+        canonical="https://www.zioneyecare.com/contact"
         breadcrumbs={[
           { name: 'Home', path: '/' },
           { name: 'Contact Us', path: '/contact' },

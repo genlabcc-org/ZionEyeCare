@@ -28,16 +28,16 @@ export default function AboutPage() {
   return (
     <div className="policy-root">
       <SEO
-        title="About Us | FAYWALK – Fashion Tomorrow"
-        description="Established in 2004 under the Seyad Group of Companies, Faywalk Fashion makes exceptional comfort, quality, and style accessible to everyone."
-        canonical="https://www.faywalk.com/about"
+        title="About Us | Zion Eye Care Clinic – Eye Care & Vision"
+        description="Zion Eye Care Clinic provides advanced optical lenses, comprehensive vision diagnostics, and high-quality frames for clear and comfortable vision."
+        canonical="https://www.zioneyecare.com/about"
         breadcrumbs={[
           { name: 'Home', path: '/' },
           { name: 'About Us', path: '/about' },
         ]}
       />
       <TopBar />
-      <SiteHeader activeLink="About" onLinkClick={handleHeaderLinkClick} />
+      <SiteHeader activeLink="About Zion Eye Care" onLinkClick={handleHeaderLinkClick} />
 
       <section className="policy-section">
         <div className="policy-card about-card">
@@ -47,53 +47,52 @@ export default function AboutPage() {
           </div>
 
           <div className="about-header-center">
-            <span className="policy-badge">Since 2004 · Seyad Group</span>
-            <h1 className="policy-h1">About Faywalk</h1>
+            <span className="policy-badge">Precision Eye Care · Optical Excellence</span>
+            <h1 className="policy-h1">About Zion Eye Care Clinic</h1>
           </div>
 
           <p className="policy-intro about-lead">
-            Established in 2004, under the <strong>Seyad Group of Companies</strong>,{' '}
-            <strong>Faywalk Fashion</strong> began its journey in the southern region of Tamil Nadu with a
-            simple yet powerful belief:{' '}
-            <em>Comfort and quality should never be a luxury; they should be accessible to everyone.</em>
+            At <strong>Zion Eye Care Clinic</strong>, we are committed to safeguarding and enhancing the gift of sight.
+            Founded with a passion for clinical accuracy, compassionate service, and modern optical innovation, we
+            provide comprehensive eye care and personalized vision solutions for individuals and families.
           </p>
 
           <p className="policy-p">
-            From our humble beginnings in South Tamil Nadu, we have grown into an established apparel
-            manufacturing company. With a growing network of showrooms and an expanding business presence,
-            we are taking our products across India.
+            Clear, comfortable vision is foundational to everyday life — from reading and driving to screen work and
+            enjoying the outdoors. Our clinic is equipped with advanced computerized refraction and diagnostic instruments
+            that allow our experienced optometrists to assess your visual acuity, eye strain levels, and overall ocular health
+            with unmatched precision.
           </p>
 
           <p className="policy-p">
-            At Faywalk, we believe that fashion is for everyone. Our mission is to make quality clothing
-            accessible to people from every walk of life without compromising on comfort, durability or
-            style. Whether it is everyday essentials or fashionable apparel, we strive to deliver products
-            that make people feel comfortable and confident, because confidence starts from within.
+            We offer an extensive selection of internationally certified ophthalmic lenses tailored to your prescription
+            and lifestyle needs. Whether you need single vision lenses, advanced digital progressive lenses, blue-light
+            filtering coatings for digital devices, occupational bifocals, or sun-protective prescription sunglasses,
+            we partner with premier optical laboratories to deliver crystal-clear clarity and effortless visual comfort.
           </p>
 
           <p className="policy-p">
-            Our diverse product range includes formal shirts, casual shirts, formal trousers, T-shirts,
-            trousers, vests and briefs. With capabilities in bulk manufacturing, customisation and
-            institutional orders, we serve a wide range of business and consumer requirements.
-          </p>
-
-          <p className="policy-p">
-            Backed by the strength of the <strong>Seyad Group</strong>, including{' '}
-            <strong>Seyad Spinning Mills</strong> and <strong>Fathimuthu Amma Mills</strong>, we continue to
-            strengthen our manufacturing capabilities and expand our horizons.
+            In addition to high-performance lenses, we curate a versatile collection of premium eyeglass frames for Men,
+            Women, and Juniors — blending lightweight ergonomics, durability, and contemporary style. Our dedicated optical
+            specialists guide each patient through tailored frame styling, accurate pupillary distance (PD) measurements,
+            and precise fitting to ensure your glasses feel as good as they look.
           </p>
 
           <div className="policy-contact-block about-vision-block">
             <h2 className="policy-h2">OUR VISION</h2>
+            <p className="policy-p" style={{ marginBottom: 16 }}>
+              To be the most trusted and caring optical destination in the region, recognized for diagnostic precision,
+              state-of-the-art lens technologies, and patient-first service that enriches quality of life through better vision.
+            </p>
+            <h2 className="policy-h2" style={{ marginTop: 20 }}>OUR MISSION</h2>
             <p className="policy-p" style={{ marginBottom: 0 }}>
-              To become a trusted global fashion brand that makes exceptional comfort, quality and style
-              accessible to everyone. We envision a world where looking good and feeling comfortable are not
-              privileges reserved for a few, but everyday experiences available to all.
+              To empower every patient with clear, comfortable, and healthy vision by delivering thorough clinical eye examinations,
+              high-quality custom-crafted eyewear, and expert eye care guidance with warmth, integrity, and affordability.
             </p>
           </div>
 
           <div className="about-tagline-footer">
-            <span>Faywalk – Fashion Tomorrow</span>
+            <span>Zion Eye Care Clinic – Clear Vision for a Brighter Tomorrow</span>
           </div>
         </div>
       </section>

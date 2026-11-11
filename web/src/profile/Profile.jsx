@@ -244,7 +244,7 @@ export default function Profile() {
           <div className="profile-action-text">
             <span className="profile-action-title">Sign Out</span>
             <span className="profile-action-desc">
-              Sign out of your Faywalk account on this device.
+              Sign out of your Zion Eye Care account on this device.
             </span>
           </div>
           <button className="profile-logout-btn" onClick={handleLogoutClick}>
@@ -274,7 +274,7 @@ export default function Profile() {
               Delete Account
             </span>
             <span className="profile-action-desc">
-              Permanently delete your Faywalk account and all associated data.
+              Permanently delete your Zion Eye Care account and all associated data.
             </span>
             {hasActiveOrders && (
               <span className="profile-action-warning">

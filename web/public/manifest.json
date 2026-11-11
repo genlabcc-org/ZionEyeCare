@@ -1,10 +1,10 @@
 {
-  "short_name": "FAYWALK",
-  "name": "FAYWALK Innerwear & Clothing",
-  "description": "Premium Innerwear and Comfortable Clothing for Men and Women",
+  "short_name": "Zion Eye Care",
+  "name": "Zion Eye Care Clinic | Eye Care & Vision",
+  "description": "Zion Eye Care Clinic - Premium optical lenses, eyeglasses, sunglasses, and comprehensive vision solutions.",
   "icons": [
     {
-      "src": "/logo.png",
+      "src": "/zionlogo.png",
       "sizes": "192x192 512x512",
       "type": "image/png",
       "purpose": "any maskable"

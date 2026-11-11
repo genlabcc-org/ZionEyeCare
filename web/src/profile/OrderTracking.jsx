@@ -394,7 +394,7 @@ export default function OrderTracking() {
   return (
     <>
       <SEO
-        title={`Track Order #${orderId || ''} | FAYWALK`}
+        title={`Track Order #${orderId || ''} | Zion Eye Care Clinic`}
         robots="noindex, nofollow"
       />
       <Navbar />

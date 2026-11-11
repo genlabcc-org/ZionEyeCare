@@ -69,8 +69,8 @@ export default function ProfileLayout({ children }) {
   return (
     <>
       <SEO
-        title="My Account | FAYWALK"
-        description="Manage your FAYWALK profile, saved addresses, and order history."
+        title="My Account | Zion Eye Care"
+        description="Manage your Zion Eye Care profile, saved addresses, and order history."
         robots="noindex, nofollow"
       />
       <TopBar />

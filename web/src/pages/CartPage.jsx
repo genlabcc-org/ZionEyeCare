@@ -98,7 +98,7 @@ export default function CartPage() {
   return (
     <>
       <SEO
-        title="Your Shopping Bag | FAYWALK"
+        title="Your Shopping Bag | Zion Eye Care"
         description="Review items in your shopping bag and proceed to checkout."
         robots="noindex, follow"
       />

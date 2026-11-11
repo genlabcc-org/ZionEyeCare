@@ -44,7 +44,7 @@ export default function AdminRoute({ children }) {
 
   return (
     <>
-      <SEO title="Admin Console | FAYWALK" robots="noindex, nofollow" />
+      <SEO title="Admin Console | Zion Eye Care Clinic" robots="noindex, nofollow" />
       {children}
     </>
   );

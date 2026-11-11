@@ -6,6 +6,9 @@ import { useStore } from "../hooks/useStore";
 import { getUserInitials } from "../utils/avatarUtils";
 import { getNavPath } from "../services/categoryRoute";
 import LogoutModal from "./LogoutModal";
+import iconMen from "../assets/icons/people/icon_men.png";
+import iconWomen from "../assets/icons/people/icon_women.png";
+import iconJunior from "../assets/icons/people/icon_junior.png";
 import "./SiteHeader.css";
 
 // ── Eyecare Default Categories (Lenses, Eyeglasses, Sunglasses, Safety Glasses) ──
@@ -14,32 +17,48 @@ const DEFAULT_EYECARE_NAV_ITEMS = [
     name: "Lenses",
     slug: "lenses",
     hasDropdown: true,
+    isMegaMenu: true,
     path: "/category/lenses",
     subcategories: [
       {
-        name: "Single Vision",
-        slug: "single-vision",
+        name: "Lenses",
+        slug: "all-lenses",
         icon: "https://www.novaeyewear.com/static/frontend/Nova/Novaeyewear/en_US/images/mnu_Icon_lens_00.png",
       },
       {
-        name: "Bifocals",
-        slug: "bifocals",
-        icon: "https://www.novaeyewear.com/static/frontend/Nova/Novaeyewear/en_US/images/mnu_Icon_lens_01.png",
+        name: "Nova Ai",
+        slug: "nova-ai",
+        icon: "https://www.novaeyewear.com/static/frontend/Nova/Novaeyewear/en_US/images/mnu_Icon_nova_ai_00.png",
       },
       {
-        name: "Progressive Lenses",
-        slug: "progressive-lenses",
-        icon: "https://www.novaeyewear.com/static/frontend/Nova/Novaeyewear/en_US/images/mnu_Icon_lens_02.png",
+        name: "Single Vision",
+        slug: "single-vision",
+        icon: "https://www.novaeyewear.com/static/frontend/Nova/Novaeyewear/en_US/images/mnu_Icon_sv_00.png",
       },
       {
-        name: "Blue Light Blocking",
-        slug: "blue-light-blocking",
-        icon: "https://www.novaeyewear.com/static/frontend/Nova/Novaeyewear/en_US/images/mnu_Icon_lens_03.png",
+        name: "Progressive",
+        slug: "progressive",
+        icon: "https://www.novaeyewear.com/static/frontend/Nova/Novaeyewear/en_US/images/mnu_Icon_ps_00.png",
       },
       {
-        name: "Photochromic",
-        slug: "photochromic",
-        icon: "https://www.novaeyewear.com/static/frontend/Nova/Novaeyewear/en_US/images/mnu_Icon_lens_04.png",
+        name: "Sun & Sports",
+        slug: "sun-sports",
+        icon: "https://www.novaeyewear.com/static/frontend/Nova/Novaeyewear/en_US/images/mnu_Icon_ss_00.png",
+      },
+      {
+        name: "Occupational",
+        slug: "occupational",
+        icon: "https://www.novaeyewear.com/static/frontend/Nova/Novaeyewear/en_US/images/mnu_Icon_occ_00.png",
+      },
+      {
+        name: "Bifocal",
+        slug: "bifocal",
+        icon: "https://www.novaeyewear.com/static/frontend/Nova/Novaeyewear/en_US/images/mnu_Icon_bifocal_00.png",
+      },
+      {
+        name: "Drive",
+        slug: "drive",
+        icon: "https://www.novaeyewear.com/static/frontend/Nova/Novaeyewear/en_US/images/mnu_Icon_drive_00.png",
       },
     ],
   },
@@ -49,11 +68,9 @@ const DEFAULT_EYECARE_NAV_ITEMS = [
     hasDropdown: true,
     path: "/category/eyeglasses",
     subcategories: [
-      { name: "Men's Eyeglasses", slug: "mens-eyeglasses" },
-      { name: "Women's Eyeglasses", slug: "womens-eyeglasses" },
-      { name: "Kids' Eyeglasses", slug: "kids-eyeglasses" },
-      { name: "Rimless & Semi-Rimless", slug: "rimless" },
-      { name: "Full Rim", slug: "full-rim" },
+      { name: "Men", slug: "men", icon: iconMen },
+      { name: "Women", slug: "women", icon: iconWomen },
+      { name: "Junior", slug: "junior", icon: iconJunior },
     ],
   },
   {
@@ -62,10 +79,9 @@ const DEFAULT_EYECARE_NAV_ITEMS = [
     hasDropdown: true,
     path: "/category/sunglasses",
     subcategories: [
-      { name: "Polarized Sunglasses", slug: "polarized" },
-      { name: "Aviator", slug: "aviator" },
-      { name: "Wayfarer", slug: "wayfarer" },
-      { name: "Round & Cat Eye", slug: "round-cat-eye" },
+      { name: "Men", slug: "men", icon: iconMen },
+      { name: "Women", slug: "women", icon: iconWomen },
+      { name: "Junior", slug: "junior", icon: iconJunior },
     ],
   },
   {
@@ -76,7 +92,7 @@ const DEFAULT_EYECARE_NAV_ITEMS = [
     subcategories: [],
   },
   {
-    name: "About Nova",
+    name: "About Zion Eye Care",
     slug: "about",
     hasDropdown: false,
     path: "/about",
@@ -299,33 +315,42 @@ const DesktopNavItem = ({ item, onItemClick, onSubClick, isActive }) => {
       </button>
 
       {hasDropdown && open && (
-        <div className="nav-popup">
-          {/* All [Category] shortcut */}
-          <button
-            type="button"
-            className="nav-popup-item nav-popup-item--all"
-            onClick={(e) => handleSubSelect(null, e)}
-          >
-            All {item.name}
-          </button>
+        <div className={`nav-popup ${item.isMegaMenu ? "nav-popup--grid" : "nav-popup--list"}`}>
           {subcategories.map((sub) => (
             <button
               type="button"
               key={sub.slug || sub.name}
-              className="nav-popup-item"
+              className={`nav-popup-item ${item.isMegaMenu ? "nav-popup-item--grid" : "nav-popup-item--list"}`}
               onClick={(e) => handleSubSelect(sub, e)}
             >
               {sub.icon && (
                 <img
                   src={sub.icon}
                   alt=""
-                  className="nav-popup-item-icon"
+                  className={item.isMegaMenu ? "nav-popup-item-icon" : "nav-popup-list-icon"}
                   onError={(e) => {
                     e.currentTarget.style.display = "none";
                   }}
                 />
               )}
-              <span>{sub.name}</span>
+              <span className="nav-popup-item-label">{sub.name}</span>
+              {!item.isMegaMenu && (
+                <svg
+                  className="nav-popup-arrow"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  width="16"
+                  height="16"
+                >
+                  <path
+                    d="M9 18l6-6-6-6"
+                    stroke="#1a1a1a"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              )}
             </button>
           ))}
         </div>
@@ -469,7 +494,7 @@ export default function SiteHeader({ activeLink = "", onLinkClick }) {
   const navItems = useMemo(() => {
     // If DB categories are loaded, use them; otherwise use the requested Eyecare navigation
     if (categoryNavItems && categoryNavItems.length > 0) {
-      return [...categoryNavItems, { name: "About Nova", path: "/about", hasDropdown: false }];
+      return [...categoryNavItems, { name: "About Zion Eye Care", path: "/about", hasDropdown: false }];
     }
     return DEFAULT_EYECARE_NAV_ITEMS;
   }, [categoryNavItems]);

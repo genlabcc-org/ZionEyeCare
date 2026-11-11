@@ -21,7 +21,7 @@ export default function NotFoundPage() {
   return (
     <div className="not-found-page">
       <SEO
-        title="Page Not Found (404) | FAYWALK"
+        title="Page Not Found (404) | Zion Eye Care Clinic"
         description="The page you requested could not be found."
         robots="noindex, follow"
       />

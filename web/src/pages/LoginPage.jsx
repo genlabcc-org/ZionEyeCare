@@ -93,8 +93,8 @@ export default function LoginPage() {
   return (
     <div className="jewelry-page">
       <SEO
-        title="Sign In | FAYWALK"
-        description="Sign in to your FAYWALK account to track orders and manage your profile."
+        title="Sign In | Zion Eye Care"
+        description="Sign in to your Zion Eye Care account to track orders and manage your profile."
         robots="noindex, follow"
       />
       <div className="jewelry-left">

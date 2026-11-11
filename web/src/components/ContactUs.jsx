@@ -59,7 +59,7 @@ const ContactUs = () => {
       <div className="contactus-heading-wrap">
         <h2 className="contactus-heading">Contact Us</h2>
         <p className="contactus-subtext">
-          For More Information about working with Faywalk.
+          For More Information about Zion Eye Care Clinic.
           <br />
           Please call us or complete the contact form below
         </p>
@@ -174,7 +174,7 @@ const ContactUs = () => {
       <div className="contactus-bottom">
         <div className="contactus-map-wrap">
           <iframe
-            title="Faywalk Location – Chettikulam, Palayamkottai"
+            title="Zion Eye Care Clinic Location – Chettikulam, Palayamkottai"
             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3943.8!2d77.7595!3d8.7059!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3b04125db4ccca1b%3A0x0!2zOMKwNDInMjEuMiJOIDc3wrA0NSczNS43IkU!5e0!3m2!1sen!2sin!4v1700000000000"
             width="100%"
             height="100%"
@@ -189,7 +189,7 @@ const ContactUs = () => {
           <div className="contactus-info-block">
             <h4 className="contactus-info-label">Address</h4>
             <p className="contactus-info-value">
-              Faywalk Vibe, A52 3RD Main Road, Maharajanagar,
+              Zion Eye Care Clinic, A52 3RD Main Road, Maharajanagar,
               <br />
               Palayamkottai, Tirunelveli–627011
             </p>

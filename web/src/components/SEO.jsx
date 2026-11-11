@@ -1,12 +1,12 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
-const DEFAULT_SITE_TITLE = 'FAYWALK | Premium Innerwear & Clothing';
-const DEFAULT_TITLE = 'FAYWALK | Premium Innerwear & Comfortable Clothing';
-const DEFAULT_DESCRIPTION = 'Discover premium innerwear and everyday comfortable clothing for Men and Women at FAYWALK. Crafted with breathable fabrics for ultimate fit, comfort, and longevity.';
-const DEFAULT_KEYWORDS = 'FAYWALK, innerwear, premium innerwear, men innerwear, women innerwear, cotton trunks, briefs, boxer briefs, vests, camisoles, loungewear, comfortable clothing India';
-const SITE_URL = 'https://www.faywalk.com';
-const DEFAULT_OG_IMAGE = `${SITE_URL}/logo.png`;
+const DEFAULT_SITE_TITLE = 'Zion Eye Care Clinic | Eye Care & Vision';
+const DEFAULT_TITLE = 'Zion Eye Care Clinic | Eye Care & Vision';
+const DEFAULT_DESCRIPTION = 'Discover premium optical lenses, eyeglasses, sunglasses and eye examination services at Zion Eye Care Clinic. Crafted for clear vision, eye health, and lasting comfort.';
+const DEFAULT_KEYWORDS = 'Zion Eye Care Clinic, eye care, vision clinic, eyeglasses, optical lenses, sunglasses, safety glasses, optometrist, eyewear India';
+const SITE_URL = 'https://www.zioneyecare.com';
+const DEFAULT_OG_IMAGE = `${SITE_URL}/zionlogo.png`;
 
 /**
  * Universal SEO component for managing metadata, OpenGraph, Twitter Cards,
@@ -19,7 +19,7 @@ export default function SEO({
   canonical,
   ogType = 'website',
   ogImage = DEFAULT_OG_IMAGE,
-  ogImageAlt = 'FAYWALK Premium Innerwear',
+  ogImageAlt = 'Zion Eye Care Clinic',
   robots = 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1',
   productData,
   breadcrumbs,
@@ -30,7 +30,7 @@ export default function SEO({
   useEffect(() => {
     // 1. Update Title
     const formattedTitle = title
-      ? (title.includes('FAYWALK') ? title : `${title} | FAYWALK`)
+      ? (title.includes('Zion Eye Care') ? title : `${title} | Zion Eye Care Clinic`)
       : DEFAULT_TITLE;
     document.title = formattedTitle;
 
@@ -69,7 +69,7 @@ export default function SEO({
       ? ogImage
       : `${SITE_URL}${ogImage.startsWith('/') ? '' : '/'}${ogImage}`;
 
-    setMetaTag('property', 'og:site_name', 'FAYWALK');
+    setMetaTag('property', 'og:site_name', 'Zion Eye Care');
     setMetaTag('property', 'og:locale', 'en_IN');
     setMetaTag('property', 'og:title', formattedTitle);
     setMetaTag('property', 'og:description', description);
@@ -145,7 +145,7 @@ export default function SEO({
         description: productData.description || description,
         brand: {
           '@type': 'Brand',
-          name: productData.brand || 'FAYWALK',
+          name: productData.brand || 'Zion Eye Care',
         },
         sku: productData.sku || String(productData.id || ''),
         offers: {
@@ -159,7 +159,7 @@ export default function SEO({
             : 'https://schema.org/InStock',
           seller: {
             '@type': 'Organization',
-            name: 'FAYWALK',
+            name: 'Zion Eye Care',
           },
         },
       };

@@ -88,8 +88,8 @@ export default function SignupPage() {
   return (
     <div className="jewelry-page">
       <SEO
-        title="Create Account | FAYWALK"
-        description="Join FAYWALK to enjoy seamless shopping, order tracking, and exclusive innerwear offers."
+        title="Create Account | Zion Eye Care Clinic"
+        description="Join Zion Eye Care Clinic to enjoy seamless eyewear consultations, prescription tracking, and exclusive optical offers."
         robots="noindex, follow"
       />
       <div className="jewelry-left">

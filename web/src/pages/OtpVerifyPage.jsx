@@ -93,7 +93,7 @@ export default function OtpVerifyPage() {
   return (
     <div className="otp-page">
       <SEO
-        title="Verify OTP | FAYWALK"
+        title="Verify OTP | Zion Eye Care Clinic"
         robots="noindex, nofollow"
       />
 

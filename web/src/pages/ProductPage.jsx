@@ -590,14 +590,14 @@ export default function ProductPage({ category = "Trending" }) {
   }, [totalPages]);
 
   const pageTitle = useMemo(() => {
-    if (searchQueryParam) return `Search: "${searchQueryParam}" | FAYWALK`;
-    if (subcategoryParam) return `${subcategoryParam} - ${category} | FAYWALK`;
-    return `${category} Collection | FAYWALK`;
+    if (searchQueryParam) return `Search: "${searchQueryParam}" | Zion Eye Care Clinic`;
+    if (subcategoryParam) return `${subcategoryParam} - ${category} | Zion Eye Care Clinic`;
+    return `${category} Collection | Zion Eye Care Clinic`;
   }, [searchQueryParam, subcategoryParam, category]);
 
   const pageDescription = useMemo(() => {
-    if (searchQueryParam) return `Browse search results for "${searchQueryParam}" on FAYWALK. Shop premium innerwear and comfortable clothing with superior fit.`;
-    return `Discover the finest ${subcategoryParam ? `${subcategoryParam} in ` : ''}${category} at FAYWALK. Breathable fabrics, ultimate comfort, and modern fit designed for daily wear.`;
+    if (searchQueryParam) return `Browse search results for "${searchQueryParam}" on Zion Eye Care Clinic. Explore premium eyeglasses, sunglasses, and optical lenses.`;
+    return `Discover the finest ${subcategoryParam ? `${subcategoryParam} in ` : ''}${category} at Zion Eye Care Clinic. Premium eyewear crafted for crystal clear vision and all-day comfort.`;
   }, [searchQueryParam, subcategoryParam, category]);
 
   const pageBreadcrumbs = useMemo(() => {
@@ -623,10 +623,10 @@ export default function ProductPage({ category = "Trending" }) {
         keywords={[
           category,
           subcategoryParam,
-          'FAYWALK',
-          'innerwear',
-          'premium clothing',
-          'buy innerwear online',
+          'Zion Eye Care Clinic',
+          'eye care',
+          'optical lenses',
+          'eyeglasses online',
         ].filter(Boolean)}
       />
       <TopBar />

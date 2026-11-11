@@ -46,21 +46,19 @@ export default function HomePage() {
   return (
     <div className="homepage">
       <SEO
-        title="FAYWALK | Premium Innerwear & Comfortable Clothing"
-        description="Discover premium innerwear and everyday comfortable clothing for Men and Women at FAYWALK. High-quality cotton trunks, briefs, vests, camisoles and loungewear crafted for superior fit and lasting comfort."
-        canonical="https://www.faywalk.com"
+        title="Zion Eye Care Clinic | Eye Care & Vision"
+        description="Discover premium optical lenses, eyeglasses, sunglasses, and protective frames at Zion Eye Care Clinic. High-quality vision solutions crafted for clarity and all-day comfort."
+        canonical="https://www.zioneyecare.com"
         keywords={[
-          'FAYWALK',
-          'premium innerwear',
-          'men innerwear',
-          'women innerwear',
-          'cotton trunks',
-          'briefs',
-          'boxer briefs',
-          'vests',
-          'camisoles',
-          'loungewear',
-          'comfortable innerwear India'
+          'Zion Eye Care Clinic',
+          'eye care',
+          'vision',
+          'eyeglasses',
+          'sunglasses',
+          'lenses',
+          'single vision',
+          'progressive lenses',
+          'frames',
         ]}
       />
       <TopBar />

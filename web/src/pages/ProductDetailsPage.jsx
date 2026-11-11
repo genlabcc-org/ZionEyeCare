@@ -907,21 +907,21 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
   const seoData = useMemo(() => {
     if (productNotFound) {
       return {
-        title: "Product Not Found | FAYWALK",
+        title: "Product Not Found | Zion Eye Care Clinic",
         robots: "noindex, follow",
       };
     }
     const prodName = displayName || selectedProduct?.name || 'Product';
-    const desc = selectedProduct?.description || selectedProduct?.desc || 'Discover premium innerwear and comfortable inner clothing on FAYWALK.';
+    const desc = selectedProduct?.description || selectedProduct?.desc || 'Discover premium optical lenses and stylish eyeglasses on Zion Eye Care Clinic.';
     const cleanDesc = desc.replace(/<[^>]*>?/gm, '').slice(0, 200);
     const productImg = selectedProduct?.img || selectedProduct?.image_url || selectedProduct?.images?.[0] || '';
     const fullImgUrl = productImg.startsWith('http')
       ? productImg
-      : (productImg ? `${window.location.origin}${productImg}` : 'https://www.faywalk.com/logo.png');
+      : (productImg ? `${window.location.origin}${productImg}` : `${window.location.origin}/zionlogo.png`);
     const shareUrl = getShareUrl();
 
     return {
-      title: `${prodName} | FAYWALK`,
+      title: `${prodName} | Zion Eye Care Clinic`,
       description: cleanDesc,
       canonical: shareUrl,
       ogType: 'product',
@@ -934,7 +934,7 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
         price: payPrice,
         currency: 'INR',
         description: cleanDesc,
-        brand: 'FAYWALK',
+        brand: 'Zion Eye Care Clinic',
         inStock: canAddToCart,
         images: dynamicThumbs?.length > 0 ? dynamicThumbs.map(t => t.img).filter(Boolean) : [fullImgUrl],
       },
@@ -988,8 +988,8 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
     e?.preventDefault?.();
     e?.stopPropagation?.();
     const shareUrl = getShareUrl();
-    const shareTitle = displayName || 'FAYWALK';
-    const shareText = `Check out ${displayName || 'this product'} on Faywalk!`;
+    const shareTitle = displayName || 'Zion Eye Care Clinic';
+    const shareText = `Check out ${displayName || 'this eyewear'} on Zion Eye Care Clinic!`;
 
     // 1. On mobile devices, trigger native OS share sheet synchronously on click
     // (allows direct 1-tap share to Instagram Stories, Chats, WhatsApp, etc.)
@@ -1345,7 +1345,7 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
               <div className="dp-sizeguide-body">
                 <img
                   src="/sizeguide.jpeg"
-                  alt="Faywalk Size Guide"
+                  alt="Zion Eye Care Size Guide"
                   className="dp-sizeguide-img"
                   loading="lazy"
                 />

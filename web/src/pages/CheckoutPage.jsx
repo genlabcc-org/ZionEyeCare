@@ -937,7 +937,7 @@ export default function CheckoutPage() {
           key: razorpayKey,
           amount: orderData.amount,
           currency: orderData.currency,
-          name: "Faywalk",
+          name: "Zion Eye Care Clinic",
           description: `Order for ${orderData.productName || 'Purchase'}`,
           order_id: orderData.orderId,
           handler: async function (response) {
@@ -1003,8 +1003,8 @@ export default function CheckoutPage() {
   return (
     <>
       <SEO
-        title="Secure Checkout | FAYWALK"
-        description="Complete your order securely on FAYWALK."
+        title="Secure Checkout | Zion Eye Care Clinic"
+        description="Complete your order securely on Zion Eye Care Clinic."
         robots="noindex, nofollow"
       />
       <TopBar />

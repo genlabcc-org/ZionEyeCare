@@ -29,9 +29,6 @@ const SiteFooter = () => {
 
             <div className="fw-brand-bottom fw-desktop-only">
               <p className="fw-copy">&copy; {new Date().getFullYear()} Zion Eye Care</p>
-              <Link to="/privacy" className="fw-privacy-link">
-                Privacy Policy
-              </Link>
             </div>
           </div>
 
@@ -52,6 +49,7 @@ const SiteFooter = () => {
               <li><Link to="/about">About Us</Link></li>
               <li><Link to="/contact">Contact Us</Link></li>
               <li><Link to="/terms">Terms of Service</Link></li>
+              <li><Link to="/privacy">Privacy Policy</Link></li>
             </ul>
           </div>
 
@@ -93,9 +91,6 @@ const SiteFooter = () => {
         {/* Mobile / Tablet Bottom Bar */}
         <div className="fw-mobile-bottom-bar">
           <p className="fw-copy">&copy; {new Date().getFullYear()} Zion Eye Care</p>
-          <Link to="/privacy" className="fw-privacy-link">
-            Privacy Policy
-          </Link>
         </div>
       </div>
 
