@@ -380,8 +380,8 @@ export default function Privacy() {
             <strong>Grievance Officer:</strong> Grievance Officer, Zion EyeCare
             <br />
             <strong>Email:</strong>{' '}
-            <a href="mailto:faywalkvibee@gmail.com" className="policy-link">
-              faywalkvibee@gmail.com
+            <a href="mailto:zionretina@gmail.com" className="policy-link">
+              zionretina@gmail.com
             </a>
           </p>
 
@@ -400,8 +400,8 @@ export default function Privacy() {
               </a>
               <br />
               Email:{' '}
-              <a href="mailto:faywalkvibee@gmail.com" className="policy-link">
-                faywalkvibee@gmail.com
+              <a href="mailto:zionretina@gmail.com" className="policy-link">
+                zionretina@gmail.com
               </a>
               <br />
               Phone:{' '}

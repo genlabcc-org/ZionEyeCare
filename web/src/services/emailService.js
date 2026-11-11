@@ -1,13 +1,13 @@
 import { supabase } from '../lib/supabase';
 import { getColorName } from '../utils/colorUtils';
 
-const ADMIN_EMAIL = 'faywalkvibee@gmail.com';
-const CONTACT_EMAIL = import.meta.env.VITE_CONTACT_EMAIL || 'faywalkvibee@gmail.com';
+const ADMIN_EMAIL = 'zionretina@gmail.com';
+const CONTACT_EMAIL = import.meta.env.VITE_CONTACT_EMAIL || 'zionretina@gmail.com';
 const BREVO_KEY = import.meta.env.VITE_BREVO_API_KEY || import.meta.env.BREVO_API_KEY || '';
 
 export const emailService = {
   /**
-   * Sends a minimal, professional order notification email to faywalkvibee@gmail.com via Brevo.
+   * Sends a minimal, professional order notification email to zionretina@gmail.com via Brevo.
    * @param {Object} orderData
    * @returns {Promise<boolean>}
    */
@@ -178,17 +178,17 @@ export const emailService = {
             },
             body: JSON.stringify({
               sender: {
-                name: 'Faywalk',
-                email: 'faywalkvibee@gmail.com',
+                name: 'Zion Eye Care',
+                email: 'zionretina@gmail.com',
               },
               to: [
                 {
                   email: ADMIN_EMAIL,
-                  name: 'Faywalk Admin',
+                  name: 'Zion Eye Care Admin',
                 },
               ],
               replyTo: {
-                email: customerEmail && customerEmail !== 'N/A' ? customerEmail : 'faywalkvibee@gmail.com',
+                email: customerEmail && customerEmail !== 'N/A' ? customerEmail : 'zionretina@gmail.com',
                 name: customerName,
               },
               subject,
@@ -341,8 +341,8 @@ ${message}
             },
             body: JSON.stringify({
               sender: {
-                name: 'Faywalk Contact Form',
-                email: 'faywalkvibee@gmail.com',
+                name: 'Zion Eye Care Contact Form',
+                email: 'zionretina@gmail.com',
               },
               to: [
                 {

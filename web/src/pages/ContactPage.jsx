@@ -15,7 +15,7 @@ export default function ContactPage() {
       '@type': 'Organization',
       name: 'Zion Eye Care Clinic',
       telephone: '+91-63798-38682',
-      email: 'faywalkvibee@gmail.com',
+      email: 'zionretina@gmail.com',
       address: {
         '@type': 'PostalAddress',
         streetAddress: 'A52 3RD Main Road, Maharajanagar, Palayamkottai',
