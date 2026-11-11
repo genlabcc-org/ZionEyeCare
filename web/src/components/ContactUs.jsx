@@ -174,8 +174,8 @@ const ContactUs = () => {
       <div className="contactus-bottom">
         <div className="contactus-map-wrap">
           <iframe
-            title="Zion Eye Care Clinic Location – Chettikulam, Palayamkottai"
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3943.8!2d77.7595!3d8.7059!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3b04125db4ccca1b%3A0x0!2zOMKwNDInMjEuMiJOIDc3wrA0NSczNS43IkU!5e0!3m2!1sen!2sin!4v1700000000000"
+            title="Zion Eye Care Clinic Location – Muthalakurichi, Kanyakumari"
+            src="https://maps.google.com/maps?q=Abel+Multispeciality+Clinic,+Muthalakurichi,+Tamil+Nadu+629175&t=&z=15&ie=UTF8&iwloc=&output=embed"
             width="100%"
             height="100%"
             style={{ border: 0, borderRadius: '14px' }}
@@ -189,17 +189,17 @@ const ContactUs = () => {
           <div className="contactus-info-block">
             <h4 className="contactus-info-label">Address</h4>
             <p className="contactus-info-value">
-              Zion Eye Care Clinic, A52 3RD Main Road, Maharajanagar,
+              5/3/1, Abel Multispeciality Clinic, Opposite to Muthalakurichy Bus Stop,
               <br />
-              Palayamkottai, Tirunelveli–627011
+              Eraniel - Thuckala Rd, Kollemvillai, Muthalakurichi,
+              <br />
+              Kanyakumari District, Tamil Nadu 629175
             </p>
           </div>
 
           <div className="contactus-info-block">
             <h4 className="contactus-info-label">Contact Number</h4>
-            <p className="contactus-info-value">
-              <a href="tel:+916379838682">+91 63798 38682</a>
-            </p>
+            <p className="contactus-info-value">NA</p>
           </div>
 
           <div className="contactus-info-block">
