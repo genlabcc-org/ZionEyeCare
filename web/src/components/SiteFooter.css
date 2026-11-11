@@ -41,9 +41,9 @@
 }
 
 .fw-logo-img {
-  height: 54px;
+  height: 48px;
   width: auto;
-  max-width: 76px;
+  max-width: 185px;
   object-fit: contain;
   display: block;
 }
