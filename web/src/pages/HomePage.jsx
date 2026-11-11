@@ -9,7 +9,7 @@ import { useStore } from '../hooks/useStore';
 import { getNavPath } from "../services/categoryRoute";
 
 
-const CategorySection = lazy(() => import('../components/CategorySection'));
+const ServiceSection = lazy(() => import('../components/ServiceSection'));
 const NewArrivals = lazy(() => import('../components/NewArrivals'));
 const BestSellers = lazy(() => import('../components/BestSellers'));
 const CustomerExperiences = lazy(() => import('../components/CustomerExperiences'));
@@ -29,10 +29,6 @@ export default function HomePage() {
     setSelectedProduct(product);
     const pid = product?.product_id || product?.productId || product?.id;
     navigate(pid ? `/product/${pid}` : '/product');
-  };
-
-  const handleCategoryClick = (name, subName) => {
-    navigate(getNavPath(name, categories, subName));
   };
 
   const handleNavClick = (link, subName) => {
@@ -66,9 +62,7 @@ export default function HomePage() {
       <Hero />
 
       <Suspense fallback={<SectionLoader />}>
-        <div id="categories">
-          <CategorySection onCategoryClick={handleCategoryClick} />
-        </div>
+        <ServiceSection />
         <div id="new-arrivals">
           <NewArrivals onProductClick={handleProductClick} />
         </div>
