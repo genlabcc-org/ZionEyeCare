@@ -118,7 +118,7 @@ const AdminAccount = () => {
       const myData = {
         id: myId || "admin_primary",
         name: profile?.name || user?.user_metadata?.name || adminName || "Primary Admin",
-        email: myEmail || adminEmail || "admin@faywalk.com",
+        email: myEmail || adminEmail || "zionretina@gmail.com",
         phone: profile?.phone || user?.user_metadata?.phone || phone || "",
         role: profile?.role || "Super Admin",
         status: "Active",
@@ -573,7 +573,7 @@ const AdminAccount = () => {
                 className="aa__input"
                 type="email"
                 required
-                placeholder="e.g. admin@faywalk.com"
+                placeholder="e.g. zionretina@gmail.com"
                 value={adminForm.email}
                 onChange={(e) => setAdminForm({ ...adminForm, email: e.target.value })}
               />
