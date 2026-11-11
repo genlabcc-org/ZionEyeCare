@@ -8,14 +8,84 @@ import { getNavPath } from "../services/categoryRoute";
 import LogoutModal from "./LogoutModal";
 import "./SiteHeader.css";
 
-// ── Static nav items always shown after DB categories ──
-const STATIC_NAV_ITEMS = [
-  { name: "All Products", hasDropdown: false, path: "/all-products" },
-  { name: "New Arrivals", hasDropdown: false, path: "/#new-arrivals", isAnchor: true },
-  { name: "Best Sellers", hasDropdown: false, path: "/#best-sellers", isAnchor: true },
-  { name: "About", hasDropdown: false, path: "/about" },
-  { name: "Contact Us", hasDropdown: false, path: "/contact" },
+// ── Eyecare Default Categories (Lenses, Eyeglasses, Sunglasses, Safety Glasses) ──
+const DEFAULT_EYECARE_NAV_ITEMS = [
+  {
+    name: "Lenses",
+    slug: "lenses",
+    hasDropdown: true,
+    path: "/category/lenses",
+    subcategories: [
+      {
+        name: "Single Vision",
+        slug: "single-vision",
+        icon: "https://www.novaeyewear.com/static/frontend/Nova/Novaeyewear/en_US/images/mnu_Icon_lens_00.png",
+      },
+      {
+        name: "Bifocals",
+        slug: "bifocals",
+        icon: "https://www.novaeyewear.com/static/frontend/Nova/Novaeyewear/en_US/images/mnu_Icon_lens_01.png",
+      },
+      {
+        name: "Progressive Lenses",
+        slug: "progressive-lenses",
+        icon: "https://www.novaeyewear.com/static/frontend/Nova/Novaeyewear/en_US/images/mnu_Icon_lens_02.png",
+      },
+      {
+        name: "Blue Light Blocking",
+        slug: "blue-light-blocking",
+        icon: "https://www.novaeyewear.com/static/frontend/Nova/Novaeyewear/en_US/images/mnu_Icon_lens_03.png",
+      },
+      {
+        name: "Photochromic",
+        slug: "photochromic",
+        icon: "https://www.novaeyewear.com/static/frontend/Nova/Novaeyewear/en_US/images/mnu_Icon_lens_04.png",
+      },
+    ],
+  },
+  {
+    name: "Eyeglasses",
+    slug: "eyeglasses",
+    hasDropdown: true,
+    path: "/category/eyeglasses",
+    subcategories: [
+      { name: "Men's Eyeglasses", slug: "mens-eyeglasses" },
+      { name: "Women's Eyeglasses", slug: "womens-eyeglasses" },
+      { name: "Kids' Eyeglasses", slug: "kids-eyeglasses" },
+      { name: "Rimless & Semi-Rimless", slug: "rimless" },
+      { name: "Full Rim", slug: "full-rim" },
+    ],
+  },
+  {
+    name: "Sunglasses",
+    slug: "sunglasses",
+    hasDropdown: true,
+    path: "/category/sunglasses",
+    subcategories: [
+      { name: "Polarized Sunglasses", slug: "polarized" },
+      { name: "Aviator", slug: "aviator" },
+      { name: "Wayfarer", slug: "wayfarer" },
+      { name: "Round & Cat Eye", slug: "round-cat-eye" },
+    ],
+  },
+  {
+    name: "Safety Glasses",
+    slug: "safety-glasses",
+    hasDropdown: false,
+    path: "/category/safety-glasses",
+    subcategories: [],
+  },
+  {
+    name: "About Nova",
+    slug: "about",
+    hasDropdown: false,
+    path: "/about",
+    subcategories: [],
+  },
 ];
+
+// ── Static nav items (appended or used if extra pages needed) ──
+const STATIC_NAV_ITEMS = [];
 
 // ── Build nav items from DB categories ──
 const buildCategoryNavItems = (categories = []) =>
@@ -214,22 +284,16 @@ const DesktopNavItem = ({ item, onItemClick, onSubClick, isActive }) => {
         {hasDropdown && (
           <svg
             className={`nav-caret-icon ${open ? "open" : ""}`}
-            viewBox="0 0 24 24"
-            fill="none"
-            width="14"
-            height="14"
+            viewBox="0 0 10 6"
+            fill="currentColor"
+            width="9"
+            height="6"
             onClick={(e) => {
               e.stopPropagation();
               setOpen((prev) => !prev);
             }}
           >
-            <path
-              d="M6 9l6 6 6-6"
-              stroke="currentColor"
-              strokeWidth="2.2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
+            <path d="M0 0.5L5 5.5L10 0.5H0Z" />
           </svg>
         )}
       </button>
@@ -251,7 +315,17 @@ const DesktopNavItem = ({ item, onItemClick, onSubClick, isActive }) => {
               className="nav-popup-item"
               onClick={(e) => handleSubSelect(sub, e)}
             >
-              {sub.name}
+              {sub.icon && (
+                <img
+                  src={sub.icon}
+                  alt=""
+                  className="nav-popup-item-icon"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                  }}
+                />
+              )}
+              <span>{sub.name}</span>
             </button>
           ))}
         </div>
@@ -285,18 +359,12 @@ const MobileNavItem = ({ item, onItemClick, onSubClick }) => {
         {hasDropdown && (
           <svg
             className={`mobile-nav-caret-icon ${expanded ? "open" : ""}`}
-            viewBox="0 0 24 24"
-            fill="none"
-            width="16"
-            height="16"
+            viewBox="0 0 10 6"
+            fill="currentColor"
+            width="10"
+            height="6"
           >
-            <path
-              d="M6 9l6 6 6-6"
-              stroke="currentColor"
-              strokeWidth="2.2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
+            <path d="M0 0.5L5 5.5L10 0.5H0Z" />
           </svg>
         )}
       </button>
@@ -319,7 +387,17 @@ const MobileNavItem = ({ item, onItemClick, onSubClick }) => {
                 onSubClick(item, sub);
               }}
             >
-              {sub.name}
+              {sub.icon && (
+                <img
+                  src={sub.icon}
+                  alt=""
+                  className="mobile-nav-subitem-icon"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                  }}
+                />
+              )}
+              <span>{sub.name}</span>
             </button>
           ))}
         </div>
@@ -388,10 +466,13 @@ export default function SiteHeader({ activeLink = "", onLinkClick }) {
     [categories]
   );
 
-  const navItems = useMemo(
-    () => [...categoryNavItems, ...STATIC_NAV_ITEMS],
-    [categoryNavItems]
-  );
+  const navItems = useMemo(() => {
+    // If DB categories are loaded, use them; otherwise use the requested Eyecare navigation
+    if (categoryNavItems && categoryNavItems.length > 0) {
+      return [...categoryNavItems, { name: "About Nova", path: "/about", hasDropdown: false }];
+    }
+    return DEFAULT_EYECARE_NAV_ITEMS;
+  }, [categoryNavItems]);
 
   const isItemActive = (item) => {
     if (!activeLink) return false;

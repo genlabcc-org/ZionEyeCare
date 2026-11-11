@@ -101,7 +101,7 @@ const SiteFooter = () => {
 
       {/* Giant Bottom Watermark */}
       <div className="fw-giant-watermark" aria-hidden="true">
-        ZION EYE CARE
+        ZION EYE CARE 
       </div>
     </footer>
   );
