@@ -3,54 +3,41 @@
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <!-- Homepage -->
   <url>
-    <loc>https://www.faywalk.com/</loc>
+    <loc>https://www.zioneyecare.com/</loc>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
     <image:image>
-      <image:loc>https://www.faywalk.com/logo.png</image:loc>
-      <image:title>FAYWALK Premium Innerwear</image:title>
+      <image:loc>https://www.zioneyecare.com/zionlogo.png</image:loc>
+      <image:title>Zion Eye Care Clinic</image:title>
     </image:image>
   </url>
 
   <!-- Product Catalog -->
   <url>
-    <loc>https://www.faywalk.com/all-products</loc>
+    <loc>https://www.zioneyecare.com/all-products</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://www.faywalk.com/products</loc>
+    <loc>https://www.zioneyecare.com/products</loc>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
-  </url>
-
-  <!-- Categories -->
-  <url>
-    <loc>https://www.faywalk.com/category/men</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
-    <loc>https://www.faywalk.com/category/women</loc>
-    <changefreq>weekly</changefreq>
-    <priority>0.8</priority>
   </url>
 
   <!-- Information & Support Pages -->
   <url>
-    <loc>https://www.faywalk.com/contact</loc>
+    <loc>https://www.zioneyecare.com/contact</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://www.faywalk.com/terms</loc>
+    <loc>https://www.zioneyecare.com/terms</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://www.faywalk.com/privacy</loc>
+    <loc>https://www.zioneyecare.com/privacy</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
 </urlset>
-

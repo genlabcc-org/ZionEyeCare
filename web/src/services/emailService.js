@@ -64,7 +64,7 @@ export const emailService = {
         return `[${idx + 1}] ${name}${specs ? ` (${specs})` : ''}\n    • Quantity: ${qty}\n    • Unit Price: ₹${Number(price).toLocaleString('en-IN')}`;
       }).join('\n\n');
 
-      const subject = `🛍️ [Faywalk] New Order #${orderId} (${paymentMethod}) - ₹${Number(totalPrice).toLocaleString('en-IN')}`;
+      const subject = `🛍️ [Zion Eye Care] New Order #${orderId} (${paymentMethod}) - ₹${Number(totalPrice).toLocaleString('en-IN')}`;
 
       // 1. Try sending via Supabase Edge Function (send-order-email)
       try {
@@ -133,7 +133,7 @@ export const emailService = {
             <body style="margin: 0; padding: 20px; background-color: #f8f9fa; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #111827;">
               <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
                 <div style="background-color: #002277; padding: 22px; text-align: center; color: #ffffff;">
-                  <h1 style="margin: 0; font-size: 22px;">FAYWALK</h1>
+                  <h1 style="margin: 0; font-size: 22px;">ZION EYE CARE</h1>
                   <p style="margin: 4px 0 0; font-size: 13px; opacity: 0.9;">New Order #${orderId}</p>
                 </div>
                 <div style="padding: 24px;">
@@ -252,7 +252,7 @@ export const emailService = {
         timeStyle: 'short',
       });
 
-      const subject = `📩 [Faywalk Contact] New Inquiry from ${fullName}`;
+      const subject = `📩 [Zion Eye Care Contact] New Inquiry from ${fullName}`;
 
       const htmlContent = `
         <!DOCTYPE html>
@@ -265,7 +265,7 @@ export const emailService = {
         <body style="margin: 0; padding: 20px; background-color: #f8f9fa; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #111827;">
           <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); border: 1px solid #e5e7eb;">
             <div style="background-color: #002277; padding: 26px 28px; text-align: center; color: #ffffff;">
-              <h1 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: 2px;">FAYWALK</h1>
+              <h1 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: 2px;">ZION EYE CARE</h1>
               <p style="margin: 6px 0 0; font-size: 13px; color: #93c5fd; letter-spacing: 0.5px; text-transform: uppercase;">
                 Contact Us Inquiry
               </p>
@@ -312,14 +312,14 @@ ${message}
               </div>
 
               <div style="text-align: center; margin: 26px 0 10px;">
-                <a href="mailto:${email}?subject=Re:%20Your%20inquiry%20to%20Faywalk"
+                <a href="mailto:${email}?subject=Re:%20Your%20inquiry%20to%20Zion%20Eye%20Care"
                    style="display: inline-block; background-color: #002277; color: #ffffff; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 600;">
                   Reply to ${fullName}
                 </a>
               </div>
 
               <div style="padding-top: 20px; border-top: 1px solid #f1f3f5; text-align: center; color: #9ca3af; font-size: 11.5px;">
-                Submitted via Faywalk Contact Us form (faywalk.com).
+                Submitted via Zion Eye Care Contact Us form (zioneyecare.com).
               </div>
             </div>
           </div>

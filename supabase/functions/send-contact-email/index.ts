@@ -1,7 +1,7 @@
 import { handleCorsPreflight, corsHeaders } from "../_shared/cors.ts";
 
-const DEFAULT_RECIPIENT_EMAIL = "faywalkvibee@gmail.com";
-const SENDER_EMAIL = "faywalkvibee@gmail.com";
+const DEFAULT_RECIPIENT_EMAIL = Deno.env.get("ADMIN_EMAIL") || "support@zioneyecare.com";
+const SENDER_EMAIL = Deno.env.get("SENDER_EMAIL") || "support@zioneyecare.com";
 
 function buildContactHtmlTemplate(data: {
   fullName: string;
@@ -25,7 +25,7 @@ function buildContactHtmlTemplate(data: {
     
     <!-- Header -->
     <div style="background-color: #002277; padding: 26px 28px; text-align: center; color: #ffffff;">
-      <h1 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: 2px;">FAYWALK</h1>
+      <h1 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: 2px;">ZION EYE CARE</h1>
       <p style="margin: 6px 0 0; font-size: 13px; color: #93c5fd; letter-spacing: 0.5px; text-transform: uppercase;">
         Contact Us Form Submission
       </p>
@@ -79,7 +79,7 @@ ${message}
 
       <!-- Action Button -->
       <div style="text-align: center; margin: 26px 0 10px;">
-        <a href="mailto:${email}?subject=Re:%20Your%20inquiry%20to%20Faywalk"
+        <a href="mailto:${email}?subject=Re:%20Your%20inquiry%20to%20Zion%20Eye%20Care"
            style="display: inline-block; background-color: #002277; color: #ffffff; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 600; letter-spacing: 0.3px;">
           Reply to ${fullName}
         </a>
@@ -87,7 +87,7 @@ ${message}
 
       <!-- Footer Note -->
       <div style="padding-top: 20px; border-top: 1px solid #f1f3f5; text-align: center; color: #9ca3af; font-size: 11.5px;">
-        This email was sent via the Contact Us form on Faywalk (<a href="https://faywalk.com" style="color: #002277; text-decoration: none;">faywalk.com</a>).
+        This email was sent via the Contact Us form on Zion Eye Care (<a href="https://zioneyecare.com" style="color: #002277; text-decoration: none;">zioneyecare.com</a>).
       </div>
 
     </div>
@@ -121,7 +121,7 @@ Deno.serve(async (req: Request) => {
       timeStyle: "short",
     });
 
-    const subject = `📩 [Faywalk Contact] New Inquiry from ${fullName}`;
+    const subject = `📩 [Zion Eye Care Contact] New Inquiry from ${fullName}`;
     const htmlContent = buildContactHtmlTemplate({
       fullName,
       email,
@@ -141,13 +141,13 @@ Deno.serve(async (req: Request) => {
       try {
         const brevoPayload = {
           sender: {
-            name: "Faywalk Contact",
+            name: "Zion Eye Care Contact",
             email: SENDER_EMAIL,
           },
           to: [
             {
               email: recipientEmail,
-              name: "Reshma / Faywalk Team",
+              name: "Zion Eye Care Team",
             },
           ],
           replyTo: {

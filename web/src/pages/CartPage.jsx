@@ -301,10 +301,10 @@ export default function CartPage() {
                       return;
                     }
                     try {
-                      sessionStorage.setItem("faywalk_checkout_selected_items", JSON.stringify(cartItems));
-                      localStorage.setItem("faywalk_checkout_selected_items", JSON.stringify(cartItems));
-                      sessionStorage.removeItem("faywalk_checkout_product");
-                      localStorage.removeItem("faywalk_checkout_product");
+                      sessionStorage.setItem("zion_checkout_selected_items", JSON.stringify(cartItems));
+                      localStorage.setItem("zion_checkout_selected_items", JSON.stringify(cartItems));
+                      sessionStorage.removeItem("zion_checkout_product");
+                      localStorage.removeItem("zion_checkout_product");
                     } catch (e) {
                       console.warn("Could not save checkout items to storage", e);
                     }

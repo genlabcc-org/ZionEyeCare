@@ -1,6 +1,7 @@
 import { supabase } from '../lib/supabase';
 
-const API_BASE_URL = import.meta.env.VITE_SUPABASE_URL + '/functions/v1';
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || 'https://fgvgjwtkupahlcglrten.supabase.co';
+const API_BASE_URL = SUPABASE_URL + '/functions/v1';
 
 export const apiClient = async (endpoint, options = {}) => {
   const { data: { session } } = await supabase.auth.getSession();

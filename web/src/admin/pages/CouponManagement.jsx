@@ -117,7 +117,7 @@ export default function CouponManagement() {
 
   // Auto-generate Random Coupon Code
   const handleGenerateCode = () => {
-    const prefixes = ["FAY", "SAVE", "DEAL", "SPECIAL", "OFFER", "VIP", "FLAT", "MEGA", "FESTIVE", "WALK"];
+    const prefixes = ["ZION", "SAVE", "DEAL", "SPECIAL", "OFFER", "VIP", "FLAT", "MEGA", "VISION", "CARE"];
     const val = formData.discount_value && Number(formData.discount_value) > 0
       ? Math.round(Number(formData.discount_value))
       : 20;

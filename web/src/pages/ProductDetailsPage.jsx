@@ -1118,10 +1118,10 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
     };
 
     try {
-      sessionStorage.setItem("faywalk_checkout_product", JSON.stringify(checkoutPayload));
-      localStorage.setItem("faywalk_checkout_product", JSON.stringify(checkoutPayload));
-      sessionStorage.removeItem("faywalk_checkout_selected_items");
-      localStorage.removeItem("faywalk_checkout_selected_items");
+      sessionStorage.setItem("zion_checkout_product", JSON.stringify(checkoutPayload));
+      localStorage.setItem("zion_checkout_product", JSON.stringify(checkoutPayload));
+      sessionStorage.removeItem("zion_checkout_selected_items");
+      localStorage.removeItem("zion_checkout_selected_items");
     } catch (e) {
       console.warn("Could not save checkout item to storage", e);
     }

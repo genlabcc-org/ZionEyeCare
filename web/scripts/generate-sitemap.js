@@ -13,9 +13,9 @@ if (fs.existsSync(envPath)) {
   dotenv.config({ path: envPath });
 }
 
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL;
-const SUPABASE_KEY = process.env.VITE_SUPABASE_ANON_KEY;
-const DOMAIN = 'https://www.faywalk.com';
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'https://fgvgjwtkupahlcglrten.supabase.co';
+const SUPABASE_KEY = process.env.VITE_SUPABASE_PUBLISHABLE_KEY || process.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_ihW2MM209VHV75qscoTSUg_XimNRaDQ';
+const DOMAIN = 'https://www.zioneyecare.com';
 
 const staticRoutes = [
   { url: '/', changefreq: 'daily', priority: '1.0' },
@@ -27,7 +27,7 @@ const staticRoutes = [
 ];
 
 async function generateSitemap() {
-  console.log('Generating sitemap for FAYWALK...');
+  console.log('Generating sitemap for Zion Eye Care...');
   const urls = [...staticRoutes];
 
   if (SUPABASE_URL && SUPABASE_KEY) {

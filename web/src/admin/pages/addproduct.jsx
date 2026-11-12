@@ -71,10 +71,10 @@ const Toggle = ({ checked, onChange }) => (
 );
 
 let variantSeq = 0;
-const generateVariantSKU = () => `FAY-${Math.floor(100000 + Math.random() * 900000)}`;
+const generateVariantSKU = () => `ZION-${Math.floor(100000 + Math.random() * 900000)}`;
 
 // ── IndexedDB helpers to persist uploaded File objects across page refresh ──
-const DRAFT_IDB_NAME = "faywalk_product_draft_db";
+const DRAFT_IDB_NAME = "zion_product_draft_db";
 const DRAFT_IDB_STORE = "draft_media";
 let unmountClearTimers = {};
 
@@ -203,7 +203,7 @@ const AddProduct = ({
 }) => {
   const isEditing = !!editingProductId;
   const [loading, setLoading] = useState(isEditing);
-  const draftKey = `faywalk_variant_draft_${editingProductId || "new"}`;
+  const draftKey = `zion_variant_draft_${editingProductId || "new"}`;
 
   const getSavedDraft = () => {
     try {
@@ -1195,9 +1195,9 @@ const AddProduct = ({
         clearing = false;
       }, 500);
     };
-    window.addEventListener("faywalk:clear-product-form", handleClearEvent);
+    window.addEventListener("zion:clear-product-form", handleClearEvent);
     return () => {
-      window.removeEventListener("faywalk:clear-product-form", handleClearEvent);
+      window.removeEventListener("zion:clear-product-form", handleClearEvent);
     };
   }, []);
 
@@ -1367,10 +1367,10 @@ const AddProduct = ({
       useStore.getState().invalidateProductDetails(result?.product?.product_id || editingProductId);
       try {
         sessionStorage.removeItem(draftKey);
-        sessionStorage.removeItem("faywalk_variant_draft_new");
+        sessionStorage.removeItem("zion_variant_draft_new");
       } catch { }
       clearDraftMediaFromIDB(draftKey);
-      clearDraftMediaFromIDB("faywalk_variant_draft_new");
+      clearDraftMediaFromIDB("zion_variant_draft_new");
       onSave?.(result);
     } catch (err) {
       console.error("Failed to save variant product:", err);

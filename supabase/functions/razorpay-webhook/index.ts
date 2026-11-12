@@ -7,7 +7,7 @@ import { bookShipmentForOrder } from "../_shared/bookShipment.ts";
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
 const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
-const webhookSecret = Deno.env.get("RAZORPAY_WEBHOOK_SECRET") || "faywalk_rzp_webhook_secret_2026";
+const webhookSecret = Deno.env.get("RAZORPAY_WEBHOOK_SECRET") || "zion_rzp_webhook_secret_2026";
 
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 

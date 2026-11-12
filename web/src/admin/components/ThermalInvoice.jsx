@@ -156,7 +156,7 @@ const ThermalInvoice = React.forwardRef(({ order, address, isPreview = false }, 
     <div className={`thermal-invoice ${isPreview ? "thermal-invoice--preview" : ""}`} ref={ref}>
       {/* ── Box 1: Store Brand Header ── */}
       <div className="ti-box ti-box--header">
-        <div className="ti-store-title">FAYWALK VIBE</div>
+        <div className="ti-store-title">ZION EYE CARE</div>
       </div>
 
       {/* ── Box 2: Invoice Metadata (2 Columns) ── */}
@@ -221,7 +221,7 @@ const ThermalInvoice = React.forwardRef(({ order, address, isPreview = false }, 
       {/* ── Box 5: Footer (Dashed Box) ── */}
       <div className="ti-box ti-box--footer">
         <div className="ti-footer-text">Thank you for shopping with</div>
-        <div className="ti-footer-brand">www.faywalk.com</div>
+        <div className="ti-footer-brand">www.zioneyecare.com</div>
       </div>
     </div>
   );

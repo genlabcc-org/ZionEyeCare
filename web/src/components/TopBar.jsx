@@ -5,6 +5,8 @@ import { supabase } from "../lib/supabase";
 import "./TopBar.css";
 
 export default function TopBar({ text: defaultPropText }) {
+  // TopBar hidden
+  return null;
   const topbarData = useStore((s) => s.topbarData);
   const fetchTopBar = useStore((s) => s.fetchTopBar);
 

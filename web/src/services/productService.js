@@ -55,13 +55,13 @@ export const productService = {
     try {
       const pKey = parentId != null ? String(parentId) : null;
       if (pKey) {
-        const raw = localStorage.getItem(`faywalk_subcategory_order_${pKey}`);
+        const raw = localStorage.getItem(`zion_subcategory_order_${pKey}`);
         if (raw) savedOrderIds = JSON.parse(raw).map(String);
       }
       if (savedOrderIds.length === 0) {
         const firstParent = list[0]?.parent_id ?? list[0]?.category_id;
         if (firstParent != null) {
-          const raw = localStorage.getItem(`faywalk_subcategory_order_${firstParent}`);
+          const raw = localStorage.getItem(`zion_subcategory_order_${firstParent}`);
           if (raw) savedOrderIds = JSON.parse(raw).map(String);
         }
       }
@@ -95,7 +95,7 @@ export const productService = {
       if (!Array.isArray(list)) return [];
       let savedOrderIds = [];
       try {
-        const raw = localStorage.getItem('faywalk_category_order');
+        const raw = localStorage.getItem('zion_category_order');
         if (raw) savedOrderIds = JSON.parse(raw).map(String);
       } catch {}
 
@@ -207,7 +207,7 @@ export const productService = {
       .filter(Boolean);
     if (resolvedParentId != null) {
       try {
-        localStorage.setItem(`faywalk_subcategory_order_${resolvedParentId}`, JSON.stringify(ids));
+        localStorage.setItem(`zion_subcategory_order_${resolvedParentId}`, JSON.stringify(ids));
       } catch {}
     }
 
@@ -236,7 +236,7 @@ export const productService = {
   async updateCategoriesOrder(orderedCategories = []) {
     const ids = orderedCategories.map(c => String(c.category_id ?? c.id)).filter(Boolean);
     try {
-      localStorage.setItem('faywalk_category_order', JSON.stringify(ids));
+      localStorage.setItem('zion_category_order', JSON.stringify(ids));
     } catch {}
 
     await Promise.all(

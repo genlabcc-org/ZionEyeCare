@@ -5,7 +5,7 @@ import { productService } from './productService';
 // ── SKU generation ──────────────────────────────────────────
 const generateBaseSku = (productName) => {
   const words = productName?.trim().split(/\s+/).filter(Boolean) || [];
-  if (words.length === 0) return `FAY-${Math.floor(100000 + Math.random() * 900000)}`;
+  if (words.length === 0) return `ZION-${Math.floor(100000 + Math.random() * 900000)}`;
 
   const initials = words
     .slice(0, -1)
@@ -16,7 +16,7 @@ const generateBaseSku = (productName) => {
   const lastWordPart = words[words.length - 1].slice(0, 3).toUpperCase();
   const slug = (initials + lastWordPart).slice(0, 6) || `${Math.floor(1000 + Math.random() * 9000)}`;
 
-  return `FAY-${slug}`;
+  return `ZION-${slug}`;
 };
 
 const generateVariantSku = (baseSku, index) => `${baseSku}-V${index + 1}`;

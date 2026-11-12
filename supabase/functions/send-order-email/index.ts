@@ -1,6 +1,6 @@
 import { handleCorsPreflight, corsHeaders } from "../_shared/cors.ts";
 
-const ADMIN_EMAIL = "faywalkvibee@gmail.com";
+const ADMIN_EMAIL = Deno.env.get("ADMIN_EMAIL") || "support@zioneyecare.com";
 
 function buildHtmlTemplate(data: {
   orderId: string;
@@ -98,7 +98,7 @@ function buildHtmlTemplate(data: {
     
     <!-- Header -->
     <div style="background-color: #002277; padding: 26px 28px; text-align: center; color: #ffffff;">
-      <h1 style="margin: 0; font-size: 24px; font-weight: 700; letter-spacing: 0.5px;">FAYWALK</h1>
+      <h1 style="margin: 0; font-size: 24px; font-weight: 700; letter-spacing: 0.5px;">ZION EYE CARE</h1>
       <p style="margin: 6px 0 0; font-size: 13.5px; opacity: 0.9;">New Customer Order Notification</p>
     </div>
 
@@ -203,8 +203,8 @@ function buildHtmlTemplate(data: {
 
       <!-- Footer Note -->
       <div style="padding-top: 16px; border-top: 1px solid #f1f3f5; text-align: center; color: #9ca3af; font-size: 12px;">
-        This is an automated order notification sent to Faywalk Admin.<br />
-        Manage this order in your admin dashboard at <a href="https://faywalk.com/admin/orders" style="color: #002277; text-decoration: none;">faywalk.com/admin/orders</a>.
+        This is an automated order notification sent to Zion Eye Care Admin.<br />
+        Manage this order in your admin dashboard at <a href="https://zioneyecare.com/admin/orders" style="color: #002277; text-decoration: none;">zioneyecare.com/admin/orders</a>.
       </div>
 
     </div>
@@ -240,7 +240,7 @@ Deno.serve(async (req: Request) => {
 
     const brevoApiKey = Deno.env.get("BREVO_API_KEY") || body.brevoApiKey || "";
 
-    const subject = `🛍️ [Faywalk] New Order #${orderId} (${paymentMethod}) - ₹${Number(totalPrice).toLocaleString("en-IN")}`;
+    const subject = `🛍️ [Zion Eye Care] New Order #${orderId} (${paymentMethod}) - ₹${Number(totalPrice).toLocaleString("en-IN")}`;
     const htmlContent = buildHtmlTemplate({
       orderId,
       customerName,
@@ -267,17 +267,17 @@ Deno.serve(async (req: Request) => {
       try {
         const brevoPayload = {
           sender: {
-            name: "Faywalk",
-            email: "faywalkvibee@gmail.com",
+            name: "Zion Eye Care",
+            email: Deno.env.get("SENDER_EMAIL") || adminEmail,
           },
           to: [
             {
               email: adminEmail,
-              name: "Faywalk Admin",
+              name: "Zion Eye Care Admin",
             },
           ],
           replyTo: {
-            email: customerEmail && customerEmail !== "N/A" ? customerEmail : "faywalkvibee@gmail.com",
+            email: customerEmail && customerEmail !== "N/A" ? customerEmail : adminEmail,
             name: customerName,
           },
           subject,

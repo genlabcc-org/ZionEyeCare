@@ -1390,7 +1390,7 @@ const PopularProductCard = ({ products = [], orders = [], loading = false }) => 
 
       return sortedProds.slice(0, 6).map((p, idx) => {
         const count = salesCount[p.id] || (p.stock ? Math.max(1, 100 - Number(p.stock)) : 0);
-        const skuVal = p.sku || `FAY-${String(p.id).slice(-6).toUpperCase()}`;
+        const skuVal = p.sku || `ZION-${String(p.id).slice(-6).toUpperCase()}`;
         return {
           id: p.id || String(idx),
           sku: skuVal,
@@ -2233,8 +2233,8 @@ const Dashboard = () => {
   const goToAddProduct = () => {
     setEditingProduct(null);
     try {
-      sessionStorage.removeItem("faywalk_variant_draft_new");
-      sessionStorage.removeItem("faywalk_product_draft_new");
+      sessionStorage.removeItem("zion_variant_draft_new");
+      sessionStorage.removeItem("zion_product_draft_new");
     } catch { }
     navigate("/admin/products/add");
   };
@@ -2614,7 +2614,7 @@ const Dashboard = () => {
                 type="button"
                 className="ap-header-clear-btn"
                 onClick={() => {
-                  window.dispatchEvent(new CustomEvent("faywalk:clear-product-form"));
+                  window.dispatchEvent(new CustomEvent("zion:clear-product-form"));
                 }}
                 title="Clear all entered fields"
               >

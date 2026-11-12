@@ -42,7 +42,7 @@ Deno.serve(async (req: Request) => {
       if (userByPhone?.email && userByPhone.email.includes("@")) {
         cleanEmail = userByPhone.email;
       } else {
-        cleanEmail = `${cleanPhone.replace(/[^0-9]/g, "")}@phone.faywalk.com`;
+        cleanEmail = `${cleanPhone.replace(/[^0-9]/g, "")}@phone.zioneyecare.com`;
       }
     }
 

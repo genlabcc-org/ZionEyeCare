@@ -27,64 +27,6 @@ const SiteFooter = () => (
               </a>
             </div>
           </div>
-<<<<<<< HEAD
-=======
-
-          {/* Column 2: SHOP */}
-          <div className="fw-col fw-nav-col">
-            <h4 className="fw-col-title">Shop</h4>
-            <ul className="fw-link-list">
-              <li><Link to="/all-products">All Products</Link></li>
-              <li><Link to="/#new-arrivals">New Arrivals</Link></li>
-              <li><Link to="/#best-sellers">Best Sellers</Link></li>
-            </ul>
-          </div>
-
-          {/* Column 3: ABOUT */}
-          <div className="fw-col fw-nav-col">
-            <h4 className="fw-col-title">About</h4>
-            <ul className="fw-link-list">
-              <li><Link to="/about">About Us</Link></li>
-              <li><Link to="/contact">Contact Us</Link></li>
-              <li><Link to="/terms">Terms of Service</Link></li>
-              <li><Link to="/privacy">Privacy Policy</Link></li>
-            </ul>
-          </div>
-
-          {/* Column 4: FOLLOW */}
-          <div className="fw-col fw-nav-col fw-follow-col">
-            <h4 className="fw-col-title">Follow</h4>
-            <ul className="fw-link-list">
-              <li><a href="https://instagram.com" target="_blank" rel="noopener noreferrer">Instagram</a></li>
-              <li><a href="https://facebook.com" target="_blank" rel="noopener noreferrer">Facebook</a></li>
-              <li><a href="https://wa.me/916379838682" target="_blank" rel="noopener noreferrer">WhatsApp</a></li>
-            </ul>
-          </div>
-
-          {/* Column 5: Newsletter */}
-          <div className="fw-col fw-newsletter-col">
-            <h4 className="fw-col-title">Newsletter</h4>
-            <p className="fw-newsletter-desc">
-              Subscribe to receive updates, exclusive launches & offers.
-            </p>
-
-            <form className="fw-subscribe-form" onSubmit={handleSubscribe}>
-              <input
-                type="email"
-                className="fw-subscribe-input"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
-              <SplitButton
-                type="submit"
-                text={subscribed ? 'Subscribed!' : 'Subscribe'}
-              />
-            </form>
-          </div>
-
->>>>>>> a56e97278c76325d6be4b76b370a5227249cfb3e
         </div>
 
         <div className="fw-col fw-nav-col">
@@ -102,7 +44,6 @@ const SiteFooter = () => (
           <ul className="fw-link-list">
             <li><Link to="/about">About Us</Link></li>
             <li><Link to="/#new-arrivals">New Arrivals</Link></li>
-            <li><Link to="/#best-sellers">Best Sellers</Link></li>
           </ul>
         </div>
 

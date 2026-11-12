@@ -326,7 +326,7 @@ export class RazorpayService {
     const mainItem = resolvedItemDetails[0];
     const productName = resolvedItemDetails.length > 1
       ? `${mainItem?.name || 'Product'} + ${resolvedItemDetails.length - 1} other(s)`
-      : mainItem?.name || "Faywalk Order";
+      : mainItem?.name || "Zion Eye Care Order";
 
     // 3. Verify address ownership
     let safeAddressId: number | null = null;
@@ -518,7 +518,7 @@ export class RazorpayService {
     const mainItem = resolvedItemDetails[0];
     const itemName = resolvedItemDetails.length > 1
       ? `${mainItem?.name} + ${resolvedItemDetails.length - 1} other(s)`
-      : mainItem?.name || "Faywalk Order";
+      : mainItem?.name || "Zion Eye Care Order";
 
     // 3. Verify address ownership if addressId was provided (falls back to null without throwing)
     let safeAddressId: number | null = null;

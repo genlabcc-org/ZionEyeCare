@@ -67,7 +67,7 @@ function CategoryBySlug() {
     return <Navigate to="/#new-arrivals" replace />;
   }
   if (normalizedSlug === 'best-sellers') {
-    return <Navigate to="/#best-sellers" replace />;
+    return <Navigate to="/all-products" replace />;
   }
   if (normalizedSlug === 'all' || normalizedSlug === 'all-products' || normalizedSlug === 'products') {
     return <ProductPage category="All Products" />;

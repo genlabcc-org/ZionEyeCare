@@ -1,4 +1,4 @@
-# Robots.txt for FAYWALK (https://www.faywalk.com)
+# Robots.txt for Zion Eye Care (https://www.zioneyecare.com)
 User-agent: *
 Allow: /
 Allow: /all-products
@@ -20,4 +20,4 @@ Disallow: /payment
 Disallow: /track-order/
 
 # Sitemap location
-Sitemap: https://www.faywalk.com/sitemap.xml
+Sitemap: https://www.zioneyecare.com/sitemap.xml

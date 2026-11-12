@@ -28,6 +28,9 @@ export const authService = {
     });
 
     if (syncError || !syncData?.success) {
+      if (syncError && syncError.message?.includes("Failed to send a request to the Edge Function")) {
+        throw new Error("Supabase Edge Function 'google-auth-sync' is not deployed or reachable on your Supabase project. Please deploy your edge functions.");
+      }
       throw new Error(syncError?.message || syncData?.error || "Failed to sync Google user with database.");
     }
 
@@ -108,6 +111,9 @@ export const authService = {
     });
 
     if (syncError || !syncData?.success) {
+      if (syncError && syncError.message?.includes("Failed to send a request to the Edge Function")) {
+        throw new Error("Supabase Edge Function 'google-auth-sync' is not deployed or reachable on your Supabase project. Please deploy your edge functions.");
+      }
       throw new Error(syncError?.message || syncData?.error || "Failed to sync user with database.");
     }
 

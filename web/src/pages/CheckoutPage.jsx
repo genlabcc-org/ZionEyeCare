@@ -463,13 +463,13 @@ export default function CheckoutPage() {
   const [persistedProduct, setPersistedProduct] = useState(() => {
     if (location.state?.product) {
       try {
-        sessionStorage.setItem("faywalk_checkout_product", JSON.stringify(location.state.product));
-        localStorage.setItem("faywalk_checkout_product", JSON.stringify(location.state.product));
+        sessionStorage.setItem("zion_checkout_product", JSON.stringify(location.state.product));
+        localStorage.setItem("zion_checkout_product", JSON.stringify(location.state.product));
       } catch { }
       return location.state.product;
     }
     try {
-      const saved = sessionStorage.getItem("faywalk_checkout_product") || localStorage.getItem("faywalk_checkout_product");
+      const saved = sessionStorage.getItem("zion_checkout_product") || localStorage.getItem("zion_checkout_product");
       return saved ? JSON.parse(saved) : null;
     } catch {
       return null;
@@ -479,13 +479,13 @@ export default function CheckoutPage() {
   const [persistedSelectedItems, setPersistedSelectedItems] = useState(() => {
     if (location.state?.selectedItems && location.state.selectedItems.length > 0) {
       try {
-        sessionStorage.setItem("faywalk_checkout_selected_items", JSON.stringify(location.state.selectedItems));
-        localStorage.setItem("faywalk_checkout_selected_items", JSON.stringify(location.state.selectedItems));
+        sessionStorage.setItem("zion_checkout_selected_items", JSON.stringify(location.state.selectedItems));
+        localStorage.setItem("zion_checkout_selected_items", JSON.stringify(location.state.selectedItems));
       } catch { }
       return location.state.selectedItems;
     }
     try {
-      const saved = sessionStorage.getItem("faywalk_checkout_selected_items") || localStorage.getItem("faywalk_checkout_selected_items");
+      const saved = sessionStorage.getItem("zion_checkout_selected_items") || localStorage.getItem("zion_checkout_selected_items");
       return saved ? JSON.parse(saved) : null;
     } catch {
       return null;
@@ -496,25 +496,25 @@ export default function CheckoutPage() {
     if (location.state?.product) {
       setPersistedProduct(location.state.product);
       try {
-        sessionStorage.setItem("faywalk_checkout_product", JSON.stringify(location.state.product));
-        localStorage.setItem("faywalk_checkout_product", JSON.stringify(location.state.product));
+        sessionStorage.setItem("zion_checkout_product", JSON.stringify(location.state.product));
+        localStorage.setItem("zion_checkout_product", JSON.stringify(location.state.product));
       } catch { }
     }
     if (location.state?.selectedItems && location.state.selectedItems.length > 0) {
       setPersistedSelectedItems(location.state.selectedItems);
       try {
-        sessionStorage.setItem("faywalk_checkout_selected_items", JSON.stringify(location.state.selectedItems));
-        localStorage.setItem("faywalk_checkout_selected_items", JSON.stringify(location.state.selectedItems));
+        sessionStorage.setItem("zion_checkout_selected_items", JSON.stringify(location.state.selectedItems));
+        localStorage.setItem("zion_checkout_selected_items", JSON.stringify(location.state.selectedItems));
       } catch { }
     }
   }, [location.state]);
 
   const clearCheckoutStorage = () => {
     try {
-      sessionStorage.removeItem("faywalk_checkout_product");
-      sessionStorage.removeItem("faywalk_checkout_selected_items");
-      localStorage.removeItem("faywalk_checkout_product");
-      localStorage.removeItem("faywalk_checkout_selected_items");
+      sessionStorage.removeItem("zion_checkout_product");
+      sessionStorage.removeItem("zion_checkout_selected_items");
+      localStorage.removeItem("zion_checkout_product");
+      localStorage.removeItem("zion_checkout_selected_items");
     } catch { }
   };
 
