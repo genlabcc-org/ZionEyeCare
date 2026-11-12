@@ -330,7 +330,7 @@ export default function Terms() {
           <p className="policy-p">
             These Terms are governed by the laws of India. Any disputes arising from these Terms or your use of the
             Website or our services shall be subject to the exclusive jurisdiction of the courts at{' '}
-            <strong>Tirunelveli, Tamil Nadu</strong>.
+            <strong>Kanyakumari District, Tamil Nadu</strong>.
           </p>
 
           <h2 className="policy-h2">17. Changes to These Terms</h2>
@@ -359,12 +359,9 @@ export default function Terms() {
                 zionretina@gmail.com
               </a>
               <br />
-              Phone:{' '}
-              <a href="tel:+916379838682" className="policy-link">
-                +91 63798 38682
-              </a>
+              Phone: NA
               <br />
-              Address: Zion Eye Care Clinic, A52 3RD Main Road, Maharajanagar, Palayamkottai, Tirunelveli &ndash; 627011, Tamil Nadu, India.
+              Address: Zion Eye Care Clinic, 5/3/1, Abel Multispeciality Clinic, Opposite to Muthalakurichy Bus Stop, Eraniel - Thuckala Rd, Kollemvillai, Muthalakurichi, Kanyakumari District, Tamil Nadu 629175.
             </p>
           </div>
         </div>

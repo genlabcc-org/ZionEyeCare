@@ -801,7 +801,7 @@ export default function OrderTracking() {
                   </p>
                   <div className="track-help-actions">
                     <a
-                      href={`https://wa.me/919363631636?text=Hi%20Faywalk,%20I%20need%20help%20with%20my%20Order%20%23${order.id?.slice(-8) || order.id}`}
+                      href={`https://wa.me/916379838682?text=Hi%20Zion%20EyeCare,%20I%20need%20help%20with%20my%20Order%20%23${order.id?.slice(-8) || order.id}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="track-help-btn track-whatsapp-btn"
@@ -811,12 +811,12 @@ export default function OrderTracking() {
                       </svg>
                       <span>WhatsApp Support</span>
                     </a>
-                    <a href="tel:+919363631636" className="track-help-btn track-call-btn">
+                    <span className="track-help-btn track-call-btn" style={{ cursor: 'default' }}>
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
                         <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
                       </svg>
-                      <span>Call +91 93636 31636</span>
-                    </a>
+                      <span>Phone: NA</span>
+                    </span>
                   </div>
                 </div>
               </div>

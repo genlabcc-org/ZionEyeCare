@@ -14,14 +14,14 @@ export default function ContactPage() {
     mainEntity: {
       '@type': 'Organization',
       name: 'Zion Eye Care Clinic',
-      telephone: '+91-63798-38682',
+      telephone: 'NA',
       email: 'zionretina@gmail.com',
       address: {
         '@type': 'PostalAddress',
-        streetAddress: 'A52 3RD Main Road, Maharajanagar, Palayamkottai',
-        addressLocality: 'Tirunelveli',
+        streetAddress: '5/3/1, Abel Multispeciality Clinic, Opposite to Muthalakurichy Bus Stop, Eraniel - Thuckala Rd, Kollemvillai, Muthalakurichi',
+        addressLocality: 'Kanyakumari District',
         addressRegion: 'Tamil Nadu',
-        postalCode: '627011',
+        postalCode: '629175',
         addressCountry: 'IN',
       },
     },
