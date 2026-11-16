@@ -1,123 +1,40 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { authService } from "../services/authService";
 import { useAdmin } from "../hooks/useAdmin";
 import { useStore } from "../hooks/useStore";
 import { getUserInitials } from "../utils/avatarUtils";
 import { getNavPath } from "../services/categoryRoute";
 import LogoutModal from "./LogoutModal";
-import iconMen from "../assets/icons/people/icon_men.png";
-import iconWomen from "../assets/icons/people/icon_women.png";
-import iconJunior from "../assets/icons/people/icon_junior.png";
 import "./SiteHeader.css";
 
-// ── Eyecare Default Categories (Lenses, Eyeglasses, Sunglasses, Safety Glasses) ──
-const DEFAULT_EYECARE_NAV_ITEMS = [
-  {
-    name: "Lenses",
-    slug: "lenses",
-    hasDropdown: true,
-    isMegaMenu: true,
-    path: "/category/lenses",
-    subcategories: [
-      {
-        name: "Lenses",
-        slug: "all-lenses",
-        icon: "https://www.novaeyewear.com/static/frontend/Nova/Novaeyewear/en_US/images/mnu_Icon_lens_00.png",
-      },
-      {
-        name: "Nova Ai",
-        slug: "nova-ai",
-        icon: "https://www.novaeyewear.com/static/frontend/Nova/Novaeyewear/en_US/images/mnu_Icon_nova_ai_00.png",
-      },
-      {
-        name: "Single Vision",
-        slug: "single-vision",
-        icon: "https://www.novaeyewear.com/static/frontend/Nova/Novaeyewear/en_US/images/mnu_Icon_sv_00.png",
-      },
-      {
-        name: "Progressive",
-        slug: "progressive",
-        icon: "https://www.novaeyewear.com/static/frontend/Nova/Novaeyewear/en_US/images/mnu_Icon_ps_00.png",
-      },
-      {
-        name: "Sun & Sports",
-        slug: "sun-sports",
-        icon: "https://www.novaeyewear.com/static/frontend/Nova/Novaeyewear/en_US/images/mnu_Icon_ss_00.png",
-      },
-      {
-        name: "Occupational",
-        slug: "occupational",
-        icon: "https://www.novaeyewear.com/static/frontend/Nova/Novaeyewear/en_US/images/mnu_Icon_occ_00.png",
-      },
-      {
-        name: "Bifocal",
-        slug: "bifocal",
-        icon: "https://www.novaeyewear.com/static/frontend/Nova/Novaeyewear/en_US/images/mnu_Icon_bifocal_00.png",
-      },
-      {
-        name: "Drive",
-        slug: "drive",
-        icon: "https://www.novaeyewear.com/static/frontend/Nova/Novaeyewear/en_US/images/mnu_Icon_drive_00.png",
-      },
-    ],
-  },
-  {
-    name: "Eyeglasses",
-    slug: "eyeglasses",
-    hasDropdown: true,
-    path: "/category/eyeglasses",
-    subcategories: [
-      { name: "Men", slug: "men", icon: iconMen },
-      { name: "Women", slug: "women", icon: iconWomen },
-      { name: "Junior", slug: "junior", icon: iconJunior },
-    ],
-  },
-  {
-    name: "Sunglasses",
-    slug: "sunglasses",
-    hasDropdown: true,
-    path: "/category/sunglasses",
-    subcategories: [
-      { name: "Men", slug: "men", icon: iconMen },
-      { name: "Women", slug: "women", icon: iconWomen },
-      { name: "Junior", slug: "junior", icon: iconJunior },
-    ],
-  },
-  {
-    name: "Safety Glasses",
-    slug: "safety-glasses",
-    hasDropdown: false,
-    path: "/category/safety-glasses",
-    subcategories: [],
-  },
-  {
-    name: "About Zion Eye Care",
-    slug: "about",
-    hasDropdown: false,
-    path: "/about",
-    subcategories: [],
-  },
+// ── Default static page nav items (About, Contact, FAQ) ──
+const DEFAULT_PAGE_NAV_ITEMS = [
+  { name: "About", path: "/about", hasDropdown: false },
+  { name: "Contact", path: "/contact", hasDropdown: false },
+  { name: "FAQ", path: "/#faq", hasDropdown: false, isAnchor: true },
 ];
 
-// ── Static nav items (appended or used if extra pages needed) ──
-const STATIC_NAV_ITEMS = [];
-
-// ── Build nav items from DB categories ──
+// ── Build nav items dynamically from database categories & subcategories only ──
 const buildCategoryNavItems = (categories = []) =>
-  categories
-    .filter((c) => c.is_active !== false)
+  (categories || [])
+    .filter((c) => c && c.is_active !== false)
     .map((c) => {
       const subs = (c.subcategories || [])
+        .filter((s) => s && s.is_active !== false)
         .map((s) => ({
+          id: s.subcategory_id ?? s.id,
           name: s.name,
           slug: s.slug || (s.name ? s.name.toLowerCase().replace(/\s+/g, "-") : ""),
+          icon: s.image_url || s.image || s.icon || null,
         }));
 
       return {
+        id: c.category_id ?? c.id,
         name: c.name,
         slug: c.slug || (c.name ? c.name.toLowerCase().replace(/\s+/g, "-") : ""),
         hasDropdown: subs.length > 0,
+        isMegaMenu: subs.length > 4,
         subcategories: subs,
         path: getNavPath(c.name, categories),
         fromDb: true,
@@ -440,6 +357,7 @@ export default function SiteHeader({ activeLink = "", onLinkClick }) {
   const searchInputRef = useRef(null);
   const searchContainerRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const user = useStore((state) => state.user);
   const cartItems = useStore((state) => state.cartItems);
@@ -493,19 +411,34 @@ export default function SiteHeader({ activeLink = "", onLinkClick }) {
   );
 
   const navItems = useMemo(() => {
-    // If DB categories are loaded, use them; otherwise use the requested Eyecare navigation
-    if (categoryNavItems && categoryNavItems.length > 0) {
-      return [...categoryNavItems, { name: "About Zion Eye Care", path: "/about", hasDropdown: false }];
-    }
-    return DEFAULT_EYECARE_NAV_ITEMS;
+    const existing = new Set(
+      (categoryNavItems || []).map((c) => (c.name || "").toLowerCase().trim())
+    );
+    const staticItems = DEFAULT_PAGE_NAV_ITEMS.filter(
+      (item) => !existing.has((item.name || "").toLowerCase().trim())
+    );
+    return [...(categoryNavItems || []), ...staticItems];
   }, [categoryNavItems]);
 
   const isItemActive = (item) => {
-    if (!activeLink) return false;
-    const a = activeLink.toLowerCase().trim();
-    const n = item.name.toLowerCase().trim();
-    if (a === n) return true;
-    if (item.slug && a === item.slug.toLowerCase().trim()) return true;
+    const a = (activeLink || "").toLowerCase().trim();
+    const n = (item.name || "").toLowerCase().trim();
+
+    if (a) {
+      if (a === n) return true;
+      if (item.slug && a === item.slug.toLowerCase().trim()) return true;
+      if (n === "about" && (a.includes("about") || a.startsWith("about"))) return true;
+      if (n === "contact" && (a.includes("contact") || a.startsWith("contact"))) return true;
+    }
+
+    if (item.path && location?.pathname) {
+      if (item.path === location.pathname) return true;
+      if (item.isAnchor && item.path.includes("#")) {
+        const hash = item.path.split("#")[1];
+        if (location.pathname === "/" && location.hash === `#${hash}`) return true;
+      }
+    }
+
     return false;
   };
 
@@ -547,16 +480,22 @@ export default function SiteHeader({ activeLink = "", onLinkClick }) {
       const anchor = item.path.includes("#")
         ? item.path.split("#")[1]
         : item.name.toLowerCase().replace(/\s+/g, "-");
-      const el = document.getElementById(anchor);
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth" });
-      } else {
-        navigate(item.path);
+      if (location.pathname === "/") {
+        const el = document.getElementById(anchor);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth" });
+          return;
+        }
       }
+      navigate(item.path);
       return;
-
     }
-    if (item.fromDb && onLinkClick) {
+    // If it's a default static page link (e.g. /about, /contact), navigate directly
+    if (!item.fromDb && item.path) {
+      navigate(item.path);
+      return;
+    }
+    if (onLinkClick) {
       onLinkClick(item.name);
       return;
     }
@@ -566,16 +505,23 @@ export default function SiteHeader({ activeLink = "", onLinkClick }) {
   const handleSubClick = (item, sub) => {
     setMenuOpen(false);
     if (!sub) {
-      navigate(item.path);
+      if (onLinkClick) {
+        onLinkClick(item.name);
+      } else {
+        navigate(item.path);
+      }
       return;
     }
     const subName = typeof sub === "object" ? (sub.name || sub.slug) : sub;
     const isAll = typeof subName === "string" ? subName.toLowerCase().startsWith("all ") : false;
-    if (isAll) {
-      navigate(item.path);
-    } else {
-      navigate(`${item.path}?sub=${encodeURIComponent(subName)}`);
+    const targetSub = isAll ? null : subName;
+
+    if (onLinkClick) {
+      onLinkClick(item.name, targetSub);
+      return;
     }
+    const targetPath = getNavPath(item.name, categories, targetSub);
+    navigate(targetPath);
   };
 
   const handleSearchSubmit = (e) => {
@@ -808,7 +754,7 @@ export default function SiteHeader({ activeLink = "", onLinkClick }) {
               item={item}
               onItemClick={handleItemClick}
               onSubClick={handleSubClick}
-              defaultExpanded={item.name === "Lenses"}
+              defaultExpanded={false}
             />
           ))}
           {/* Admin button (Minimal sidebar style) */}

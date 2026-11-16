@@ -12,6 +12,12 @@ export function getNavPath(link, categories = [], subcategory = null) {
   if (!link) return "/";
   if (link === "Home") return "/";
 
+  const lower = String(link).toLowerCase().trim();
+  if (lower === "about" || lower === "about us" || lower === "about zion eye care") return "/about";
+  if (lower === "contact" || lower === "contact us") return "/contact";
+  if (lower === "faq" || lower === "faqs") return "/#faq";
+  if (lower === "all products" || lower === "shop") return "/all-products";
+
   // Look up slug from the store's category list
   const match = categories.find(
     (c) => (c.name || "").toLowerCase() === link.toLowerCase()

@@ -36,6 +36,18 @@ const getOriginalImageUrl = (url) => {
 const PD_CACHE_KEY = 'anika_pd_cache';
 const PD_CACHE_TTL = 365 * 24 * 60 * 60 * 1000; // 1 year in ms
 
+const loadCachedCategories = () => {
+  try {
+    if (typeof window === 'undefined') return [];
+    const raw = localStorage.getItem('zion_categories_cache');
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+    }
+  } catch {}
+  return [];
+};
+
 /** Load image-only entries from localStorage (price/stock never persisted) */
 const loadPdCache = () => {
   try {
@@ -96,7 +108,7 @@ export const useStore = create((set, get) => ({
   addressesFetchedFor: null,
 
   // --- Catalog Caching ---
-  categories: [],
+  categories: loadCachedCategories(),
   products: {}, // { categoryName: [products] }
   productDetails: loadPdCache(), // { productId: { cachedAt, images, base, variants } } — persisted 1 year
   loadingCategories: false,
@@ -270,6 +282,11 @@ export const useStore = create((set, get) => ({
     set({ loadingCategories: true });
     try {
       const data = await productService.getCategories();
+      if (Array.isArray(data) && data.length > 0) {
+        try {
+          localStorage.setItem('zion_categories_cache', JSON.stringify(data));
+        } catch {}
+      }
       set({ categories: data || [], loadingCategories: false });
       return data;
     } catch (err) {
