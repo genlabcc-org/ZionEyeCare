@@ -13,6 +13,7 @@ const ServiceSection = lazy(() => import('../components/ServiceSection'));
 const NewArrivals = lazy(() => import('../components/NewArrivals'));
 const EyewearFeatureSection = lazy(() => import('../components/EyewearFeatureSection'));
 const CustomerExperiences = lazy(() => import('../components/CustomerExperiences'));
+const FAQSection = lazy(() => import('../components/FAQSection'));
 const SiteFooter = lazy(() => import('../components/SiteFooter'));
 
 const SectionLoader = () => (
@@ -69,6 +70,7 @@ export default function HomePage() {
         <EyewearFeatureSection />
         {/* <CollectionsSection /> */}
         <div id="reviews"><CustomerExperiences /></div>
+        <div id="faq"><FAQSection /></div>
         <SiteFooter />
       </Suspense>
     </div>

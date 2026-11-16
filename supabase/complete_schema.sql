@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS public.users (
   id         uuid REFERENCES auth.users ON DELETE CASCADE PRIMARY KEY,
   name       text,
   phone      text,
-  email      text,
+  email      text,  
   role       text NOT NULL DEFAULT 'user',
   updated_at timestamp with time zone DEFAULT now(),
   created_at timestamp with time zone DEFAULT timezone('utc'::text, now())

@@ -1,12 +1,40 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { supabase } from '../lib/supabase';
 import { productService } from '../services/productService';
-import { SkeletonProductCard } from './ui/Skeleton';
+import { getColorStyle } from '../utils/colorUtils';
+import { Skeleton } from './ui/Skeleton';
 import './NewArrivals.css';
+
+const DEFAULT_COLOR_PALETTES = [
+  [
+    { name: 'Havana Tortoise', bg: 'linear-gradient(135deg, #78350f 0%, #3e1f0d 50%, #170d07 100%)' },
+    { name: 'Classic Black', bg: '#18181b' },
+    { name: 'Oxblood Red', bg: '#7f1d1d' },
+    { name: 'Amber Gold', bg: '#b45309' },
+  ],
+  [
+    { name: 'Crystal Clear', bg: 'linear-gradient(135deg, #f8fafc 0%, #cbd5e1 100%)' },
+    { name: 'Midnight Navy', bg: '#1e293b' },
+    { name: 'Steel Blue', bg: '#475569' },
+  ],
+  [
+    { name: 'Forest Green', bg: '#166534' },
+    { name: 'Matte Black', bg: '#18181b' },
+    { name: 'Deep Indigo', bg: '#1e1b4b' },
+  ],
+  [
+    { name: 'Ocean Navy', bg: '#1e3a8a' },
+    { name: 'Onyx Black', bg: '#18181b' },
+    { name: 'Sage Olive', bg: '#365314' },
+  ],
+];
 
 export default function NewArrivals({ onProductClick }) {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [wishlist, setWishlist] = useState({});
+  const [activeColors, setActiveColors] = useState({});
+  const [activeImages, setActiveImages] = useState({});
   const sliderRef = useRef(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
@@ -41,7 +69,7 @@ export default function NewArrivals({ onProductClick }) {
     const el = sliderRef.current;
     if (!el) return;
     const card = el.querySelector('.new-arrival-card') || el.firstElementChild;
-    const scrollAmount = card ? (card.offsetWidth + 20) : el.clientWidth * 0.75;
+    const scrollAmount = card ? card.offsetWidth + 20 : el.clientWidth * 0.75;
 
     if (direction === 'right') {
       if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 10) {
@@ -65,7 +93,7 @@ export default function NewArrivals({ onProductClick }) {
     const interval = setInterval(() => {
       if (typeof window !== 'undefined' && window.innerWidth <= 768) return;
       handleSlide('right');
-    }, 3500);
+    }, 4000);
 
     return () => clearInterval(interval);
   }, [loading, hasOverflow, isPaused]);
@@ -86,12 +114,13 @@ export default function NewArrivals({ onProductClick }) {
             image_url,
             has_variants,
             is_featured,
-            product_variants(price, compare_price, stock, images),
+            colors,
+            product_variants(variant_id, price, compare_price, stock, images, color, color_code),
             categories(name, slug)
           `)
           .eq('is_active', true)
           .order('created_at', { ascending: false })
-          .limit(6);
+          .limit(8);
 
         if (error) {
           console.error('Error fetching new arrivals:', error);
@@ -102,35 +131,9 @@ export default function NewArrivals({ onProductClick }) {
           return;
         }
 
-        const mapped = (data || []).map((p) => {
+        const mapped = (data || []).map((p, pIdx) => {
           const variants = p.product_variants || [];
           const hasVariants = !!p.has_variants && variants.length > 0;
-
-          const validVariantPrices = variants
-            .map((v) => Number(v.price))
-            .filter((n) => !isNaN(n) && n > 0);
-
-          const sellingPrice = hasVariants && validVariantPrices.length > 0
-            ? Math.min(...validVariantPrices)
-            : (Number(p.price) || 0);
-
-          const matchingVariant = hasVariants
-            ? variants.find((v) => Number(v.price) === sellingPrice && Number(v.compare_price) > 0)
-            : null;
-
-          const variantMaxCompare = hasVariants
-            ? Math.max(...variants.map((v) => Number(v.compare_price) || 0), 0)
-            : 0;
-
-          const mrp = Number(matchingVariant?.compare_price) ||
-            variantMaxCompare ||
-            Number(p.compare_price) ||
-            0;
-
-          const hasDiscount = mrp > sellingPrice && sellingPrice > 0;
-          const discountPercent = hasDiscount
-            ? Math.round(((mrp - sellingPrice) / mrp) * 100)
-            : 0;
 
           const firstVariantImage = hasVariants
             ? variants.find((v) => v.images?.length > 0)?.images?.[0]
@@ -140,25 +143,61 @@ export default function NewArrivals({ onProductClick }) {
             firstVariantImage ||
             (Array.isArray(p.images) && p.images.length > 0 ? p.images[0] : (p.image_url || ''));
 
-          const categoryName = p.categories?.name || '';
+          // Extract colors defined by admin on product or its variants
+          const rawColors = [];
+          if (Array.isArray(p.colors)) {
+            rawColors.push(...p.colors);
+          } else if (typeof p.colors === 'string' && p.colors.trim()) {
+            try {
+              const parsed = JSON.parse(p.colors);
+              if (Array.isArray(parsed)) rawColors.push(...parsed);
+              else rawColors.push(p.colors);
+            } catch {
+              rawColors.push(...p.colors.split(','));
+            }
+          }
+
+          if (Array.isArray(variants)) {
+            variants.forEach((v) => {
+              if (v?.color) rawColors.push(v.color);
+            });
+          }
+
+          const seen = new Set();
+          const extractedColors = [];
+          rawColors.forEach((c) => {
+            const val = String(c || '').trim();
+            if (val && !seen.has(val.toLowerCase())) {
+              seen.add(val.toLowerCase());
+              const matchedVar = variants.find(
+                (v) => v.color && v.color.toLowerCase() === val.toLowerCase()
+              );
+              extractedColors.push({
+                name: val,
+                bg: matchedVar?.color_code || getColorStyle(val),
+                image: matchedVar?.images?.[0] || null,
+              });
+            }
+          });
+
+          const fallback = DEFAULT_COLOR_PALETTES[pIdx % DEFAULT_COLOR_PALETTES.length];
+          const finalColors = extractedColors.length > 0 ? extractedColors : fallback;
 
           return {
             id: p.product_id,
             productId: p.product_id,
+            product_id: p.product_id,
             name: p.name,
             img,
-            category: categoryName,
-            categorySlug: p.categories?.slug || '',
-            price: sellingPrice ? `₹${sellingPrice.toLocaleString('en-IN')}` : '',
-            rawPrice: sellingPrice,
-            rawMrp: mrp,
-            discountPercent,
+            images: p.images || [],
+            colors: finalColors,
             has_variants: hasVariants,
+            rawProduct: p,
           };
         });
 
         if (isMounted) {
-          setProducts(mapped.slice(0, 6));
+          setProducts(mapped);
           setLoading(false);
         }
       } catch (err) {
@@ -173,8 +212,30 @@ export default function NewArrivals({ onProductClick }) {
     };
   }, []);
 
+  const handleWishlistToggle = (e, productId) => {
+    e.stopPropagation();
+    setWishlist((prev) => ({
+      ...prev,
+      [productId]: !prev[productId],
+    }));
+  };
+
+  const handleSwatchClick = (e, productId, swatchIndex, swatch) => {
+    e.stopPropagation();
+    setActiveColors((prev) => ({
+      ...prev,
+      [productId]: swatchIndex,
+    }));
+    if (swatch?.image) {
+      setActiveImages((prev) => ({
+        ...prev,
+        [productId]: swatch.image,
+      }));
+    }
+  };
+
   return (
-    <section className="new-arrivals-section">
+    <section className="new-arrivals-section" aria-label="New Arrivals">
       <div className="new-arrivals-header-row">
         <div className="new-arrivals-header-left">
           <h2 className="new-arrivals-title">NEW ARRIVALS</h2>
@@ -185,9 +246,13 @@ export default function NewArrivals({ onProductClick }) {
       {loading ? (
         <div className="new-arrivals-slider-wrap">
           <div className="new-arrivals-grid new-arrivals-slider" ref={sliderRef}>
-            {Array.from({ length: 6 }).map((_, i) => (
+            {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="new-arrival-skeleton-item">
-                <SkeletonProductCard />
+                <Skeleton width="100%" height="310px" borderRadius="16px" />
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '14px' }}>
+                  <Skeleton width="50%" height="18px" borderRadius="4px" />
+                  <Skeleton width="32%" height="16px" borderRadius="4px" />
+                </div>
               </div>
             ))}
           </div>
@@ -219,44 +284,121 @@ export default function NewArrivals({ onProductClick }) {
             className={`new-arrivals-grid new-arrivals-slider ${hasOverflow ? 'has-overflow' : 'is-centered'} ${products.length === 1 ? 'single-item' : ''}`}
             ref={sliderRef}
           >
-            {products.map((product) => (
-              <article
-                key={product.id}
-                className="new-arrival-card"
-                onClick={() => onProductClick && onProductClick(product)}
-              >
-                <div className="new-arrival-img-box">
-                  {product.discountPercent > 0 && (
-                    <span className="new-arrival-discount-badge">
-                      {product.discountPercent}% OFF
-                    </span>
-                  )}
-                  <img
-                    src={productService.getResizedImageUrl(product.img, 'card')}
-                    alt={product.name}
-                    className="new-arrival-img"
-                    loading="lazy"
-                    decoding="async"
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = product.img || '/src/assets/cart/bangle1.webp';
-                    }}
-                  />
-                </div>
+            {products.map((product) => {
+              const currentImage = activeImages[product.id] || product.img;
+              const activeSwatchIdx = activeColors[product.id] ?? 0;
+              const swatches = product.colors || [];
+              const visibleSwatches = swatches.slice(0, 3);
+              const remainingCount = swatches.length - 3;
+              const isWishlisted = !!wishlist[product.id];
 
-                <div className="new-arrival-info">
-                  <h3 className="new-arrival-name">{product.name}</h3>
-                  <div className="new-arrival-price-row">
-                    <span className="new-arrival-price">{product.price}</span>
-                    {product.rawMrp > product.rawPrice && (
-                      <span className="new-arrival-mrp-cut">
-                        ₹{product.rawMrp.toLocaleString('en-IN')}
-                      </span>
+              return (
+                <article
+                  key={product.id}
+                  className="new-arrival-card"
+                  onClick={() => onProductClick && onProductClick(product.rawProduct || product)}
+                >
+                  <div className="new-arrival-img-box">
+                    {/* Top-Left Diagonal Corner Ribbon */}
+                    <div className="new-arrival-corner-ribbon" aria-hidden="true">
+                      NEW
+                    </div>
+
+                    {/* Top-Right Wishlist Heart Button */}
+                    <button
+                      type="button"
+                      className={`new-arrival-wishlist-btn ${isWishlisted ? 'is-active' : ''}`}
+                      onClick={(e) => handleWishlistToggle(e, product.id)}
+                      aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+                    >
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill={isWishlisted ? '#ef4444' : 'none'}
+                        stroke={isWishlisted ? '#ef4444' : '#1f2937'}
+                        strokeWidth="1.9"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                      </svg>
+                    </button>
+
+                    {/* Centered Eyewear Product Image */}
+                    <img
+                      src={productService.getResizedImageUrl(currentImage, 'card')}
+                      alt={product.name}
+                      className="new-arrival-img"
+                      loading="lazy"
+                      decoding="async"
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = product.img || '/src/assets/home/eye1.jpg';
+                      }}
+                    />
+
+                    {/* Bottom-Right 3D Rotation Badge */}
+                    <div className="new-arrival-3d-badge" title="3D Interactive View" aria-label="3D View">
+                      <svg width="22" height="22" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <text
+                          x="14"
+                          y="13"
+                          textAnchor="middle"
+                          fontSize="8.5"
+                          fontWeight="700"
+                          fill="#1f2937"
+                          fontFamily="'Outfit', 'Inter', sans-serif"
+                        >
+                          3D
+                        </text>
+                        <path
+                          d="M7.5 17.5C9.2 19.8 12 21 14.8 20.8C18.2 20.4 21 18 21.8 14.8"
+                          stroke="#1f2937"
+                          strokeWidth="1.6"
+                          strokeLinecap="round"
+                        />
+                        <path
+                          d="M6 14.8L7.4 18.2L10.8 17.2"
+                          stroke="#1f2937"
+                          strokeWidth="1.6"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </div>
+                  </div>
+
+                  {/* Details Bar: Product Name (Left) & Swatches (Right) */}
+                  <div className="new-arrival-info">
+                    <h3 className="new-arrival-name" title={product.name}>
+                      {product.name}
+                    </h3>
+
+                    {swatches.length > 0 && (
+                      <div className="new-arrival-swatches" aria-label="Available frame colors">
+                        {visibleSwatches.map((swatch, sIdx) => (
+                          <button
+                            key={sIdx}
+                            type="button"
+                            className={`new-arrival-swatch-item ${activeSwatchIdx === sIdx ? 'is-selected' : ''}`}
+                            style={{ background: swatch.bg }}
+                            onClick={(e) => handleSwatchClick(e, product.id, sIdx, swatch)}
+                            title={swatch.name}
+                            aria-label={swatch.name}
+                          />
+                        ))}
+                        {remainingCount > 0 && (
+                          <span className="new-arrival-swatch-more">
+                            +{remainingCount}
+                          </span>
+                        )}
+                      </div>
                     )}
                   </div>
-                </div>
-              </article>
-            ))}
+                </article>
+              );
+            })}
           </div>
 
           {canScrollRight && hasOverflow && (
