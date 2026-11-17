@@ -1,7 +1,7 @@
 // src/utils/imageCompression.js
 import imageCompression from 'browser-image-compression';
 
-export const COMPRESSION_PRESETS = {
+const COMPRESSION_PRESETS = {
   card: { maxWidthOrHeight: 600, maxSizeMB: 0.3 },
   detail: { maxWidthOrHeight: 1200, maxSizeMB: 0.6 },
   variant: { maxWidthOrHeight: 1000, maxSizeMB: 0.5 },

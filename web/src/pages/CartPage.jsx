@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import "./CartPage.css";
 import Navbar from "../components/SiteHeader";
-import TopBar from "../components/TopBar";
 import Footer from "../components/SiteFooter";
 import SEO from "../components/SEO";
 import { useNavigate } from "react-router-dom";
@@ -102,7 +101,6 @@ export default function CartPage() {
         description="Review items in your shopping bag and proceed to checkout."
         robots="noindex, follow"
       />
-      <TopBar />
       <Navbar activeLink="" onLinkClick={handleNavClick} />
       <div className="cart-page-wrapper">
 

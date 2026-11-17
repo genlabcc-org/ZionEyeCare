@@ -112,8 +112,15 @@ export const variantService = {
     const cleanDescription = String(productData.description || '').split('\n<!--CARE_INSTRUCTIONS-->\n')[0];
     const cleanCare = String(productData.care_instructions || '').trim() || null;
 
+    const baseSlug = (productData.name || 'product')
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '') || 'product';
+
     const payload = {
       ...productData,
+      slug: productData.slug || `${baseSlug}-${Date.now().toString(36)}`,
       description: cleanDescription,
       care_instructions: cleanCare,
       sku: baseSku,
@@ -394,25 +401,6 @@ export const variantService = {
       .order('created_at', { ascending: true });
     if (error) throw error;
     return data || [];
-  },
-
-  async updateVariant(variantId, variantData) {
-    const { variant_id, ...cleanData } = variantData || {};
-    const { data, error } = await supabase
-      .from('product_variants')
-      .update(cleanData)
-      .eq('variant_id', variantId)
-      .select();
-    if (error) throw error;
-    return data;
-  },
-
-  async deleteVariant(variantId) {
-    const { error } = await supabase
-      .from('product_variants')
-      .delete()
-      .eq('variant_id', variantId);
-    if (error) throw error;
   },
 
   async _uploadVariantImages(mediaItems, productName) {

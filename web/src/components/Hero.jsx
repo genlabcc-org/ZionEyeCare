@@ -42,7 +42,6 @@ export default function Hero() {
           preload="auto"
         >
           <source src="/zion-hero.mp4" type="video/mp4" />
-          <source src="/zion-hero.mov" type="video/quicktime" />
           Your browser does not support the video tag.
         </video>
         <div className="hero-video-overlay" />

@@ -1,9 +1,9 @@
 import React, { Suspense, lazy } from 'react';
 import { useNavigate } from 'react-router-dom';
-import TopBar from '../components/TopBar';
 import SiteHeader from '../components/SiteHeader';
 import Hero from '../components/Hero';
 import SEO from '../components/SEO';
+import SiteFooter from '../components/SiteFooter';
 import './HomePage.css';
 import { useStore } from '../hooks/useStore';
 import { getNavPath } from "../services/categoryRoute";
@@ -14,7 +14,6 @@ const NewArrivals = lazy(() => import('../components/NewArrivals'));
 const EyewearFeatureSection = lazy(() => import('../components/EyewearFeatureSection'));
 const CustomerExperiences = lazy(() => import('../components/CustomerExperiences'));
 const FAQSection = lazy(() => import('../components/FAQSection'));
-const SiteFooter = lazy(() => import('../components/SiteFooter'));
 
 const SectionLoader = () => (
   <div style={{ height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -58,7 +57,6 @@ export default function HomePage() {
           'frames',
         ]}
       />
-      <TopBar />
       <SiteHeader activeLink="Home" onLinkClick={handleNavClick} />
       <Hero />
 
@@ -68,7 +66,6 @@ export default function HomePage() {
           <NewArrivals onProductClick={handleProductClick} />
         </div>
         <EyewearFeatureSection />
-        {/* <CollectionsSection /> */}
         <div id="reviews"><CustomerExperiences /></div>
         <div id="faq"><FAQSection /></div>
         <SiteFooter />

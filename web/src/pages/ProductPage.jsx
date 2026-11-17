@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useStore } from "../hooks/useStore";
 import SiteHeader from "../components/SiteHeader";
-import TopBar from "../components/TopBar";
 import SiteFooter from "../components/SiteFooter";
 import Toast from "../components/Toast";
 import SEO from "../components/SEO";
@@ -629,7 +628,6 @@ export default function ProductPage({ category = "Trending" }) {
           'eyeglasses online',
         ].filter(Boolean)}
       />
-      <TopBar />
       <SiteHeader activeLink={category} onLinkClick={handleNavClick} />
 
       <div className="trending-main-container">

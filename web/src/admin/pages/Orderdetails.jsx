@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "../../lib/supabase";
 import { orderService } from "../../services/orderService";
 
-import { icarryService } from "../../services/icarryService";
 import { razorpayService } from "../../services/razorpayService";
 import { useStore } from "../../hooks/useStore";
 import Toast from "../../components/Toast";
@@ -238,11 +237,8 @@ const OrderDetails = ({ order, onBack, onInvoicePrinted }) => {
   const [invoicePrinted, setInvoicePrinted] = useState(order?.invoice_printed || false);
   const [printing, setPrinting] = useState(false);
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
-  const [retryingBooking, setRetryingBooking] = useState(false);
-  const [loadingLabel, setLoadingLabel] = useState(false);
   const [cancellingShipment, setCancellingShipment] = useState(false);
   const [showCancelModal, setShowCancelModal] = useState(false);
-  const [trackingLoading, setTrackingLoading] = useState(false);
   const invoiceRef = useRef(null);
 
   const setSelectedProduct = useStore(state => state.setSelectedProduct);
@@ -529,53 +525,6 @@ const OrderDetails = ({ order, onBack, onInvoicePrinted }) => {
     }
   };
 
-  const handleRetryBooking = async () => {
-    if (!o?.id) return;
-    try {
-      setRetryingBooking(true);
-      const res = await icarryService.retryBooking(o.id);
-      if (res && res.error) {
-        showToast("Retry booking failed: " + res.error, "error");
-      } else {
-        showToast("Shipment booking retried successfully!", "success");
-        await fetchFreshOrder();
-      }
-    } catch (err) {
-      showToast("Failed to retry booking: " + err.message, "error");
-    } finally {
-      setRetryingBooking(false);
-    }
-  };
-
-  const handlePrintLabel = async () => {
-    if (!o?.id) return;
-    // Open blank tab synchronously within user click event context to avoid browser popup blockers
-    const win = window.open("", "_blank");
-    try {
-      setLoadingLabel(true);
-      const res = await icarryService.label(o.id);
-      const labelUrl =
-        res?.shipment_label?.[0]?.url ||
-        res?.shipment_label?.url ||
-        res?.url;
-      if (labelUrl) {
-        if (win) {
-          win.location.href = labelUrl;
-        } else {
-          window.location.href = labelUrl;
-        }
-      } else {
-        if (win) win.close();
-        showToast("No shipping label URL returned from carrier.", "warning");
-      }
-    } catch (err) {
-      if (win) win.close();
-      showToast("Failed to fetch shipping label: " + err.message, "error");
-    } finally {
-      setLoadingLabel(false);
-    }
-  };
-
   const executeCancelShipment = async () => {
     if (!o?.id) return;
 
@@ -596,30 +545,7 @@ const OrderDetails = ({ order, onBack, onInvoicePrinted }) => {
     try {
       setCancellingShipment(true);
 
-      // 1. If courier shipment was booked with iCarry, cancel with iCarry
-      // Only attempt if there is an actual shipment/waybill ID — delivery_status alone is not enough
-      const hasActualShipmentId = Boolean(
-        o.shipment_id ||
-        o.waybill ||
-        o.tracking_number ||
-        o.icarry_shipment_id ||
-        o.icarry_order_id
-      );
-
-      if (hasActualShipmentId) {
-        try {
-          const res = await icarryService.cancel(o.id);
-          if (res && res.skipped) {
-            console.log("iCarry: No active shipment to cancel — skipping courier cancel.");
-          } else if (res && res.error) {
-            console.warn("iCarry shipment cancellation notice:", res.error);
-          }
-        } catch (shipErr) {
-          console.warn("Could not cancel iCarry shipment:", shipErr);
-        }
-      }
-
-      // 2. If online payment, process Razorpay refund
+      // 1. If online payment, process Razorpay refund
       if (isOnline) {
         try {
           const extraNotes = {};
@@ -687,114 +613,6 @@ const OrderDetails = ({ order, onBack, onInvoicePrinted }) => {
       setShowCancelModal(false);
     }
   };
-
-  const ICARRY_STATUS_MAP = {
-    1: "Pending Pickup",
-    2: "Processing",
-    3: "Shipped",
-    7: "Cancelled",
-    12: "Damaged",
-    14: "Lost",
-    16: "Cancelled",
-    21: "Delivered",
-    22: "In Transit",
-    23: "Returned to Origin",
-    24: "Manifested",
-    25: "Pickup Scheduled",
-    26: "Out For Delivery",
-    27: "Pending Return",
-  };
-
-  const handleRefreshTracking = async (silentParam = false) => {
-    if (!o?.id) return;
-    const silent = silentParam === true;
-    try {
-      if (!silent) setTrackingLoading(true);
-      const res = await icarryService.track(o.id);
-      if (res && res.error) {
-        if (!silent) showToast("iCarry tracking: " + res.error, "info");
-      } else {
-        const rawStatus =
-          res?.shipment_status ||
-          res?.current_status ||
-          res?.delivery_status ||
-          res?.status ||
-          res?.tracking_status ||
-          res?.status_code ||
-          res?.data?.status;
-
-        let mappedStatus = rawStatus;
-        if (rawStatus !== null && rawStatus !== undefined && !isNaN(Number(rawStatus)) && Number(rawStatus) in ICARRY_STATUS_MAP) {
-          mappedStatus = ICARRY_STATUS_MAP[Number(rawStatus)];
-        }
-
-        const updates = {};
-        if (mappedStatus) {
-          updates.delivery_status = String(mappedStatus);
-          updates.icarry_status = String(mappedStatus);
-
-          const sLower = String(mappedStatus).toLowerCase();
-          if (sLower.includes("cancel") || sLower === "voided" || sLower === "7" || sLower === "16") {
-            updates.status = "Cancelled";
-            updates.delivery_status = "Cancelled";
-          } else if (sLower === "delivered" || sLower === "21") {
-            updates.status = "Delivered";
-            updates.delivery_status = "Delivered";
-            updates.delivered_at = new Date().toISOString();
-          } else if (sLower === "shipped" || sLower === "3" || sLower === "in transit" || sLower === "out for delivery") {
-            if (o.status !== "Delivered") {
-              updates.status = "Shipped";
-            }
-          }
-        }
-
-        if (res?.courier_name && !o.courier_name) {
-          updates.courier_name = res.courier_name;
-        }
-        if (res?.tracking_url && !o.tracking_url) {
-          updates.tracking_url = res.tracking_url;
-        }
-
-        if (Object.keys(updates).length > 0) {
-          try {
-            await supabase
-              .from("orders")
-              .update(updates)
-              .eq("id", o.id);
-          } catch (dbErr) {
-            console.warn("Could not save tracking status in DB:", dbErr);
-          }
-        }
-
-        await fetchFreshOrder();
-        if (!silent) {
-          showToast(mappedStatus ? `iCarry status synced: ${mappedStatus}` : "iCarry shipment status synced successfully!", "success");
-        }
-      }
-    } catch (err) {
-      if (!silent) console.error("iCarry tracking error:", err);
-      else console.warn("iCarry auto-tracking skipped (silent):", err?.message || err);
-      await fetchFreshOrder();
-      if (!silent) {
-        showToast("iCarry sync: " + (err.message || "Failed contacting iCarry"), "warning");
-      }
-    } finally {
-      if (!silent) setTrackingLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    const hasWaybillOrShipment = Boolean(
-      o?.waybill ||
-      o?.shipment_id ||
-      o?.icarry_awb ||
-      o?.icarry_shipment_id ||
-      o?.tracking_number
-    );
-    if (o?.id && hasWaybillOrShipment && o.delivery_status !== "Cancelled") {
-      handleRefreshTracking(true);
-    }
-  }, [o?.id]);
 
   const orderItems = (o.order_items && o.order_items.length > 0) ? o.order_items : [{
     product_name: o.item_name || "Product",
@@ -927,7 +745,7 @@ const OrderDetails = ({ order, onBack, onInvoicePrinted }) => {
     const isNdr = d.startsWith("ndr");
     const isDeliveredDone = ["delivered", "returned"].includes(s) || d === "delivered";
 
-    const carrierInfo = o.courier_name || o.delivery_provider || "iCarry";
+    const carrierInfo = o.courier_name || o.delivery_provider || "Standard Courier";
 
     const steps = [
       {
@@ -1466,23 +1284,23 @@ const OrderDetails = ({ order, onBack, onInvoicePrinted }) => {
           <div className="od__card-title">Logistics & Delivery</div>
           <div className="od__info-grid">
             <span className="od__info-label">Carrier</span>
-            <span className="od__info-value">{o.icarry_courier_name || o.courier_name || o.delivery_provider || "iCarry"}</span>
-            <span className="od__info-label">iCarry Status</span>
+            <span className="od__info-value">{o.courier_name || o.delivery_provider || "Standard Courier"}</span>
+            <span className="od__info-label">Delivery Status</span>
             <span
               className="od__info-value"
               style={{
                 fontWeight: '600',
                 color:
-                  (o.icarry_status || o.delivery_status) === 'Booked' || (o.icarry_status || o.delivery_status) === 'Delivered'
+                  o.delivery_status === 'Booked' || o.delivery_status === 'Delivered'
                     ? '#16a34a'
-                    : (o.icarry_status || o.delivery_status) === 'Booking Failed' || (o.icarry_status || o.delivery_status) === 'Cancelled'
+                    : o.delivery_status === 'Booking Failed' || o.delivery_status === 'Cancelled'
                       ? '#dc2626'
-                      : (o.icarry_status || o.delivery_status)?.toUpperCase()?.startsWith('NDR')
+                      : o.delivery_status?.toUpperCase()?.startsWith('NDR')
                         ? '#ea580c'
                         : '#d97706'
               }}
             >
-              {o.icarry_status || o.delivery_status || (o.waybill || o.icarry_awb ? "Booked" : "Pending Booking")}
+              {o.delivery_status || (o.waybill ? "Booked" : "Pending")}
             </span>
             {o.waybill && (
               <>
@@ -1558,68 +1376,12 @@ const OrderDetails = ({ order, onBack, onInvoicePrinted }) => {
 
           {/* Shipment Actions */}
           <div style={{ display: 'flex', gap: '8px', marginTop: '14px', flexWrap: 'wrap' }}>
-            {(!o.waybill && !o.icarry_awb && o.delivery_status !== 'Cancelled' && o.status !== 'Cancelled') && (
-              <button
-                onClick={handleRetryBooking}
-                disabled={retryingBooking}
-                className="od__btn-blue admin-btn-with-spinner"
-              >
-                {retryingBooking ? (
-                  <>
-                    <span className="admin-btn-spinner" /> Retrying Booking...
-                  </>
-                ) : (
-                  <>
-                    <IconSync size={13} /> {(o.delivery_status === 'Booking Failed' || o.shipment_error) ? 'Retry Booking' : 'Book with iCarry'}
-                  </>
-                )}
-              </button>
-            )}
-
-            {o.waybill && o.delivery_status !== 'Cancelled' && (
-              <button
-                onClick={handlePrintLabel}
-                disabled={loadingLabel}
-                className="od__btn-blue admin-btn-with-spinner"
-              >
-                {loadingLabel ? (
-                  <>
-                    <span className="admin-btn-spinner" /> Loading Label...
-                  </>
-                ) : (
-                  <>
-                    <IconTag size={13} /> Print Label
-                  </>
-                )}
-              </button>
-            )}
-
-            {(o.waybill || o.shipment_id || o.icarry_awb || o.icarry_shipment_id) && (
-              <button
-                type="button"
-                onClick={() => handleRefreshTracking(false)}
-                disabled={trackingLoading}
-                className="od__btn-blue admin-btn-with-spinner"
-                title="Check live delivery tracking update directly from iCarry"
-              >
-                {trackingLoading ? (
-                  <>
-                    <span className="admin-btn-spinner" /> Syncing iCarry...
-                  </>
-                ) : (
-                  <>
-                    <IconSync size={13} /> Sync iCarry
-                  </>
-                )}
-              </button>
-            )}
-
             {!isDelivered && !isOrderCancelled && (
               <button
                 onClick={() => setShowCancelModal(true)}
                 disabled={cancellingShipment}
                 className="od__btn-red admin-btn-with-spinner"
-                title={hasOnlinePayment ? "Cancel order & refund customer via Razorpay" : "Cancel shipment & order"}
+                title={hasOnlinePayment ? "Cancel order & refund customer via Razorpay" : "Cancel order"}
               >
                 {cancellingShipment ? (
                   <>
@@ -1627,7 +1389,7 @@ const OrderDetails = ({ order, onBack, onInvoicePrinted }) => {
                   </>
                 ) : (
                   <>
-                    <IconCross size={13} /> {hasOnlinePayment ? "Cancel and Refund" : "Cancel Shipment"}
+                    <IconCross size={13} /> {hasOnlinePayment ? "Cancel and Refund" : "Cancel Order"}
                   </>
                 )}
               </button>
@@ -1846,32 +1608,20 @@ const OrderDetails = ({ order, onBack, onInvoicePrinted }) => {
               <p className="admin-cancel-modal-msg">
                 {hasOnlinePayment
                   ? "Are you sure you want to cancel this order and process a full refund to the customer?"
-                  : "Are you sure you want to cancel this order and its active shipment with iCarry?"}
+                  : "Are you sure you want to cancel this order?"}
               </p>
 
               <div className="admin-cancel-modal-bullets">
                 {hasOnlinePayment ? (
-                  <>
-                    <div className="admin-cancel-bullet-item">
-                      <span className="admin-cancel-bullet-dot">•</span>
-                      <span>The full payment of <strong>₹{o.total_price || 0}</strong> will be refunded to customer's original payment method via Razorpay.</span>
-                    </div>
-                    <div className="admin-cancel-bullet-item">
-                      <span className="admin-cancel-bullet-dot">•</span>
-                      <span>Any active courier booking with iCarry will also be cancelled.</span>
-                    </div>
-                  </>
+                  <div className="admin-cancel-bullet-item">
+                    <span className="admin-cancel-bullet-dot">•</span>
+                    <span>The full payment of <strong>₹{o.total_price || 0}</strong> will be refunded to customer's original payment method via Razorpay.</span>
+                  </div>
                 ) : (
-                  <>
-                    <div className="admin-cancel-bullet-item">
-                      <span className="admin-cancel-bullet-dot">•</span>
-                      <span>The shipment with iCarry courier will be cancelled.</span>
-                    </div>
-                    <div className="admin-cancel-bullet-item">
-                      <span className="admin-cancel-bullet-dot">•</span>
-                      <span>Order and delivery status will be marked as Cancelled.</span>
-                    </div>
-                  </>
+                  <div className="admin-cancel-bullet-item">
+                    <span className="admin-cancel-bullet-dot">•</span>
+                    <span>Order and delivery status will be marked as Cancelled.</span>
+                  </div>
                 )}
               </div>
 

@@ -48,16 +48,21 @@ const getFinalPrice = (product) => {
 };
 
 const getCategoryStyle = (category) => {
-
-  const styles = {
-    Rings: { background: "#f0e6ff", color: "#7c3aed" },
-    Earrings: { background: "#fce7f3", color: "#be185d" },
-    Bangles: { background: "#dcfce7", color: "#15803d" },
-    Necklaces: { background: "#fff7ed", color: "#c2410c" },
-    Bracelets: { background: "#e0f2fe", color: "#0369a1" },
-    Anklets: { background: "#FFF0D9", color: "#FF6A1C" },
-  };
-  return styles[category] || { background: "#f0e6ff", color: "#7c3aed" };
+  const palette = [
+    { background: "#e0f2fe", color: "#0369a1" },
+    { background: "#f0e6ff", color: "#7c3aed" },
+    { background: "#dcfce7", color: "#15803d" },
+    { background: "#fff7ed", color: "#c2410c" },
+    { background: "#fce7f3", color: "#be185d" },
+    { background: "#fef3c7", color: "#b45309" },
+  ];
+  const str = String(category || "").trim().toLowerCase();
+  if (!str) return palette[0];
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash * 31 + str.charCodeAt(i)) >>> 0;
+  }
+  return palette[hash % palette.length];
 };
 
 const getProductColors = (product) => {

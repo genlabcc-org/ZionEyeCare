@@ -5,7 +5,6 @@ import { variantService } from '../services/variantService';
 import { cartService } from '../services/cartService';
 import { authService } from '../services/authService';
 import { orderService } from '../services/orderService';
-import { topbarService } from '../services/topbarService';
 
 /** Strip currency symbols & commas so */
 const parsePrice = (v) => {
@@ -33,7 +32,7 @@ const getOriginalImageUrl = (url) => {
 };
 
 // ── Product Detail Cache (localStorage, 1-year TTL) ─────────────────────────
-const PD_CACHE_KEY = 'anika_pd_cache';
+const PD_CACHE_KEY = 'zion_pd_cache';
 const PD_CACHE_TTL = 365 * 24 * 60 * 60 * 1000; // 1 year in ms
 
 const loadCachedCategories = () => {
@@ -125,7 +124,7 @@ export const useStore = create((set, get) => ({
 
   // --- Selected Product ---
   selectedProduct: (() => {
-    const saved = localStorage.getItem('anika_selected_product');
+    const saved = localStorage.getItem('zion_selected_product');
     try {
       return saved ? productService.normalizeProductCare(JSON.parse(saved)) : null;
     } catch {
@@ -135,7 +134,7 @@ export const useStore = create((set, get) => ({
 
   // --- Selected Admin Order ---
   selectedAdminOrder: (() => {
-    const saved = localStorage.getItem('anika_selected_admin_order');
+    const saved = localStorage.getItem('zion_selected_admin_order');
     try {
       return saved ? JSON.parse(saved) : null;
     } catch {
@@ -145,17 +144,13 @@ export const useStore = create((set, get) => ({
 
   // --- Selected Admin Customer ---
   selectedAdminCustomer: (() => {
-    const saved = localStorage.getItem('anika_selected_admin_customer');
+    const saved = localStorage.getItem('zion_selected_admin_customer');
     try {
       return saved ? JSON.parse(saved) : null;
     } catch {
       return null;
     }
   })(),
-
-  // --- TopBar Announcement ---
-  topbarData: null,
-  loadingTopbar: false,
 
   // --- Actions ---
 
@@ -170,7 +165,7 @@ export const useStore = create((set, get) => ({
         await get().syncProfileFromMetadata(session.user);
       } else {
         // Load guest cart from localStorage
-        const localCart = localStorage.getItem('anika_guest_cart');
+        const localCart = localStorage.getItem('zion_guest_cart');
         set({
           cartItems: localCart ? JSON.parse(localCart) : []
         });
@@ -214,7 +209,7 @@ export const useStore = create((set, get) => ({
           addresses: [],
           addressesFetchedFor: null
         });
-        localStorage.removeItem('anika_guest_cart');
+        localStorage.removeItem('zion_guest_cart');
       }
     });
 
@@ -259,22 +254,6 @@ export const useStore = create((set, get) => ({
       return [];
     }
   },
-
-  // Caching TopBar Announcement
-  fetchTopBar: async (force = false) => {
-    if (!force && get().topbarData !== null) return get().topbarData;
-    set({ loadingTopbar: true });
-    try {
-      const data = await topbarService.getTopBar();
-      set({ topbarData: data, loadingTopbar: false });
-      return data;
-    } catch (err) {
-      console.error('Error fetching topbar in store:', err);
-      set({ loadingTopbar: false });
-      return null;
-    }
-  },
-  setTopBarData: (data) => set({ topbarData: data }),
 
   // Caching Categories
   fetchCategories: async (force = false) => {
@@ -489,7 +468,7 @@ export const useStore = create((set, get) => ({
       currSelected &&
       String(currSelected.productId || currSelected.product_id || currSelected.id) === String(productId);
     if (isSameSelected) {
-      localStorage.removeItem('anika_selected_product');
+      localStorage.removeItem('zion_selected_product');
     }
     set({
       productDetails: updatedCache,
@@ -521,9 +500,9 @@ export const useStore = create((set, get) => ({
     const normalized = product ? productService.normalizeProductCare(product) : product;
     set({ selectedProduct: normalized });
     if (normalized) {
-      localStorage.setItem('anika_selected_product', JSON.stringify(normalized));
+      localStorage.setItem('zion_selected_product', JSON.stringify(normalized));
     } else {
-      localStorage.removeItem('anika_selected_product');
+      localStorage.removeItem('zion_selected_product');
     }
   },
 
@@ -531,9 +510,9 @@ export const useStore = create((set, get) => ({
     const nextOrder = typeof orderOrFn === 'function' ? orderOrFn(get().selectedAdminOrder) : orderOrFn;
     set({ selectedAdminOrder: nextOrder });
     if (nextOrder) {
-      localStorage.setItem('anika_selected_admin_order', JSON.stringify(nextOrder));
+      localStorage.setItem('zion_selected_admin_order', JSON.stringify(nextOrder));
     } else {
-      localStorage.removeItem('anika_selected_admin_order');
+      localStorage.removeItem('zion_selected_admin_order');
     }
   },
 
@@ -541,9 +520,9 @@ export const useStore = create((set, get) => ({
     const nextCustomer = typeof customerOrFn === 'function' ? customerOrFn(get().selectedAdminCustomer) : customerOrFn;
     set({ selectedAdminCustomer: nextCustomer });
     if (nextCustomer) {
-      localStorage.setItem('anika_selected_admin_customer', JSON.stringify(nextCustomer));
+      localStorage.setItem('zion_selected_admin_customer', JSON.stringify(nextCustomer));
     } else {
-      localStorage.removeItem('anika_selected_admin_customer');
+      localStorage.removeItem('zion_selected_admin_customer');
     }
   },
 
@@ -619,7 +598,7 @@ export const useStore = create((set, get) => ({
         });
       }
       set({ cartItems: localCart });
-      localStorage.setItem('anika_guest_cart', JSON.stringify(localCart));
+      localStorage.setItem('zion_guest_cart', JSON.stringify(localCart));
     }
   },
   updateCartQty: async (itemId, qty) => {
@@ -647,7 +626,7 @@ export const useStore = create((set, get) => ({
         set({ cartItems: prevCart });
       }
     } else {
-      localStorage.setItem('anika_guest_cart', JSON.stringify(optimisticCart));
+      localStorage.setItem('zion_guest_cart', JSON.stringify(optimisticCart));
     }
   },
 
@@ -665,7 +644,7 @@ export const useStore = create((set, get) => ({
         set({ cartItems: prevCart });
       }
     } else {
-      localStorage.setItem('anika_guest_cart', JSON.stringify(optimisticCart));
+      localStorage.setItem('zion_guest_cart', JSON.stringify(optimisticCart));
     }
   },
 
@@ -684,7 +663,7 @@ export const useStore = create((set, get) => ({
         set({ cartItems: prevCart });
       }
     } else {
-      localStorage.setItem('anika_guest_cart', JSON.stringify(optimisticCart));
+      localStorage.setItem('zion_guest_cart', JSON.stringify(optimisticCart));
     }
   },
 
@@ -729,7 +708,7 @@ export const useStore = create((set, get) => ({
               return { ...it, stock: realStock };
             });
             set({ cartItems: updated });
-            localStorage.setItem('anika_guest_cart', JSON.stringify(updated));
+            localStorage.setItem('zion_guest_cart', JSON.stringify(updated));
           }
         } catch (e) {
           console.warn('Failed to refresh guest cart stock:', e);
@@ -745,7 +724,7 @@ export const useStore = create((set, get) => ({
 
     try {
       // Sync Cart
-      const guestCartJson = localStorage.getItem('anika_guest_cart');
+      const guestCartJson = localStorage.getItem('zion_guest_cart');
       const guestCart = guestCartJson ? JSON.parse(guestCartJson) : [];
       const dbCart = await cartService.getCartItems(userId);
 
@@ -802,7 +781,7 @@ export const useStore = create((set, get) => ({
           console.warn('Cart sync upsert failed (non-critical):', syncErr);
         }
       }
-      localStorage.removeItem('anika_guest_cart');
+      localStorage.removeItem('zion_guest_cart');
       const finalCart = await cartService.getCartItems(userId);
       set({ cartItems: finalCart, loadingCart: false });
 

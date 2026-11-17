@@ -3,11 +3,10 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import * as crypto from "node:crypto";
 import { handleCorsPreflight, corsHeaders } from "../_shared/cors.ts";
-import { bookShipmentForOrder } from "../_shared/bookShipment.ts";
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
 const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
-const webhookSecret = Deno.env.get("RAZORPAY_WEBHOOK_SECRET") || "zion_rzp_webhook_secret_2026";
+const webhookSecret = Deno.env.get("RAZORPAY_WEBHOOK_SECRET") || "";
 
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
@@ -87,6 +86,14 @@ Deno.serve(async (req: Request) => {
   try {
     const rawBody = await req.text();
     const signature = req.headers.get("x-razorpay-signature");
+
+    if (!webhookSecret) {
+      console.error("[Razorpay Webhook] RAZORPAY_WEBHOOK_SECRET is not configured");
+      return new Response(JSON.stringify({ error: "Webhook secret not configured" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     if (!signature) {
       console.warn("[Razorpay Webhook] Missing x-razorpay-signature header");
@@ -214,16 +221,7 @@ Deno.serve(async (req: Request) => {
         userData = usr;
       }
 
-      // 5. Book shipment with iCarry
-      try {
-        console.log(`[Razorpay Webhook] Auto-booking shipment with iCarry for order #${order.id}...`);
-        const bookingResult = await bookShipmentForOrder(supabaseAdmin, order.id);
-        console.log(`[Razorpay Webhook] iCarry booking result for #${order.id}:`, bookingResult);
-      } catch (shipErr) {
-        console.error(`[Razorpay Webhook] iCarry booking error for #${order.id}:`, shipErr);
-      }
-
-      // 6. Send order notification email
+      // 5. Send order notification email
       await sendNotificationEmail(updatedOrder || order, order.order_items || [], addressData, userData);
 
       return new Response(JSON.stringify({ ok: true, message: `Order #${order.id} marked as Paid` }), {
@@ -438,15 +436,6 @@ Deno.serve(async (req: Request) => {
         .eq("id", userId)
         .maybeSingle();
       userData = usr;
-    }
-
-    // Auto-book shipment with iCarry
-    try {
-      console.log(`[Razorpay Webhook] Auto-booking shipment with iCarry for order #${newOrder.id}...`);
-      const bookingResult = await bookShipmentForOrder(supabaseAdmin, newOrder.id);
-      console.log(`[Razorpay Webhook] iCarry booking result for #${newOrder.id}:`, bookingResult);
-    } catch (shipErr) {
-      console.error(`[Razorpay Webhook] iCarry booking error for #${newOrder.id}:`, shipErr);
     }
 
     // Send order confirmation email

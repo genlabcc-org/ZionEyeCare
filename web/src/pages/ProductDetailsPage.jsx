@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo, useEffect, memo, lazy, Suspense } from 'react';
+import React, { useState, useCallback, useMemo, useEffect, memo } from 'react';
 import { useRef } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { supabase } from '../lib/supabase';
@@ -9,13 +9,10 @@ import { getColorName } from '../utils/colorUtils';
 
 import './ProductDetailsPage.css';
 import SiteHeader from '../components/SiteHeader';
-import TopBar from '../components/TopBar';
+import SiteFooter from '../components/SiteFooter';
 import Toast from '../components/Toast';
 import SEO from '../components/SEO';
 import { useStore } from '../hooks/useStore';
-
-// Lazy load Footer
-const SiteFooter = lazy(() => import('../components/SiteFooter'));
 
 // ── Product Gallery Component (Vertical Thumbnails on Left + Main Image) ──
 const ProductGallery = memo(({ activeThumb, setActiveThumb, displayImage, displayName, thumbs }) => {
@@ -1136,7 +1133,6 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
   return (
     <div className="dp-page-root">
       {seoData && <SEO {...seoData} />}
-      <TopBar />
       {/* ── HEADER ── */}
       <SiteHeader activeLink="" onLinkClick={handleHeaderLinkClick} />
 
@@ -1545,9 +1541,7 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
       />
 
       {/* ── FOOTER ── */}
-      <Suspense fallback={<div style={{ height: 200 }} />}>
-        <SiteFooter />
-      </Suspense>
+      <SiteFooter />
 
       {/* ── TOAST ── */}
       <Toast

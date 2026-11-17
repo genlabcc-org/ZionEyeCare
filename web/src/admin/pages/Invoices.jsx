@@ -201,7 +201,7 @@ const Invoices = ({ orders = [], loading = false }) => {
   const [isPrinting, setIsPrinting] = useState(false);
   const [toast, setToast] = useState(null);
   const [autoPrint, setAutoPrint] = useState(() => {
-    return localStorage.getItem("anika_auto_print") !== "false";
+    return localStorage.getItem("zion_auto_print") !== "false";
   });
   const [previewOrder, setPreviewOrder] = useState(null);
   const [previewAddress, setPreviewAddress] = useState(null);
@@ -311,7 +311,7 @@ const Invoices = ({ orders = [], loading = false }) => {
   const handleToggleAutoPrint = () => {
     setAutoPrint((prev) => {
       const next = !prev;
-      localStorage.setItem("anika_auto_print", String(next));
+      localStorage.setItem("zion_auto_print", String(next));
       showToast(
         next
           ? "🟢 Auto-Print turned ON — invoices will print immediately on new orders!"

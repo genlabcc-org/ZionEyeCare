@@ -1,7 +1,6 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { RazorpayClient } from "./client.ts";
 import { Product, Order } from "../../_shared/types.ts";
-import { cancelShipmentForOrder } from "../../_shared/bookShipment.ts";
 
 /** Normalise a state name for comparison (same logic as the frontend). */
 function normState(s: string | null | undefined): string {
@@ -633,21 +632,6 @@ export class RazorpayService {
     const paymentId = order.razorpay_payment_id || order.payment_id;
     if (!paymentId) {
       throw new Error(`Order #${orderId} does not have a Razorpay payment ID`);
-    }
-
-    // 0. First cancel any active courier shipment with iCarry BEFORE refunding via Razorpay
-    try {
-      console.log(`[refundOrder] Cancelling iCarry shipment for order #${orderId} before Razorpay refund...`);
-      const cancelRes = await cancelShipmentForOrder(this.supabaseAdmin, String(orderId));
-      if (cancelRes?.error) {
-        console.warn(`[refundOrder] iCarry cancel warning: ${cancelRes.error}`);
-      } else if (cancelRes?.skipped) {
-        console.log(`[refundOrder] No active iCarry shipment for order #${orderId} — courier cancel skipped.`);
-      } else {
-        console.log(`[refundOrder] iCarry shipment cancelled successfully before refund.`);
-      }
-    } catch (cancelErr) {
-      console.warn(`[refundOrder] Non-fatal exception cancelling iCarry shipment:`, cancelErr);
     }
 
     // 1. Fetch order items for product details

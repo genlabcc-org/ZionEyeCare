@@ -359,7 +359,7 @@ const AddBanner = ({ onBack, onPublish, initialData }) => {
             <input
               type="text"
               className="ab__input ab__input--link"
-              placeholder="e.g. /product/35 or /rings or https://..."
+              placeholder="e.g. /product/35 or /category/eyeglasses or https://..."
               value={productLink}
               onChange={(e) => setProductLink(e.target.value)}
             />

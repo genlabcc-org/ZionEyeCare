@@ -376,7 +376,6 @@ export default function SiteHeader({ activeLink = "", onLinkClick }) {
       const rect = headerRef.current.getBoundingClientRect();
       const actualHeight = headerRef.current.offsetHeight || 56;
       // When sticky/fixed at top, rect.bottom matches actualHeight.
-      // At top of page (below topbar announcement), rect.bottom will be topbar + header.
       const calculatedBottom = rect.bottom >= actualHeight ? Math.round(rect.bottom) : actualHeight;
       setHeaderBottom(calculatedBottom);
     }

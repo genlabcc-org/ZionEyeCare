@@ -123,7 +123,7 @@ const DangerZone = () => {
       });
 
       const today = new Date().toISOString().slice(0, 10);
-      downloadCSV(`anika_all_products_${today}.csv`, headers, rows);
+      downloadCSV(`zion_all_products_${today}.csv`, headers, rows);
       showToast(`Exported ${products.length} products successfully!`, "success");
     } catch (err) {
       console.error("Failed to export products CSV:", err);
@@ -196,7 +196,7 @@ const DangerZone = () => {
       });
 
       const today = new Date().toISOString().slice(0, 10);
-      downloadCSV(`anika_all_orders_${today}.csv`, headers, rows);
+      downloadCSV(`zion_all_orders_${today}.csv`, headers, rows);
       showToast(`Exported ${orders.length} orders successfully!`, "success");
     } catch (err) {
       console.error("Failed to export orders CSV:", err);
@@ -250,7 +250,7 @@ const DangerZone = () => {
       });
 
       const today = new Date().toISOString().slice(0, 10);
-      downloadCSV(`anika_all_customers_${today}.csv`, headers, rows);
+      downloadCSV(`zion_all_customers_${today}.csv`, headers, rows);
       showToast(`Exported ${customers.length} customers successfully!`, "success");
     } catch (err) {
       console.error("Failed to export customers CSV:", err);

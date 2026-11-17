@@ -21,7 +21,7 @@ import settingsIcon from "../../assets/admin/settings.png";
 import searchIcon from "../../assets/admin/search.png";
 import dropdownIcon from "../../assets/admin/dropdown.png";
 
-import AddProduct from "./addproduct";
+import ProductForm from "./ProductForm";
 import ProductList from "./productlist";
 
 import AddCategory from "./addcategory";
@@ -42,7 +42,6 @@ import Shipping from "./Shipping";
 import AdminAccount from "./Adminaccount";
 import DangerZone from "./Dangerzone";
 import Invoices from "./Invoices";
-import TopBarSettings from "./TopBarSettings";
 import CouponManagement from "./CouponManagement";
 
 // ── Icons ───────────────────────────────────────────────────────
@@ -111,7 +110,6 @@ const menuItems = [
   },
   // { id: "analytics", label: "Analytics", path: "/admin/analytics" },
   { id: "shipping", label: "Shipping", path: "/admin/shipping" },
-  { id: "topbar", label: "TopBar Content", path: "/admin/topbar" },
   {
     id: "settings", label: "Settings", path: "/admin/account", children: [
       { label: "Admin Account", path: "/admin/account" },
@@ -179,13 +177,6 @@ const sidebarIcons = {
       <circle cx="18.5" cy="18.5" r="2.5" />
     </svg>
   ),
-  topbar: (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="2" y="4" width="20" height="16" rx="2" />
-      <line x1="2" y1="9" x2="22" y2="9" />
-      <line x1="6" y1="6.5" x2="14" y2="6.5" />
-    </svg>
-  ),
   settings: (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <circle cx="12" cy="12" r="3" />
@@ -198,7 +189,7 @@ const HIDE_ADD_PRODUCT_PATHS = [
   "/admin/categories", "/admin/categories/add", "/admin/products/add", "/admin/products/add-multiple", "/admin/products/edit-multiple",
   "/admin/orders", "/admin/orders/detail", "/admin/invoices",
   "/admin/customers", "/admin/customers/detail",
-  "/admin/banners", "/admin/banners/add", "/admin/topbar", "/admin/coupons", "/admin/analytics",
+  "/admin/banners", "/admin/banners/add", "/admin/coupons", "/admin/analytics",
   "/admin/store", "/admin/contact", "/admin/shipping", "/admin/payment",
   "/admin/account", "/admin/notification", "/admin/policies", "/admin/danger"
 ];
@@ -970,7 +961,7 @@ const TotalCustomersChart = ({ orders = [], customers = [], loading = false }) =
           </div>
         )}
 
-        <svg viewBox="0 0 520 180" width="100%" height="auto" style={{ overflow: "visible" }}>
+        <svg viewBox="0 0 520 180" width="100%" style={{ overflow: "visible", height: "auto", display: "block" }}>
           {/* Horizontal Dashed Grid lines */}
           <g stroke="#E2E8F0" strokeDasharray="3 3">
             <line x1="50" y1="30" x2="480" y2="30" />
@@ -1752,13 +1743,13 @@ function SubcategoryCard({
   );
 }
 
-function UnifiedProductFormWrapper({ categories, subcategoriesCache, fetchSubcategoriesForParent, onSave, navigate }) {
+function ProductFormWrapper({ categories, subcategoriesCache, fetchSubcategoriesForParent, onSave, navigate }) {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const editingProductId = location.state?.editingProductId || searchParams.get("id");
 
   return (
-    <AddProduct
+    <ProductForm
       key={editingProductId || "new"}
       editingProductId={editingProductId || null}
       categories={categories}
@@ -2132,7 +2123,6 @@ const Dashboard = () => {
     if (currentPath.startsWith("/admin/banners")) return "Banner & Content";
 
     if (currentPath.startsWith("/admin/coupons")) return "Coupon Management";
-    if (currentPath.startsWith("/admin/topbar")) return "TopBar Announcement";
     if (currentPath.startsWith("/admin/shipping")) return "Shipping & Delivery";
     if (currentPath.startsWith("/admin/account")) return "Admin Account";
     if (currentPath.startsWith("/admin/danger")) return "Danger Zone";
@@ -2203,9 +2193,6 @@ const Dashboard = () => {
     if (currentPath.startsWith("/admin/coupons")) {
       return "Create and manage discounts, promo codes, and vouchers";
     }
-    if (currentPath.startsWith("/admin/topbar")) {
-      return "Manage announcement bar text displayed at the top of the store";
-    }
     if (currentPath.startsWith("/admin/shipping")) {
       return "Configure shipping zones, courier rates, and delivery timeframes";
     }
@@ -2233,14 +2220,9 @@ const Dashboard = () => {
   const goToAddProduct = () => {
     setEditingProduct(null);
     try {
-      sessionStorage.removeItem("zion_variant_draft_new");
       sessionStorage.removeItem("zion_product_draft_new");
     } catch { }
     navigate("/admin/products/add");
-  };
-
-  const goToAddMultipleProduct = () => {
-    goToAddProduct();
   };
 
   const goToOrder = () => {
@@ -2843,7 +2825,7 @@ const Dashboard = () => {
                 onDeleteProduct={handleDeleteProduct}
               />} />
             <Route path="/products/add" element={
-              <UnifiedProductFormWrapper
+              <ProductFormWrapper
                 categories={categories}
                 subcategoriesCache={subcategoriesCache}
                 fetchSubcategoriesForParent={fetchSubcategoriesForParent}
@@ -2857,7 +2839,7 @@ const Dashboard = () => {
             } />
 
             <Route path="/products/edit-multiple" element={
-              <UnifiedProductFormWrapper
+              <ProductFormWrapper
                 categories={categories}
                 subcategoriesCache={subcategoriesCache}
                 fetchSubcategoriesForParent={fetchSubcategoriesForParent}
@@ -2923,9 +2905,6 @@ const Dashboard = () => {
             {/* Banners */}
             <Route path="/banners" element={<BannerList banners={banners} onAddBanner={goToAddBanner} onEditBanner={handleEditBanner} onDeleteBanner={handleDeleteBanner} />} />
             <Route path="/banners/add" element={<AddBanner initialData={editingBanner} onBack={() => navigate("/admin/banners")} onPublish={handlePublishBanner} />} />
-
-            {/* TopBar Announcement */}
-            <Route path="/topbar" element={<TopBarSettings />} />
 
             {/* Coupons Management */}
             <Route path="/coupons" element={<CouponManagement />} />

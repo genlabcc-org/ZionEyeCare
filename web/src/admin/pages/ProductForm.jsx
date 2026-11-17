@@ -3,7 +3,7 @@ import { variantService } from "../../services/variantService";
 import { useStore } from "../../hooks/useStore";
 import { getColorName } from "../../utils/colorUtils";
 import ConfirmDialog from "./dialogs/confirmdialogs";
-import "./addproduct.css";
+import "./ProductForm.css";
 
 const COLOR_SWATCHES = [
   "#000000", // Black
@@ -137,7 +137,7 @@ const clearDraftMediaFromIDB = async (key) => {
       tx.onerror = () => reject(tx.error);
     });
     db.close();
-  } catch {}
+  } catch { }
 };
 
 const calcDiscount = (mrp, sellingPrice) => {
@@ -190,7 +190,7 @@ const normalizeDraftSizes = (draftSizes) => {
   });
 };
 
-const AddProduct = ({
+const ProductForm = ({
   categories = [],
   categoryPath = [],
   onGoToRoot,
@@ -203,7 +203,7 @@ const AddProduct = ({
 }) => {
   const isEditing = !!editingProductId;
   const [loading, setLoading] = useState(isEditing);
-  const draftKey = `zion_variant_draft_${editingProductId || "new"}`;
+  const draftKey = `zion_product_draft_${editingProductId || "new"}`;
 
   const getSavedDraft = () => {
     try {
@@ -406,7 +406,7 @@ const AddProduct = ({
         if (!stillOnProductForm) {
           try {
             sessionStorage.removeItem(draftKey);
-          } catch {}
+          } catch { }
           clearDraftMediaFromIDB(draftKey);
         }
       }, 150);
@@ -458,22 +458,22 @@ const AddProduct = ({
           existingVariants.length > 0
             ? getMostCommonVariantValue(existingVariants, "stock", String(existingVariants[0]?.stock ?? "0"))
             : product.stock != null
-            ? String(product.stock)
-            : "";
+              ? String(product.stock)
+              : "";
 
         const resolvedCommonOrigPrice =
           existingVariants.length > 0
             ? getMostCommonVariantValue(existingVariants, "compare_price", product.compare_price != null ? String(product.compare_price) : "")
             : product.compare_price != null
-            ? String(product.compare_price)
-            : "";
+              ? String(product.compare_price)
+              : "";
 
         const resolvedCommonOfferPrice =
           existingVariants.length > 0
             ? getMostCommonVariantValue(existingVariants, "price", product.price != null ? String(product.price) : "")
             : product.price != null
-            ? String(product.price)
-            : "";
+              ? String(product.price)
+              : "";
 
         if (existingVariants.length > 0) {
           // Group variants by size
@@ -1401,8 +1401,8 @@ const AddProduct = ({
       } else {
         const defQ =
           s.defaultVariant?.quantity !== undefined &&
-          s.defaultVariant?.quantity !== null &&
-          s.defaultVariant?.quantity !== ""
+            s.defaultVariant?.quantity !== null &&
+            s.defaultVariant?.quantity !== ""
             ? s.defaultVariant.quantity
             : globalStock;
         computedTotalStock += parseInt(defQ, 10) || 0;
@@ -2193,4 +2193,4 @@ const AddProduct = ({
   );
 };
 
-export default AddProduct;
+export default ProductForm;

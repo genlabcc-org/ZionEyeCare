@@ -1,10 +1,15 @@
 import { S3Client, PutObjectCommand, DeleteObjectCommand } from "npm:@aws-sdk/client-s3";
+import { createClient } from "npm:@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, DELETE, OPTIONS",
 };
+
+const supabaseUrl = Deno.env.get("SUPABASE_URL") || "";
+const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
+const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
 
 const r2 = new S3Client({
   region: "auto",
@@ -15,16 +20,64 @@ const r2 = new S3Client({
   },
 });
 
+async function requireAdmin(req: Request): Promise<{ ok: boolean; status?: number; error?: string }> {
+  const authHeader = req.headers.get("Authorization") || "";
+  if (!authHeader.startsWith("Bearer ")) {
+    return { ok: false, status: 401, error: "Missing Authorization header" };
+  }
+  const token = authHeader.slice(7).trim();
+  if (!token) {
+    return { ok: false, status: 401, error: "Empty bearer token" };
+  }
+
+  const { data: { user }, error } = await supabaseAdmin.auth.getUser(token);
+  if (error || !user) {
+    return { ok: false, status: 401, error: "Invalid or expired token" };
+  }
+
+  const metaRole = String(
+    user.app_metadata?.role || user.user_metadata?.role || ""
+  ).trim().toLowerCase();
+  if (metaRole === "admin" || metaRole === "super admin") {
+    return { ok: true };
+  }
+
+  const { data: dbUser } = await supabaseAdmin
+    .from("users")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  const dbRole = String(dbUser?.role || "").trim().toLowerCase();
+  if (dbRole === "admin" || dbRole === "super admin") {
+    return { ok: true };
+  }
+
+  return { ok: false, status: 403, error: "Admin access required" };
+}
+
+function isSafeKey(key: string): boolean {
+  return Boolean(key) && !key.includes("..") && !key.startsWith("/");
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
+    const authCheck = await requireAdmin(req);
+    if (!authCheck.ok) {
+      return new Response(JSON.stringify({ error: authCheck.error }), {
+        status: authCheck.status || 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     if (req.method === "DELETE") {
       const { filePath } = await req.json();
-      if (!filePath) {
-        return new Response(JSON.stringify({ error: "Missing filePath" }), {
+      if (!filePath || !isSafeKey(filePath)) {
+        return new Response(JSON.stringify({ error: "Invalid or missing filePath" }), {
           status: 400,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
@@ -40,14 +93,13 @@ Deno.serve(async (req) => {
       });
     }
 
-    // existing upload (POST) logic below, unchanged
     const formData = await req.formData();
     const file = formData.get("file") as File;
-    const filePath = formData.get("filePath") as string;
+    const filePath = String(formData.get("filePath") || "");
     const cacheControl = (formData.get("cacheControl") as string) || "3600";
 
-    if (!file || !filePath) {
-      return new Response(JSON.stringify({ error: "Missing file or filePath" }), {
+    if (!file || !isSafeKey(filePath)) {
+      return new Response(JSON.stringify({ error: "Invalid or missing file or filePath" }), {
         status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
@@ -67,7 +119,7 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ publicUrl }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
-  } catch (err) {
+  } catch (err: any) {
     console.error("Function error:", err);
     return new Response(JSON.stringify({ error: err.message }), {
       status: 500,

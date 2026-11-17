@@ -5,12 +5,10 @@ import { orderService } from "../services/orderService";
 import { emailService } from "../services/emailService";
 import { useStore } from "../hooks/useStore";
 import { supabase } from "../lib/supabase";
-import { icarryService } from "../services/icarryService";
 import { shippingService, normState } from "../services/shippingService";
 import { couponService } from "../services/couponService";
 import "./CheckoutPage.css";
 import Navbar from "../components/SiteHeader";
-import TopBar from "../components/TopBar";
 import Footer from "../components/SiteFooter";
 import Toast from "../components/Toast";
 import SEO from "../components/SEO";
@@ -279,105 +277,22 @@ export default function CheckoutPage() {
     setErrors({});
   };
 
-  // Instant-cached & debounced iCarry pincode serviceability check
+  // Validate pincode via regex
   useEffect(() => {
     const pin = (form.pinCode || "").trim();
     if (!isValidPincodeRegex(pin)) {
       setPincodeServiceable(null);
+      setCodServiceable(true);
       setPincodeChecking(false);
       activePincodeCheckRef.current = null;
       return;
     }
 
-    // 1. Instant cache hit: 0ms response!
-    if (clientPincodeCache.has(pin)) {
-      const cached = clientPincodeCache.get(pin);
-      const isServ = typeof cached === 'object' ? cached.serviceable : cached;
-      const isCod = typeof cached === 'object' ? cached.isCodSupported : true;
-      setPincodeServiceable(isServ);
-      setCodServiceable(isCod);
-      setPincodeChecking(false);
-      activePincodeCheckRef.current = Promise.resolve(isServ);
-      if (isServ) {
-        setErrors((prev) => ({ ...prev, pinCode: undefined }));
-      } else {
-        setErrors((prev) => ({
-          ...prev,
-          pinCode: "Pincode not serviceable for delivery",
-        }));
-      }
-      return;
-    }
-
-    let active = true;
-    setPincodeChecking(true);
-
-    const checkPromise = new Promise(async (resolve) => {
-      try {
-        const timeoutPromise = new Promise((_, reject) =>
-          setTimeout(() => reject(new Error("Pincode check timed out")), 3500)
-        );
-        const res = await Promise.race([
-          icarryService.checkPincode(pin),
-          timeoutPromise
-        ]);
-
-        if (!active) return resolve(true);
-
-        let serviceable = true;
-        let isCodSupported = true;
-        if (res && res.success === 1 && Array.isArray(res.msg) && res.msg.length > 0) {
-          serviceable = res.msg.some(
-            (m) => m.prepaid === 'Y' || m.prepaid === 'U' || !m.prepaid
-          );
-          // Check if any courier explicitly supports COD for this pincode
-          const hasCodCourier = res.msg.some(
-            (m) => m.cod === 'Y' || m.cod === 'U'
-          );
-          isCodSupported = hasCodCourier || res.msg.some((m) => m.cod !== 'N');
-        } else if (res && (res.success === 0 || (Array.isArray(res.msg) && res.msg.length === 0))) {
-          serviceable = false;
-          isCodSupported = false;
-        } else {
-          serviceable = isValidPincodeRegex(pin);
-          isCodSupported = true;
-        }
-
-        clientPincodeCache.set(pin, { serviceable, isCodSupported });
-        if (active) {
-          setPincodeServiceable(serviceable);
-          setCodServiceable(isCodSupported);
-          if (serviceable) {
-            setErrors((prev) => ({ ...prev, pinCode: undefined }));
-          } else {
-            setErrors((prev) => ({
-              ...prev,
-              pinCode: "Pincode not serviceable for delivery",
-            }));
-          }
-        }
-        resolve(serviceable);
-      } catch (err) {
-        console.warn("iCarry pincode check failed or timed out, failing open to regex:", err);
-        const fallback = isValidPincodeRegex(pin);
-        clientPincodeCache.set(pin, { serviceable: fallback, isCodSupported: true });
-        if (active) {
-          setPincodeServiceable(fallback);
-          setCodServiceable(true);
-        }
-        resolve(fallback);
-      } finally {
-        if (active) {
-          setPincodeChecking(false);
-        }
-      }
-    });
-
-    activePincodeCheckRef.current = checkPromise;
-
-    return () => {
-      active = false;
-    };
+    setPincodeServiceable(true);
+    setCodServiceable(true);
+    setPincodeChecking(false);
+    activePincodeCheckRef.current = Promise.resolve(true);
+    setErrors((prev) => ({ ...prev, pinCode: undefined }));
   }, [form.pinCode]);
 
   // Load shipping rates once
@@ -802,8 +717,7 @@ export default function CheckoutPage() {
             payment: "COD",
             type: "Regular",
             status: "Order Placed",
-            delivery_status: "Pending Booking",
-            delivery_provider: "iCarry",
+            delivery_status: "Pending",
           })
           .select()
           .single();
@@ -838,15 +752,6 @@ export default function CheckoutPage() {
             userId: userId,
             orderId: generatedOrderId,
           });
-        }
-
-        // Auto-book courier shipment with iCarry for COD order
-        try {
-          console.log(`[Checkout] Auto-booking COD courier shipment for order #${generatedOrderId}...`);
-          const bookingRes = await icarryService.bookCodOrder(generatedOrderId);
-          console.log("[Checkout] iCarry COD booking result:", bookingRes);
-        } catch (bookingErr) {
-          console.warn("[Checkout] iCarry COD auto-booking notice (admin can retry from dashboard):", bookingErr);
         }
 
         emailService.sendOrderNotificationEmail({
@@ -945,7 +850,7 @@ export default function CheckoutPage() {
               setIsProcessingPayment(true);
 
               // Payment completed in Razorpay popup.
-              // Order verification, "Paid" status update, iCarry courier booking,
+              // Order verification, "Paid" status update,
               // and customer email notifications are handled reliably and securely
               // via the server-side Razorpay webhook.
               if (!checkoutProduct) {
@@ -1007,7 +912,6 @@ export default function CheckoutPage() {
         description="Complete your order securely on Zion Eye Care Clinic."
         robots="noindex, nofollow"
       />
-      <TopBar />
       <Navbar onLinkClick={handleNavClick} />
       <div className="checkout-page-container">
 

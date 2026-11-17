@@ -4,7 +4,7 @@ import { FaFacebookF, FaInstagram, FaYoutube } from 'react-icons/fa';
 import './SiteFooter.css';
 
 const SiteFooter = () => (
-  <footer className="faywalk-footer">
+  <footer className="zion-footer">
     <div className="fw-footer-container">
       <div className="fw-footer-grid">
         <div className="fw-col fw-brand-col">

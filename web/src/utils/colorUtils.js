@@ -2,7 +2,7 @@
  * Utility functions for resolving hex color codes to human-readable names.
  */
 
-export const COLOR_SWATCH_NAMES = {
+const COLOR_SWATCH_NAMES = {
   "#EF4444": "Red",
   "#9B111E": "Ruby Red",
   "#E75480": "Pink",

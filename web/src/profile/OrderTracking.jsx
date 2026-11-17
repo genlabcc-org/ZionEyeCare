@@ -321,7 +321,7 @@ export default function OrderTracking() {
     const isNdr = d.startsWith("ndr");
     const isDeliveredDone = ["delivered", "returned"].includes(s) || d === "delivered";
 
-    const carrierName = order?.courier_name || order?.courierName || deliveryCarrier || "iCarry";
+    const carrierName = order?.courier_name || order?.courierName || deliveryCarrier || "Standard Courier";
 
     const steps = [
       {
@@ -490,7 +490,7 @@ export default function OrderTracking() {
                         <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                           <div style={{ fontSize: "13.5px", color: textColor }}>
                             <span style={{ color: isDeliveryCancelled ? "#b91c1c" : isNDR ? "#b45309" : "#64748b" }}>Courier: </span>
-                            <strong>{order.courier_name || order.delivery_provider || "iCarry"}</strong>
+                            <strong>{order.courier_name || order.delivery_provider || "Standard Courier"}</strong>
                           </div>
                           <div style={{ fontSize: "13.5px", color: textColor }}>
                             <span style={{ color: isDeliveryCancelled ? "#b91c1c" : isNDR ? "#b45309" : "#64748b" }}>Waybill (AWB): </span>

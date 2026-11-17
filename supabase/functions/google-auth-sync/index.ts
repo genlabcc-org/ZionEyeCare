@@ -1,10 +1,16 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { createRemoteJWKSet, jwtVerify } from "npm:jose@5";
 import { handleCorsPreflight, corsHeaders } from "../_shared/cors.ts";
 
 const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
 const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const FIREBASE_PROJECT_ID = Deno.env.get("FIREBASE_PROJECT_ID") || "zion-eyecare";
 
 const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+
+const FIREBASE_JWKS = createRemoteJWKSet(
+  new URL("https://www.googleapis.com/service_accounts/v1/jwk/securetoken@system.gserviceaccount.com")
+);
 
 Deno.serve(async (req: Request) => {
   const corsResponse = handleCorsPreflight(req);
@@ -19,43 +25,53 @@ Deno.serve(async (req: Request) => {
 
   try {
     const body = await req.json().catch(() => ({}));
-    const { email, name, phone } = body;
+    const idToken = typeof body.idToken === "string" ? body.idToken.trim() : "";
 
-    const cleanPhone = (phone || "").trim();
-    let cleanEmail = (email || "").trim().toLowerCase();
-
-    if (!cleanEmail && !cleanPhone) {
-      return new Response(JSON.stringify({ error: "Email or phone is required" }), {
-        status: 400,
+    if (!idToken) {
+      return new Response(JSON.stringify({ error: "Missing Firebase idToken" }), {
+        status: 401,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    // If no email but phone is provided, check if user exists in public.users with this phone
-    if (!cleanEmail && cleanPhone) {
-      const { data: userByPhone } = await supabaseAdmin
-        .from("users")
-        .select("email, id")
-        .eq("phone", cleanPhone)
-        .maybeSingle();
-
-      if (userByPhone?.email && userByPhone.email.includes("@")) {
-        cleanEmail = userByPhone.email;
-      } else {
-        cleanEmail = `${cleanPhone.replace(/[^0-9]/g, "")}@phone.zioneyecare.com`;
-      }
+    // Cryptographically verify Firebase ID token using Google's public JWKS
+    let payload: Record<string, unknown>;
+    try {
+      const verified = await jwtVerify(idToken, FIREBASE_JWKS, {
+        issuer: `https://securetoken.google.com/${FIREBASE_PROJECT_ID}`,
+        audience: FIREBASE_PROJECT_ID,
+      });
+      payload = verified.payload as Record<string, unknown>;
+    } catch (verifyErr) {
+      console.warn("[google-auth-sync] Invalid Firebase ID token:", verifyErr);
+      return new Response(JSON.stringify({ error: "Invalid or expired Firebase ID token" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    const cleanName = (name || "").trim() || (cleanEmail ? cleanEmail.split("@")[0] : "User");
+    const tokenEmail = typeof payload.email === "string" ? payload.email.trim().toLowerCase() : "";
+    const emailVerified = payload.email_verified === true;
+    const tokenPhone = typeof payload.phone_number === "string" ? payload.phone_number.trim() : "";
+    const tokenName = typeof payload.name === "string" ? payload.name.trim() : "";
+
+    if (!tokenEmail || !emailVerified) {
+      return new Response(JSON.stringify({ error: "Verified email is required on Google account" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const cleanName = tokenName || tokenEmail.split("@")[0] || "User";
 
     // 1. Generate magiclink / signup OTP without sending any email
     const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
       type: "magiclink",
-      email: cleanEmail,
+      email: tokenEmail,
       options: {
         data: {
           name: cleanName,
-          phone: cleanPhone || undefined,
+          phone: tokenPhone || undefined,
         },
       },
     });
@@ -70,9 +86,8 @@ Deno.serve(async (req: Request) => {
 
     const userId = linkData?.user?.id;
 
-    // 2. Ensure row in public.users table exists with user info
+    // 2. Ensure row in public.users table exists while preserving existing role
     if (userId) {
-      // Check if user already exists in public.users to preserve role
       const { data: existingUser } = await supabaseAdmin
         .from("users")
         .select("role, name, phone")
@@ -81,12 +96,12 @@ Deno.serve(async (req: Request) => {
 
       const userRole = existingUser?.role || "user";
       const userName = existingUser?.name || cleanName;
-      const userPhone = cleanPhone || existingUser?.phone || "No phone set";
+      const userPhone = tokenPhone || existingUser?.phone || "No phone set";
 
       await supabaseAdmin.from("users").upsert(
         {
           id: userId,
-          email: cleanEmail,
+          email: tokenEmail,
           name: userName,
           phone: userPhone,
           role: userRole,

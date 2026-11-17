@@ -261,7 +261,7 @@ export default function Orders() {
                         onClick={(e) => e.stopPropagation()}
                       >
                         <div className="ao-shipment-meta">
-                          <span><strong>Courier:</strong> {order.courier_name || order.courierName || order.deliveryProvider || 'iCarry'}</span>
+                          <span><strong>Courier:</strong> {order.courier_name || order.courierName || order.deliveryProvider || 'Standard Courier'}</span>
                           <span className="ao-shipment-dot">·</span>
                           <span><strong>AWB:</strong> {order.waybill}</span>
                           <span className="ao-shipment-dot">·</span>

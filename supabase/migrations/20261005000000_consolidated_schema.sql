@@ -1,5 +1,5 @@
 -- =============================================================================
--- FAYWALK E-COM — COMPLETE CONSOLIDATED DATABASE SCHEMA
+-- ZION EYE CARE — COMPLETE CONSOLIDATED DATABASE SCHEMA
 -- =============================================================================
 
 -- =============================================================================
@@ -17,6 +17,7 @@ CREATE TABLE IF NOT EXISTS public.users (
   phone      text,
   email      text,
   role       text NOT NULL DEFAULT 'user',
+  status     text DEFAULT 'Active',
   updated_at timestamp with time zone DEFAULT now(),
   created_at timestamp with time zone DEFAULT timezone('utc'::text, now())
 );
@@ -24,33 +25,46 @@ CREATE TABLE IF NOT EXISTS public.users (
 -- Helper function to check if current user is admin
 CREATE OR REPLACE FUNCTION public.is_admin()
 RETURNS boolean
-LANGUAGE sql
+LANGUAGE plpgsql
 SECURITY DEFINER
-SET search_path = public
-STABLE
 AS $$
-  SELECT EXISTS (
-    SELECT 1 FROM public.users
-    WHERE id = auth.uid() AND role = 'admin'
+BEGIN
+  RETURN (
+    coalesce(
+      (auth.jwt() ->> 'role') = 'service_role'
+      OR LOWER(coalesce(auth.jwt() -> 'user_metadata' ->> 'role', '')) IN ('admin', 'super admin')
+      OR LOWER(coalesce(auth.jwt() -> 'app_metadata' ->> 'role', '')) IN ('admin', 'super admin')
+      OR EXISTS (
+        SELECT 1 FROM public.users
+        WHERE id = auth.uid()
+          AND LOWER(coalesce(role, '')) IN ('admin', 'super admin')
+      ),
+      false
+    )
   );
+END;
 $$;
 
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "Users can view users" ON public.users;
 CREATE POLICY "Users can view users"
   ON public.users FOR SELECT
   USING (auth.uid() = id OR public.is_admin());
 
-DROP POLICY IF EXISTS "Users can insert users" ON public.users;
 CREATE POLICY "Users can insert users"
   ON public.users FOR INSERT
-  WITH CHECK (auth.uid() = id);
+  WITH CHECK (auth.uid() = id AND LOWER(coalesce(role, 'user')) = 'user');
 
-DROP POLICY IF EXISTS "Users can update users" ON public.users;
 CREATE POLICY "Users can update users"
   ON public.users FOR UPDATE
-  USING (auth.uid() = id OR public.is_admin());
+  USING (auth.uid() = id OR public.is_admin())
+  WITH CHECK (
+    public.is_admin()
+    OR (
+      auth.uid() = id
+      AND role = (SELECT u.role FROM public.users u WHERE u.id = auth.uid())
+    )
+  );
 
 
 -- =============================================================================
@@ -70,12 +84,10 @@ CREATE TABLE IF NOT EXISTS public.categories (
 
 ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "Allow public read access to categories" ON public.categories;
 CREATE POLICY "Allow public read access to categories"
   ON public.categories FOR SELECT
   USING (true);
 
-DROP POLICY IF EXISTS "Admins can manage categories" ON public.categories;
 CREATE POLICY "Admins can manage categories"
   ON public.categories FOR ALL
   USING (public.is_admin());
@@ -101,12 +113,10 @@ CREATE INDEX IF NOT EXISTS subcategories_category_id_idx ON public.subcategories
 
 ALTER TABLE public.subcategories ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "Allow public read access to subcategories" ON public.subcategories;
 CREATE POLICY "Allow public read access to subcategories"
   ON public.subcategories FOR SELECT
   USING (true);
 
-DROP POLICY IF EXISTS "Admins can manage subcategories" ON public.subcategories;
 CREATE POLICY "Admins can manage subcategories"
   ON public.subcategories FOR ALL
   USING (public.is_admin());
@@ -119,18 +129,24 @@ CREATE TABLE IF NOT EXISTS public.products (
   product_id          bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   name                text NOT NULL,
   description         text,
+  sku                 text,
   category_id         bigint REFERENCES public.categories(category_id) ON DELETE SET NULL,
   subcategory_id      bigint REFERENCES public.subcategories(subcategory_id) ON DELETE SET NULL,
-  price               numeric(10,2) NOT NULL,
+  price               numeric(10,2) NOT NULL DEFAULT 0,
+  compare_price       numeric(10,2),
   compare_at_price    numeric(10,2),
+  discount_price      numeric(10,2),
+  stock               integer DEFAULT 0,
+  stock_quantity      integer DEFAULT 0,
+  image_url           text,
   images              jsonb DEFAULT '[]'::jsonb,
-  slug                text NOT NULL UNIQUE,
+  slug                text UNIQUE,
+  has_variants        boolean DEFAULT false,
   is_featured         boolean DEFAULT false,
   is_active           boolean DEFAULT true,
   is_new_arrival      boolean DEFAULT false,
   is_best_seller      boolean DEFAULT false,
   is_trending         boolean DEFAULT false,
-  is_festive_edit     boolean DEFAULT false,
   rating              numeric(3,2) DEFAULT 0,
   review_count        integer DEFAULT 0,
   material            text,
@@ -138,8 +154,8 @@ CREATE TABLE IF NOT EXISTS public.products (
   care_instructions   text,
   color               text,
   colors              jsonb DEFAULT '[]'::jsonb,
+  sizes               jsonb DEFAULT '[]'::jsonb,
   available_sizes     jsonb DEFAULT '[]'::jsonb,
-  stock_quantity      integer DEFAULT 0,
   tags                jsonb DEFAULT '[]'::jsonb,
   badge               text,
   created_at          timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
@@ -152,12 +168,10 @@ CREATE INDEX IF NOT EXISTS products_slug_idx ON public.products (slug);
 
 ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "Allow public read access to products" ON public.products;
 CREATE POLICY "Allow public read access to products"
   ON public.products FOR SELECT
   USING (true);
 
-DROP POLICY IF EXISTS "Admins can manage products" ON public.products;
 CREATE POLICY "Admins can manage products"
   ON public.products FOR ALL
   USING (public.is_admin());
@@ -169,14 +183,20 @@ CREATE POLICY "Admins can manage products"
 CREATE TABLE IF NOT EXISTS public.product_variants (
   variant_id       bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   product_id       bigint REFERENCES public.products(product_id) ON DELETE CASCADE NOT NULL,
-  size             text NOT NULL,
+  size             text,
   color            text,
   color_code       text,
   sku              text UNIQUE,
-  stock_quantity   integer NOT NULL DEFAULT 0,
+  price            numeric(10,2) DEFAULT 0,
+  compare_price    numeric(10,2),
   price_override   numeric(10,2),
+  stock            integer DEFAULT 0,
+  stock_quantity   integer NOT NULL DEFAULT 0,
+  stock_alert      integer,
+  images           jsonb DEFAULT '[]'::jsonb,
   is_active        boolean DEFAULT true,
   created_at       timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  updated_at       timestamp with time zone DEFAULT timezone('utc'::text, now()),
   UNIQUE (product_id, size, color)
 );
 
@@ -184,12 +204,10 @@ CREATE INDEX IF NOT EXISTS product_variants_product_id_idx ON public.product_var
 
 ALTER TABLE public.product_variants ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "Allow public read access to product variants" ON public.product_variants;
 CREATE POLICY "Allow public read access to product variants"
   ON public.product_variants FOR SELECT
   USING (true);
 
-DROP POLICY IF EXISTS "Admins can manage variants" ON public.product_variants;
 CREATE POLICY "Admins can manage variants"
   ON public.product_variants FOR ALL
   USING (public.is_admin());
@@ -199,29 +217,36 @@ CREATE POLICY "Admins can manage variants"
 -- 6. USER ADDRESSES TABLE
 -- =============================================================================
 CREATE TABLE IF NOT EXISTS public.addresses (
-  id           uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id      uuid REFERENCES auth.users ON DELETE CASCADE NOT NULL,
-  full_name    text NOT NULL,
-  phone        text NOT NULL,
-  pincode      text NOT NULL,
-  address_line text NOT NULL,
-  city         text NOT NULL,
-  state        text NOT NULL,
-  is_default   boolean DEFAULT false,
-  created_at   timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+  id            uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  address_id    bigint GENERATED ALWAYS AS IDENTITY UNIQUE,
+  user_id       uuid REFERENCES auth.users ON DELETE CASCADE NOT NULL,
+  full_name     text NOT NULL,
+  phone         text,
+  phone_number  text,
+  pincode       text,
+  postal_code   text,
+  address_line  text,
+  address_line1 text,
+  address_line2 text,
+  city          text NOT NULL,
+  state         text NOT NULL,
+  is_default    boolean DEFAULT false,
+  created_at    timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
 CREATE INDEX IF NOT EXISTS addresses_user_id_idx ON public.addresses (user_id);
 
 ALTER TABLE public.addresses ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "Users can manage their own addresses" ON public.addresses;
 CREATE POLICY "Users can manage their own addresses"
   ON public.addresses FOR ALL
   USING (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
 
-DROP POLICY IF EXISTS "Admins can manage all addresses" ON public.addresses;
+CREATE POLICY "Admins can view all addresses"
+  ON public.addresses FOR SELECT
+  USING (public.is_admin());
+
 CREATE POLICY "Admins can manage all addresses"
   ON public.addresses FOR ALL
   USING (public.is_admin())
@@ -229,70 +254,85 @@ CREATE POLICY "Admins can manage all addresses"
 
 
 -- =============================================================================
--- 7. ORDERS TABLE (With iCarry Logistics Integration)
+-- 7. ORDERS TABLE
 -- =============================================================================
 CREATE TABLE IF NOT EXISTS public.orders (
-  id                    text PRIMARY KEY,
-  user_id               uuid REFERENCES auth.users ON DELETE SET NULL,
-  items                 jsonb NOT NULL DEFAULT '[]'::jsonb,
-  total_amount          numeric(10,2) NOT NULL,
-  subtotal              numeric(10,2),
-  discount_amount       numeric(10,2) DEFAULT 0,
-  shipping_fee          numeric(10,2) DEFAULT 0,
-  status                text NOT NULL DEFAULT 'pending',
-  shipping_address      jsonb NOT NULL,
-  payment_method        text NOT NULL DEFAULT 'COD',
-  payment_status        text NOT NULL DEFAULT 'pending',
-  razorpay_order_id     text,
-  razorpay_payment_id   text,
-  notes                 text,
-  tracking_number       text,
-  icarry_shipment_id    text,
-  icarry_tracking_id    text,
-  icarry_awb            text,
-  icarry_courier_code   text,
-  icarry_courier_name   text,
-  icarry_status         text,
-  icarry_routing_code   text,
-  icarry_label_url      text,
-  icarry_events         jsonb DEFAULT '[]'::jsonb,
-  dispatched_at         timestamp with time zone,
-  delivered_at          timestamp with time zone,
-  created_at            timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
-  updated_at            timestamp with time zone DEFAULT timezone('utc'::text, now())
+  id                      text PRIMARY KEY,
+  user_id                 uuid REFERENCES auth.users ON DELETE SET NULL,
+  address_id              bigint,
+  item_name               text,
+  quantity                integer DEFAULT 1,
+  items                   jsonb NOT NULL DEFAULT '[]'::jsonb,
+  total_price             numeric(10,2) DEFAULT 0,
+  total_amount            numeric(10,2) DEFAULT 0,
+  subtotal                numeric(10,2),
+  discount_amount         numeric(10,2) DEFAULT 0,
+  coupon_code             text,
+  shipping_fee            numeric(10,2) DEFAULT 0,
+  status                  text NOT NULL DEFAULT 'pending',
+  delivery_status         text DEFAULT 'Pending',
+  shipping_address        jsonb,
+  payment                 text,
+  payment_method          text NOT NULL DEFAULT 'COD',
+  payment_status          text NOT NULL DEFAULT 'pending',
+  type                    text DEFAULT 'Regular',
+  razorpay_order_id       text,
+  razorpay_payment_id     text,
+  razorpay_signature      text,
+  notes                   text,
+  admin_notes             text,
+  tracking_number         text,
+  courier_name            text,
+  waybill                 text,
+  tracking_url            text,
+  delivery_provider       text,
+  shipment_id             text,
+  shipment_error          text,
+  invoice_printed         boolean DEFAULT false,
+  estimated_delivery_date timestamp with time zone,
+  dispatched_at           timestamp with time zone,
+  delivered_at            timestamp with time zone,
+  order_date              timestamp with time zone DEFAULT timezone('utc'::text, now()),
+  created_at              timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  updated_at              timestamp with time zone DEFAULT timezone('utc'::text, now())
 );
 
 CREATE INDEX IF NOT EXISTS orders_user_id_idx ON public.orders (user_id);
+CREATE INDEX IF NOT EXISTS orders_order_date_idx ON public.orders (order_date DESC);
 CREATE INDEX IF NOT EXISTS orders_created_at_idx ON public.orders (created_at DESC);
 
 ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "Users can view their own orders" ON public.orders;
 CREATE POLICY "Users can view their own orders"
   ON public.orders FOR SELECT
   USING (auth.uid() = user_id);
 
-DROP POLICY IF EXISTS "Users can insert their own orders" ON public.orders;
 CREATE POLICY "Users can insert their own orders"
   ON public.orders FOR INSERT
-  WITH CHECK (auth.uid() = user_id OR auth.uid() IS NULL);
+  TO authenticated
+  WITH CHECK (
+    auth.uid() = user_id
+    AND payment_status = 'pending'
+  );
 
-DROP POLICY IF EXISTS "Admins can view all orders" ON public.orders;
 CREATE POLICY "Admins can view all orders"
   ON public.orders FOR SELECT
   USING (public.is_admin());
 
-DROP POLICY IF EXISTS "Admins can update orders" ON public.orders;
 CREATE POLICY "Admins can update orders"
   ON public.orders FOR UPDATE
   USING (public.is_admin());
 
-DROP POLICY IF EXISTS "Users can update their own orders" ON public.orders;
 CREATE POLICY "Users can update their own orders"
   ON public.orders FOR UPDATE
   TO authenticated
   USING (auth.uid() = user_id)
-  WITH CHECK (auth.uid() = user_id);
+  WITH CHECK (
+    auth.uid() = user_id
+    AND status = 'Cancelled'
+    AND payment_status = (SELECT o.payment_status FROM public.orders o WHERE o.id = orders.id)
+    AND total_amount = (SELECT o.total_amount FROM public.orders o WHERE o.id = orders.id)
+  );
 
 
 -- =============================================================================
@@ -318,7 +358,6 @@ CREATE INDEX IF NOT EXISTS order_items_order_id_idx ON public.order_items (order
 
 ALTER TABLE public.order_items ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "Users can view their own order items" ON public.order_items;
 CREATE POLICY "Users can view their own order items"
   ON public.order_items FOR SELECT
   TO authenticated
@@ -330,7 +369,6 @@ CREATE POLICY "Users can view their own order items"
     )
   );
 
-DROP POLICY IF EXISTS "Users can insert their own order items" ON public.order_items;
 CREATE POLICY "Users can insert their own order items"
   ON public.order_items FOR INSERT
   TO authenticated
@@ -342,12 +380,10 @@ CREATE POLICY "Users can insert their own order items"
     )
   );
 
-DROP POLICY IF EXISTS "Admins can view all order items" ON public.order_items;
 CREATE POLICY "Admins can view all order items"
   ON public.order_items FOR SELECT
   USING (public.is_admin());
 
-DROP POLICY IF EXISTS "Admins can insert order items" ON public.order_items;
 CREATE POLICY "Admins can insert order items"
   ON public.order_items FOR INSERT
   TO authenticated
@@ -358,7 +394,6 @@ CREATE POLICY "Admins can insert order items"
     )
   );
 
-DROP POLICY IF EXISTS "Admins can update order items" ON public.order_items;
 CREATE POLICY "Admins can update order items"
   ON public.order_items FOR UPDATE
   USING (public.is_admin());
@@ -383,7 +418,6 @@ CREATE INDEX IF NOT EXISTS cart_items_user_id_idx ON public.cart_items (user_id)
 
 ALTER TABLE public.cart_items ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "Users can manage their own cart items" ON public.cart_items;
 CREATE POLICY "Users can manage their own cart items"
   ON public.cart_items FOR ALL
   USING (auth.uid() = user_id)
@@ -406,12 +440,10 @@ CREATE TABLE IF NOT EXISTS public.banners (
 
 ALTER TABLE public.banners ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "Allow public read access to banners" ON public.banners;
 CREATE POLICY "Allow public read access to banners"
   ON public.banners FOR SELECT
   USING (true);
 
-DROP POLICY IF EXISTS "Admins can manage banners" ON public.banners;
 CREATE POLICY "Admins can manage banners"
   ON public.banners FOR ALL
   USING (public.is_admin());
@@ -431,49 +463,17 @@ CREATE TABLE IF NOT EXISTS public.shipping_rates (
 
 ALTER TABLE public.shipping_rates ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "Allow public read access to shipping rates" ON public.shipping_rates;
 CREATE POLICY "Allow public read access to shipping rates"
   ON public.shipping_rates FOR SELECT
   USING (true);
 
-DROP POLICY IF EXISTS "Admins can manage shipping rates" ON public.shipping_rates;
 CREATE POLICY "Admins can manage shipping rates"
   ON public.shipping_rates FOR ALL
   USING (public.is_admin());
 
 
 -- =============================================================================
--- 12. TOPBAR / ANNOUNCEMENT BAR TABLE
--- =============================================================================
-CREATE TABLE IF NOT EXISTS public.topbar (
-  id          bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  text        text NOT NULL,
-  link_url    text,
-  is_active   boolean DEFAULT true,
-  created_at  timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
-  updated_at  timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
-);
-
-ALTER TABLE public.topbar ENABLE ROW LEVEL SECURITY;
-
-DROP POLICY IF EXISTS "Allow public read access to topbar" ON public.topbar;
-CREATE POLICY "Allow public read access to topbar"
-  ON public.topbar FOR SELECT
-  USING (true);
-
-DROP POLICY IF EXISTS "Admins can manage topbar" ON public.topbar;
-CREATE POLICY "Admins can manage topbar"
-  ON public.topbar FOR ALL
-  USING (public.is_admin());
-
--- Insert default record if table is empty
-INSERT INTO public.topbar (text, is_active)
-SELECT 'Diwali Sale - Everything Is Off By 50%', true
-WHERE NOT EXISTS (SELECT 1 FROM public.topbar LIMIT 1);
-
-
--- =============================================================================
--- 13. COUPONS MANAGEMENT TABLE
+-- 12. COUPONS MANAGEMENT TABLE
 -- =============================================================================
 CREATE TABLE IF NOT EXISTS public.coupons (
   id                  bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -501,12 +501,10 @@ CREATE INDEX IF NOT EXISTS coupons_subcategory_id_idx ON public.coupons(subcateg
 
 ALTER TABLE public.coupons ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "Allow public read access to coupons" ON public.coupons;
 CREATE POLICY "Allow public read access to coupons"
   ON public.coupons FOR SELECT
   USING (true);
 
-DROP POLICY IF EXISTS "Admins can manage coupons" ON public.coupons;
 CREATE POLICY "Admins can manage coupons"
   ON public.coupons FOR ALL
   USING (public.is_admin());
@@ -522,21 +520,39 @@ WHERE NOT EXISTS (SELECT 1 FROM public.coupons WHERE UPPER(code) = 'FESTIVE20');
 
 
 -- =============================================================================
--- 14. ORDER ID SEQUENCE TABLE
+-- 13b. COUPON USAGES TABLE
 -- =============================================================================
-CREATE TABLE IF NOT EXISTS public.order_id_seq (
-  seq_date date PRIMARY KEY,
-  last_seq integer NOT NULL DEFAULT 0
+CREATE TABLE IF NOT EXISTS public.coupon_usages (
+  id          bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  coupon_id   bigint REFERENCES public.coupons(id) ON DELETE CASCADE,
+  coupon_code text NOT NULL,
+  user_id     text,
+  order_id    text,
+  created_at  timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
-ALTER TABLE public.order_id_seq ENABLE ROW LEVEL SECURITY;
+CREATE INDEX IF NOT EXISTS coupon_usages_coupon_user_idx ON public.coupon_usages(coupon_id, user_id);
+CREATE INDEX IF NOT EXISTS coupon_usages_code_user_idx ON public.coupon_usages(UPPER(coupon_code), user_id);
 
-REVOKE SELECT, INSERT, UPDATE ON public.order_id_seq FROM authenticated;
-REVOKE SELECT, INSERT, UPDATE ON public.order_id_seq FROM service_role;
+ALTER TABLE public.coupon_usages ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Users can view their own coupon_usages"
+  ON public.coupon_usages FOR SELECT
+  TO authenticated
+  USING (auth.uid()::text = user_id OR public.is_admin());
+
+CREATE POLICY "Users can insert their own coupon_usages"
+  ON public.coupon_usages FOR INSERT
+  TO authenticated
+  WITH CHECK (auth.uid()::text = user_id OR public.is_admin());
+
+CREATE POLICY "Admins can manage coupon_usages"
+  ON public.coupon_usages FOR ALL
+  USING (public.is_admin());
 
 
 -- =============================================================================
--- 15. FUNCTIONS & TRIGGERS
+-- 14. FUNCTIONS & TRIGGERS
 -- =============================================================================
 
 CREATE OR REPLACE FUNCTION public.check_user_exists(email_to_check text)
@@ -568,7 +584,6 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
-DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();
@@ -590,15 +605,20 @@ AS $$
 DECLARE
   today    date    := current_date;
   date_str text    := to_char(today, 'YYYYMMDD');
+  prefix   text    := 'ORD' || date_str;
   next_seq integer;
 BEGIN
-  INSERT INTO public.order_id_seq (seq_date, last_seq)
-  VALUES (today, 1)
-  ON CONFLICT (seq_date) DO UPDATE
-    SET last_seq = order_id_seq.last_seq + 1
-  RETURNING last_seq INTO next_seq;
+  PERFORM pg_advisory_xact_lock(hashtext(prefix));
 
-  RETURN 'ORD' || date_str || lpad(next_seq::text, 4, '0');
+  SELECT COALESCE(
+    MAX(NULLIF(regexp_replace(substring(id FROM length(prefix) + 1), '[^0-9]', '', 'g'), '')::integer),
+    0
+  ) + 1
+  INTO next_seq
+  FROM public.orders
+  WHERE id LIKE prefix || '%';
+
+  RETURN prefix || lpad(next_seq::text, 4, '0');
 END;
 $$;
 
@@ -616,14 +636,13 @@ BEGIN
 END;
 $$;
 
-DROP TRIGGER IF EXISTS trg_set_order_id ON public.orders;
 CREATE TRIGGER trg_set_order_id
   BEFORE INSERT ON public.orders
   FOR EACH ROW EXECUTE FUNCTION public.set_order_id();
 
 
 -- =============================================================================
--- 16. STORAGE BUCKETS & RLS POLICIES
+-- 15. STORAGE BUCKETS & RLS POLICIES
 -- =============================================================================
 INSERT INTO storage.buckets (id, name, public)
 VALUES
@@ -632,34 +651,28 @@ VALUES
   ('banners',        'banners',        true)
 ON CONFLICT (id) DO NOTHING;
 
-DROP POLICY IF EXISTS "Allow public read access to product images" ON storage.objects;
 CREATE POLICY "Allow public read access to product images"
   ON storage.objects FOR SELECT
   USING (bucket_id = 'product_img');
 
-DROP POLICY IF EXISTS "Allow public read access to category images" ON storage.objects;
 CREATE POLICY "Allow public read access to category images"
   ON storage.objects FOR SELECT
   USING (bucket_id = 'categories_img');
 
-DROP POLICY IF EXISTS "Allow public read access to banner images" ON storage.objects;
 CREATE POLICY "Allow public read access to banner images"
   ON storage.objects FOR SELECT
   USING (bucket_id = 'banners');
 
-DROP POLICY IF EXISTS "Admins can manage product images" ON storage.objects;
 CREATE POLICY "Admins can manage product images"
   ON storage.objects FOR ALL
   USING (bucket_id = 'product_img' AND public.is_admin())
   WITH CHECK (bucket_id = 'product_img' AND public.is_admin());
 
-DROP POLICY IF EXISTS "Admins can manage category images" ON storage.objects;
 CREATE POLICY "Admins can manage category images"
   ON storage.objects FOR ALL
   USING (bucket_id = 'categories_img' AND public.is_admin())
   WITH CHECK (bucket_id = 'categories_img' AND public.is_admin());
 
-DROP POLICY IF EXISTS "Admins can manage banner images" ON storage.objects;
 CREATE POLICY "Admins can manage banner images"
   ON storage.objects FOR ALL
   USING (bucket_id = 'banners' AND public.is_admin())

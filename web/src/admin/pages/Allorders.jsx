@@ -3,7 +3,6 @@ import { createPortal } from "react-dom";
 import { supabase } from "../../lib/supabase";
 import ThermalInvoice from "../components/ThermalInvoice";
 import { orderService } from "../../services/orderService";
-import { icarryService } from "../../services/icarryService";
 import { productService } from "../../services/productService";
 import "./Allorders.css";
 
@@ -65,24 +64,6 @@ const getPaymentBadge = (order) => {
   };
 };
 
-/* ── iCarry Status Code Mappings (iCarry API doc p.34) ── */
-const ICARRY_CODE_MAP = {
-  1: "Pending Pickup",
-  2: "Processing",
-  3: "Shipped",
-  7: "Cancelled",
-  12: "Damaged",
-  14: "Lost",
-  16: "Cancelled",
-  21: "Delivered",
-  22: "In Transit",
-  23: "Returned to Origin",
-  24: "Manifested",
-  25: "Pickup Scheduled",
-  26: "Out For Delivery",
-  27: "Pending Return",
-};
-
 const getDeliveryStatusTag = (order) => {
   // Directly read the status saved in the database
   let raw =
@@ -92,7 +73,7 @@ const getDeliveryStatusTag = (order) => {
 
   // Fallback if no delivery_status yet but waybill exists
   if (!raw) {
-    if (order?.waybill || order?.shipment_id || order?.icarry_awb || order?.icarry_shipment_id) {
+    if (order?.waybill || order?.shipment_id) {
       raw = "Booked";
     } else if (order?.status?.toLowerCase() === "cancelled") {
       raw = "Cancelled";
@@ -101,13 +82,8 @@ const getDeliveryStatusTag = (order) => {
     } else if (order?.status?.toLowerCase() === "shipped") {
       raw = "Shipped";
     } else {
-      raw = "Pending Booking";
+      raw = "Pending";
     }
-  }
-
-  // If numeric status code, map to friendly label
-  if (raw !== null && raw !== undefined && !isNaN(Number(raw)) && Number(raw) in ICARRY_CODE_MAP) {
-    raw = ICARRY_CODE_MAP[Number(raw)];
   }
 
   const str = String(raw).trim();
@@ -517,14 +493,12 @@ const AllOrders = ({ orders = [], products = [], categories: categoriesProp = []
   const [isPrinting, setIsPrinting] = useState(false);
   const [toast, setToast] = useState(null);
   const [autoPrint, setAutoPrint] = useState(() => {
-    return localStorage.getItem("anika_auto_print") !== "false";
+    return localStorage.getItem("zion_auto_print") !== "false";
   });
   const [previewOrder, setPreviewOrder] = useState(null);
   const [previewAddress, setPreviewAddress] = useState(null);
   const [previewLoadingAddress, setPreviewLoadingAddress] = useState(false);
   const [printAddresses, setPrintAddresses] = useState({});
-  const [isSyncingAll, setIsSyncingAll] = useState(false);
-  const [retryingOrderId, setRetryingOrderId] = useState(null);
 
   const toastTimerRef = useRef(null);
 
@@ -630,213 +604,6 @@ const AllOrders = ({ orders = [], products = [], categories: categoriesProp = []
     };
   }, [autoPrint]);
 
-  const ICARRY_STATUS_MAP = {
-    1: "Pending Pickup",
-    2: "Processing",
-    3: "Shipped",
-    7: "Cancelled",
-    12: "Damaged",
-    14: "Lost",
-    16: "Cancelled",
-    21: "Delivered",
-    22: "In Transit",
-    23: "Returned to Origin",
-    24: "Manifested",
-    25: "Pickup Scheduled",
-    26: "Out For Delivery",
-    27: "Pending Return",
-  };
-
-  // Common sync tracking status for all active iCarry shipments
-  const handleSyncAllTracking = async (silentParam = false) => {
-    const silent = silentParam === true;
-    if (isSyncingAll) return;
-
-    try {
-      setIsSyncingAll(true);
-      if (!silent) showToast("Refreshing orders & checking iCarry tracking...", "info");
-
-      // 1. Pre-fetch fresh orders from Supabase DB to catch recent bookings/updates
-      let currentOrders = localOrders;
-      try {
-        const { data: freshOrders, error: fetchErr } = await supabase
-          .from("orders")
-          .select("*, order_items(*)")
-          .order("order_date", { ascending: false })
-          .limit(Math.max(localOrders.length, 50));
-
-        if (!fetchErr && freshOrders && freshOrders.length > 0) {
-          currentOrders = freshOrders;
-          setLocalOrders(freshOrders);
-        }
-      } catch (dbErr) {
-        console.warn("Could not pre-fetch orders from DB:", dbErr);
-      }
-
-      if (typeof onRefresh === "function") {
-        try {
-          await onRefresh();
-        } catch (e) {
-          console.debug("onRefresh error:", e);
-        }
-      }
-
-      // 2. Identify trackable in-transit shipments
-      const trackable = currentOrders.filter(
-        (o) =>
-          (o.waybill || o.shipment_id || o.icarry_awb || o.icarry_shipment_id) &&
-          o.delivery_status !== "Cancelled" &&
-          o.status !== "Cancelled" &&
-          o.delivery_status !== "Delivered"
-      );
-
-      if (trackable.length === 0) {
-        if (!silent) {
-          showToast("No active in-transit shipments to track. Orders list refreshed.", "info");
-        }
-        return;
-      }
-
-      if (!silent) {
-        showToast(`Syncing tracking for ${trackable.length} shipment(s) with iCarry...`, "info");
-      }
-
-      let updatedCount = 0;
-      const updatedMap = {};
-
-      for (const order of trackable) {
-        try {
-          const res = await icarryService.track(order.id);
-          if (res && res.error) {
-            console.warn(`iCarry tracking error for #${order.id}:`, res.error);
-            continue;
-          }
-
-          const rawStatus =
-            res?.shipment_status ||
-            res?.current_status ||
-            res?.delivery_status ||
-            res?.status ||
-            res?.tracking_status ||
-            res?.status_code ||
-            res?.data?.status;
-
-          let mappedStatus = rawStatus;
-          if (
-            rawStatus !== null &&
-            rawStatus !== undefined &&
-            !isNaN(Number(rawStatus)) &&
-            Number(rawStatus) in ICARRY_STATUS_MAP
-          ) {
-            mappedStatus = ICARRY_STATUS_MAP[Number(rawStatus)];
-          }
-
-          if (mappedStatus) {
-            const updates = {
-              delivery_status: String(mappedStatus),
-              icarry_status: String(mappedStatus),
-            };
-
-            const sLower = String(mappedStatus).toLowerCase();
-            if (sLower.includes("cancel") || sLower === "voided" || sLower === "7" || sLower === "16") {
-              updates.status = "Cancelled";
-              updates.delivery_status = "Cancelled";
-            } else if (sLower === "delivered" || sLower === "21") {
-              updates.status = "Delivered";
-              updates.delivery_status = "Delivered";
-              updates.delivered_at = new Date().toISOString();
-            } else if (
-              sLower === "shipped" ||
-              sLower === "3" ||
-              sLower.includes("transit") ||
-              sLower.includes("delivery")
-            ) {
-              if (order.status !== "Delivered") {
-                updates.status = "Shipped";
-              }
-            }
-
-            if (res?.courier_name && !order.courier_name) {
-              updates.courier_name = res.courier_name;
-            }
-            if (res?.tracking_url && !order.tracking_url) {
-              updates.tracking_url = res.tracking_url;
-            }
-
-            const hasChange = Object.keys(updates).some(
-              (key) => updates[key] !== order[key]
-            );
-
-            if (hasChange) {
-              const { error: updateErr } = await supabase
-                .from("orders")
-                .update(updates)
-                .eq("id", order.id);
-
-              if (!updateErr) {
-                updatedMap[order.id] = updates;
-                updatedCount++;
-              }
-            }
-          }
-        } catch (itemErr) {
-          console.warn(`Could not sync tracking for order ${order.id}:`, itemErr);
-        }
-      }
-
-      if (updatedCount > 0) {
-        setLocalOrders((prev) =>
-          prev.map((o) => (updatedMap[o.id] ? { ...o, ...updatedMap[o.id] } : o))
-        );
-        if (typeof onRefresh === "function") {
-          try {
-            await onRefresh();
-          } catch (e) {}
-        }
-        showToast(`Synced! Updated ${updatedCount} shipment status(es) from iCarry.`, "success");
-      } else if (!silent) {
-        showToast("iCarry tracking checked: All shipment statuses are up to date.", "success");
-      }
-    } catch (err) {
-      console.error("iCarry bulk sync error:", err);
-      if (!silent) {
-        showToast("iCarry sync failed: " + (err.message || "Network error"), "error");
-      }
-    } finally {
-      setIsSyncingAll(false);
-    }
-  };
-
-
-
-  const handleRetryBooking = async (order) => {
-    if (!order?.id) return;
-    try {
-      setRetryingOrderId(order.id);
-      showToast(`Booking order #${String(order.id).slice(-8).toUpperCase()} with iCarry...`, "info");
-      const res = await icarryService.retryBooking(order.id);
-      if (res && res.error) {
-        showToast("iCarry booking failed: " + res.error, "error");
-      } else {
-        showToast("Order booked successfully with iCarry!", "success");
-        const { data: refreshed } = await supabase
-          .from("orders")
-          .select("*")
-          .eq("id", order.id)
-          .maybeSingle();
-        if (refreshed) {
-          setLocalOrders((prev) =>
-            prev.map((o) => (o.id === order.id ? { ...o, ...refreshed } : o))
-          );
-        }
-      }
-    } catch (err) {
-      showToast("Failed to book order: " + err.message, "error");
-    } finally {
-      setRetryingOrderId(null);
-    }
-  };
-
   // Open Preview Modal
   const handleOpenPreview = async (order) => {
     if (!order) return;
@@ -863,7 +630,7 @@ const AllOrders = ({ orders = [], products = [], categories: categoriesProp = []
   const handleToggleAutoPrint = () => {
     setAutoPrint((prev) => {
       const next = !prev;
-      localStorage.setItem("anika_auto_print", String(next));
+      localStorage.setItem("zion_auto_print", String(next));
       showToast(
         next
           ? "🟢 Auto-Print turned ON — invoices will print immediately on new orders!"
@@ -1532,8 +1299,8 @@ const AllOrders = ({ orders = [], products = [], categories: categoriesProp = []
           <td>
             {(() => {
               const dt = getDeliveryStatusTag(order);
-              const courier = order.icarry_courier_name || order.courier_name;
-              const awb = order.icarry_awb || order.waybill;
+              const courier = order.courier_name;
+              const awb = order.waybill;
               const trackingUrl = order.tracking_url;
 
               return (
@@ -1548,7 +1315,7 @@ const AllOrders = ({ orders = [], products = [], categories: categoriesProp = []
                       alignItems: "center",
                       gap: 6,
                     }}
-                    title={`iCarry Status: ${dt.label}`}
+                    title={`Delivery Status: ${dt.label}`}
                   >
                     <span
                       style={{
@@ -1563,7 +1330,7 @@ const AllOrders = ({ orders = [], products = [], categories: categoriesProp = []
                     {dt.label}
                   </span>
 
-                  {awb ? (
+                  {awb && (
                     <div
                       style={{
                         fontSize: 11,
@@ -1575,7 +1342,7 @@ const AllOrders = ({ orders = [], products = [], categories: categoriesProp = []
                       }}
                     >
                       <span style={{ fontWeight: 600, color: "#475569" }}>
-                        {courier || "iCarry"}:
+                        {courier || "Courier"}:
                       </span>
                       {trackingUrl ? (
                         <a
@@ -1597,10 +1364,6 @@ const AllOrders = ({ orders = [], products = [], categories: categoriesProp = []
                         <span style={{ fontFamily: "monospace" }}>{awb}</span>
                       )}
                     </div>
-                  ) : (
-                    <span style={{ fontSize: 11, color: "#94A3B8", paddingLeft: 2 }}>
-                      iCarry: Not booked
-                    </span>
                   )}
                 </div>
               );
@@ -1632,21 +1395,6 @@ const AllOrders = ({ orders = [], products = [], categories: categoriesProp = []
               >
                 View
               </button>
-              {(!order.waybill && !order.icarry_awb && order.status !== "Cancelled" && order.delivery_status !== "Cancelled") && (
-                <button
-                  type="button"
-                  className="ao__view-link"
-                  style={{
-                    color: (order.delivery_status === "Booking Failed" || order.shipment_error) ? "#dc2626" : "#0284c7",
-                    fontWeight: 600,
-                  }}
-                  onClick={() => handleRetryBooking(order)}
-                  disabled={retryingOrderId === order.id}
-                  title="Book shipment with iCarry"
-                >
-                  {retryingOrderId === order.id ? "Booking…" : (order.delivery_status === "Booking Failed" || order.shipment_error ? "Retry Booking" : "Book iCarry")}
-                </button>
-              )}
               <button
                 type="button"
                 className="ao__view-link"
@@ -1794,19 +1542,6 @@ const AllOrders = ({ orders = [], products = [], categories: categoriesProp = []
                   <button className="ao__view-btn" onClick={() => onViewDetail?.(order)}>
                     Details
                   </button>
-                  {(!order.waybill && !order.icarry_awb && order.status !== "Cancelled" && order.delivery_status !== "Cancelled") && (
-                    <button
-                      className="ao__view-btn"
-                      style={{
-                        color: (order.delivery_status === "Booking Failed" || order.shipment_error) ? "#dc2626" : "#0284c7",
-                        fontWeight: 600,
-                      }}
-                      onClick={() => handleRetryBooking(order)}
-                      disabled={retryingOrderId === order.id}
-                    >
-                      {retryingOrderId === order.id ? "Booking…" : (order.delivery_status === "Booking Failed" || order.shipment_error ? "Retry Booking" : "Book iCarry")}
-                    </button>
-                  )}
                   <button
                     className="ao__row-print-btn"
                     onClick={() => triggerPrintBatch([order])}
@@ -2016,26 +1751,6 @@ const AllOrders = ({ orders = [], products = [], categories: categoriesProp = []
         </div>
 
         <div className="ao__toolbar-right">
-          <button
-            type="button"
-            className="ao__sync-btn"
-            onClick={() => handleSyncAllTracking(false)}
-            disabled={isSyncingAll || loading}
-            title="Sync all live order delivery statuses directly from iCarry"
-          >
-            {isSyncingAll ? (
-              <>
-                <SpinnerIcon />
-                <span>Syncing iCarry...</span>
-              </>
-            ) : (
-              <>
-                <SyncIcon />
-                <span>Sync iCarry</span>
-              </>
-            )}
-          </button>
-
           <div className="ao__search-box">
             <SearchIcon />
             <input

@@ -1,32 +1,32 @@
-import React, { useEffect, useState } from 'react';
-import { useParams } from "react-router-dom";
+import React, { useEffect, useState, lazy, Suspense } from 'react';
+import { BrowserRouter, Routes, Route, useLocation, useParams, Navigate } from "react-router-dom";
 import { useStore } from './hooks/useStore';
-import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
-
-import SignupPage from "./pages/SignupPage";
-import LoginPage from "./pages/LoginPage";
-import OtpVerifyPage from "./pages/OtpVerifyPage";
-import Profile from "./profile/Profile";
-import Orders from "./profile/Orders";
-import OrderTracking from "./profile/OrderTracking";
-import Addresses from "./profile/Addresses";
-import CheckoutPage from "./pages/CheckoutPage";
 import HomePage from "./pages/HomePage";
-import CartPage from "./pages/CartPage";
-import ProductPage from "./pages/ProductPage";
-import ProductDetailsPage from "./pages/ProductDetailsPage";
 
-import TermsPage from './pages/TermsPage';
-import PrivacyPage from './pages/PrivacyPage';
-import ContactPage from './pages/ContactPage';
-import AboutPage from './pages/AboutPage';
-import NotFoundPage from './pages/NotFoundPage';
+const SignupPage = lazy(() => import("./pages/SignupPage"));
+const LoginPage = lazy(() => import("./pages/LoginPage"));
+const OtpVerifyPage = lazy(() => import("./pages/OtpVerifyPage"));
+const Profile = lazy(() => import("./profile/Profile"));
+const Orders = lazy(() => import("./profile/Orders"));
+const OrderTracking = lazy(() => import("./profile/OrderTracking"));
+const Addresses = lazy(() => import("./profile/Addresses"));
+const CheckoutPage = lazy(() => import("./pages/CheckoutPage"));
+const CartPage = lazy(() => import("./pages/CartPage"));
+const ProductPage = lazy(() => import("./pages/ProductPage"));
+const ProductDetailsPage = lazy(() => import("./pages/ProductDetailsPage"));
 
-import AdminRoute from "./components/AdminRoute";
-import Dashboard from "./admin/pages/Dashboard";
+const TermsPage = lazy(() => import("./pages/TermsPage"));
+const PrivacyPage = lazy(() => import("./pages/PrivacyPage"));
+const ContactPage = lazy(() => import("./pages/ContactPage"));
+const AboutPage = lazy(() => import("./pages/AboutPage"));
+const NotFoundPage = lazy(() => import("./pages/NotFoundPage"));
 
-import { getNavPath } from "./services/categoryRoute";
+const AdminRoute = lazy(() => import("./components/AdminRoute"));
+const Dashboard = lazy(() => import("./admin/pages/Dashboard"));
 
+const PageLoader = () => (
+  <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }} />
+);
 
 // Scrolls to top on every route change, or scrolls to hash element if specified
 function ScrollToTop() {
@@ -87,21 +87,6 @@ function CategoryBySlug() {
     return <ProductPage category={match.name} />;
   }
 
-  const defaultNames = {
-    'rings': 'Rings',
-    'toe-rings': 'Toe Rings',
-    'earrings': 'Earrings',
-    'bracelets': 'Bracelets',
-    'bangles': 'Bangles',
-    'necklaces': 'Necklaces',
-    'anklets': 'Anklets',
-    'hip-accessories': 'Hip Accessories',
-  };
-
-  if (defaultNames[normalizedSlug]) {
-    return <ProductPage category={defaultNames[normalizedSlug]} />;
-  }
-
   return <NotFoundPage />;
 }
 
@@ -115,79 +100,56 @@ function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
-      <Routes>
-        <Route
-          path="/"
-          element={<HomePage />}
-        />
-        <Route
-          path="/product/:id/*"
-          element={<ProductDetailsPage />}
-        />
-        <Route
-          path="/product/:id"
-          element={<ProductDetailsPage />}
-        />
-        <Route
-          path="/products/:id/*"
-          element={<ProductDetailsPage />}
-        />
-        <Route
-          path="/products/:id"
-          element={<ProductDetailsPage />}
-        />
-        <Route
-          path="/product"
-          element={<ProductDetailsPage />}
-        />
-        <Route path="/all-products" element={<ProductPage category="All Products" />} />
-        <Route path="/products" element={<ProductPage category="All Products" />} />
-        <Route path="/category/all" element={<ProductPage category="All Products" />} />
-        <Route path="/rings" element={<ProductPage category="Rings" />} />
-        <Route path="/toe-rings" element={<ProductPage category="Toe Rings" />} />
-        <Route path="/earrings" element={<ProductPage category="Earrings" />} />
-        <Route path="/bracelets" element={<ProductPage category="Bracelets" />} />
-        <Route path="/bangles" element={<ProductPage category="Bangles" />} />
-        <Route path="/necklaces" element={<ProductPage category="Necklaces" />} />
-        <Route path="/anklets" element={<ProductPage category="Anklets" />} />
-        <Route path="/hip-accessories" element={<ProductPage category="Hip Accessories" />} />
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/product/:id/*" element={<ProductDetailsPage />} />
+          <Route path="/product/:id" element={<ProductDetailsPage />} />
+          <Route path="/products/:id/*" element={<ProductDetailsPage />} />
+          <Route path="/products/:id" element={<ProductDetailsPage />} />
+          <Route path="/product" element={<ProductDetailsPage />} />
+          <Route path="/all-products" element={<ProductPage category="All Products" />} />
+          <Route path="/products" element={<ProductPage category="All Products" />} />
+          <Route path="/category/all" element={<ProductPage category="All Products" />} />
 
-        <Route path="/category/:slug" element={<CategoryBySlug />} />
-        <Route path="/:slug" element={<CategoryBySlug />} />
+          <Route path="/category/:slug" element={<CategoryBySlug />} />
+          <Route path="/:slug" element={<CategoryBySlug />} />
 
-        <Route path="/account/login" element={<LoginPage />} />
-        <Route path="/account/signup" element={<SignupPage />} />
-        <Route path="/account/otp-verify" element={<OtpVerifyPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/signup" element={<SignupPage />} />
-        <Route path="/otp-verify" element={<OtpVerifyPage />} />
-        <Route path="/checkout" element={<CheckoutPage />} />
-        <Route path="/payment" element={<CartPage />} />
-        <Route path="/profile" element={<Profile />} />
-        <Route path="/profile/orders" element={<Orders />} />
-        <Route path="/profile/orders/track/:orderId" element={<OrderTracking />} />
-        <Route path="/track-order/:orderId" element={<OrderTracking />} />
-        <Route path="/profile/addresses" element={<Addresses />} />
-        <Route path="/profile/account" element={<Navigate to="/profile" replace />} />
+          <Route path="/account/login" element={<LoginPage />} />
+          <Route path="/account/signup" element={<SignupPage />} />
+          <Route path="/account/otp-verify" element={<OtpVerifyPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/signup" element={<SignupPage />} />
+          <Route path="/otp-verify" element={<OtpVerifyPage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/payment" element={<CartPage />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/profile/orders" element={<Orders />} />
+          <Route path="/profile/orders/track/:orderId" element={<OrderTracking />} />
+          <Route path="/track-order/:orderId" element={<OrderTracking />} />
+          <Route path="/profile/addresses" element={<Addresses />} />
+          <Route path="/profile/account" element={<Navigate to="/profile" replace />} />
 
-        <Route path="/terms" element={<TermsPage />} />
-        <Route path="/privacy" element={<PrivacyPage />} />
-        <Route path="/contact" element={<ContactPage />} />
-        <Route path="/about" element={<AboutPage />} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/about" element={<AboutPage />} />
 
-        <Route path="/cart" element={<CartPage />} />
+          <Route path="/cart" element={<CartPage />} />
 
+          <Route
+            path="/admin/*"
+            element={
+              <AdminRoute>
+                <Dashboard />
+              </AdminRoute>
+            }
+          />
 
-
-        <Route path='/admin/*' element={
-          <AdminRoute>
-            <Dashboard />
-          </AdminRoute>
-        } />
-
-        {/* Catch-all 404 Page */}
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
+          {/* Catch-all 404 Page */}
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }

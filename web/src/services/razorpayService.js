@@ -61,44 +61,13 @@ export const razorpayService = {
       if (error) {
         const errMsg = await extractEdgeError(error);
         lastError = new Error(errMsg);
-        console.warn('razorpay edge function refund error, trying fallback:', errMsg);
+        console.warn('razorpay edge function refund error:', errMsg);
       } else if (data?.error) {
         lastError = new Error(data.error);
       }
     } catch (err) {
       lastError = err;
       console.warn('razorpay edge function invocation exception:', err);
-    }
-
-    // 2. Secondary fallback: Invoke icarry edge function (running with full admin service-role)
-    try {
-      const { data, error } = await supabase.functions.invoke('icarry', {
-        body: {
-          action: 'refund',
-          payload: {
-            orderId,
-            reason,
-            extraNotes,
-          },
-        },
-        headers,
-      });
-
-      if (!error && data?.success) {
-        return data;
-      }
-
-      if (error) {
-        const errMsg = await extractEdgeError(error);
-        throw new Error(errMsg);
-      }
-
-      if (data?.error) {
-        throw new Error(data.error);
-      }
-    } catch (fallbackErr) {
-      console.error('Secondary refund fallback error:', fallbackErr);
-      throw (lastError || fallbackErr);
     }
 
     throw (lastError || new Error('Failed to process Razorpay refund'));

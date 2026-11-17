@@ -1,11 +1,9 @@
-import React, { lazy, Suspense } from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import TopBar from '../components/TopBar';
 import SiteHeader from '../components/SiteHeader';
+import SiteFooter from '../components/SiteFooter';
 import SEO from '../components/SEO';
 import './NotFoundPage.css';
-
-const SiteFooter = lazy(() => import('../components/SiteFooter'));
 
 export default function NotFoundPage() {
   const navigate = useNavigate();
@@ -25,7 +23,6 @@ export default function NotFoundPage() {
         description="The page you requested could not be found."
         robots="noindex, follow"
       />
-      <TopBar />
       <SiteHeader activeLink="" onLinkClick={handleHeaderLinkClick} />
 
       <main className="not-found-main" role="main">
@@ -44,9 +41,7 @@ export default function NotFoundPage() {
         </div>
       </main>
 
-      <Suspense fallback={null}>
-        <SiteFooter />
-      </Suspense>
+      <SiteFooter />
     </div>
   );
 }

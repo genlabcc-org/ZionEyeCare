@@ -1,17 +1,11 @@
-import React, { lazy, Suspense } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Policy.css';
 import SiteHeader from '../components/SiteHeader';
-import TopBar from '../components/TopBar';
+import SiteFooter from '../components/SiteFooter';
 import SEO from '../components/SEO';
 import { useStore } from '../hooks/useStore';
 import { getNavPath } from '../services/categoryRoute';
-
-const SiteFooter = lazy(() => import('../components/SiteFooter'));
-
-const LoadingSkeleton = ({ height = '200px' }) => (
-  <div style={{ height, background: '#f5f5f5', borderRadius: '8px', margin: '16px 0' }} />
-);
 
 export default function Terms() {
   const navigate = useNavigate();
@@ -36,7 +30,6 @@ export default function Terms() {
           { name: 'Terms of Service', path: '/terms' },
         ]}
       />
-      <TopBar />
       <SiteHeader activeLink="" onLinkClick={handleHeaderLinkClick} />
 
       <section className="policy-section">
@@ -367,9 +360,7 @@ export default function Terms() {
         </div>
       </section>
 
-      <Suspense fallback={<LoadingSkeleton height="300px" />}>
-        <SiteFooter />
-      </Suspense>
+      <SiteFooter />
     </div>
   );
 }

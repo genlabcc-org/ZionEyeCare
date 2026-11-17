@@ -10,16 +10,6 @@ const CARE_DELIMITER = '\n<!--CARE_INSTRUCTIONS-->\n';
 
 export const productService = {
   /**
-   * Packs description + care_instructions into `products.description` so care instructions
-   * are stored in Supabase `products` even without a separate `care_instructions` column.
-   */
-  encodeDescriptionWithCare(description, careInstructions) {
-    const cleanDesc = String(description || '').split(CARE_DELIMITER)[0];
-    const cleanCare = String(careInstructions || '').trim();
-    return cleanCare ? `${cleanDesc}${CARE_DELIMITER}${cleanCare}` : cleanDesc;
-  },
-
-  /**
    * Unpacks description and care_instructions from a product row.
    */
   normalizeProductCare(row) {
@@ -625,21 +615,6 @@ export const productService = {
   },
 
   /**
-   * Inserts a new product record.
-   * @param {object} productData 
-   * @returns {Promise<any>}
-   */
-  async insertProduct(productData) {
-    const formatted = this.formatProductPayload(productData);
-    const { data, error } = await supabase
-      .from('products')
-      .insert([formatted])
-      .select();
-    if (error) throw error;
-    return (data || []).map(p => this.normalizeProductCare(p));
-  },
-
-  /**
    * Inserts a new category record.
    * @param {object} categoryData 
    * @returns {Promise<any>}
@@ -721,36 +696,6 @@ export const productService = {
     // Images replaced or removed in this edit are deleted from R2
     await this.deleteRemovedProductImages(productId, oldImageUrls);
     return (data || []).map(p => this.normalizeProductCare(p));
-  },
-
-  /**
-   * Uploads an image file to the product-images storage bucket.
-   * @param {string} filePath 
-   * @param {File} file 
-   * @returns {Promise<any>}
-   */
-  async uploadProductImage(filePath, file, cacheControl = '31536000') {
-    const compressedFile = await compressImage(file, 'detail');
-
-    const formData = new FormData();
-    formData.append('file', compressedFile);
-    formData.append('filePath', filePath);
-    formData.append('cacheControl', cacheControl);
-
-    const { data, error } = await supabase.functions.invoke('upload-image', {
-      body: formData,
-    });
-    if (error) throw error;
-    return data;
-  },
-
-  /**
-   * Resolves the public URL for a product image.
-   * @param {string} filePath 
-   * @returns {string}
-   */
-  getProductImagePublicUrl(filePath) {
-    return `${import.meta.env.VITE_R2_PUBLIC_URL}/${filePath}`;
   },
 
   /**
@@ -908,28 +853,6 @@ export const productService = {
       .in('product_id', productIds);
     if (error) throw error;
     return data || [];
-  },
-
-  /**
-   * Searches active products by name.
-   * @param {string} query
-   * @param {number} limit
-   * @returns {Promise<any[]>}
-   */
-  async searchProductsByName(query, limit = 5) {
-    const normalizedQuery = String(query || '').trim();
-    if (!normalizedQuery) return [];
-
-    const { data, error } = await supabase
-      .from('products')
-      .select('*, categories(name)')
-      .eq('is_active', true)
-      .ilike('name', `%${normalizedQuery}%`)
-      .order('created_at', { ascending: false })
-      .limit(limit);
-
-    if (error) throw error;
-    return (data || []).map(p => this.normalizeProductCare(p));
   },
 
   async uploadSubcategoryImage(filePath, file, cacheControl = '31536000') {

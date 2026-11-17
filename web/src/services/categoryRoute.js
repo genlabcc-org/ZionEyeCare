@@ -1,6 +1,6 @@
 // Shared helper so every page's nav-link handler routes consistently.
 //
-// All categories route dynamically via their slug (e.g. "/category/rings", "/category/gold-chains")
+// All categories route dynamically via their slug (e.g. "/category/eyeglasses", "/category/lenses")
 // based on the database categories list.
 
 /**

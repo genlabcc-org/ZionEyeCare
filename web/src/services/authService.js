@@ -2,9 +2,7 @@ import { supabase } from '../lib/supabase';
 import { auth, googleProvider } from '../lib/firebase';
 import {
   signInWithPopup,
-  signOut as firebaseSignOut,
-  RecaptchaVerifier,
-  signInWithPhoneNumber
+  signOut as firebaseSignOut
 } from 'firebase/auth';
 
 export const authService = {
@@ -19,11 +17,11 @@ export const authService = {
       throw new Error("No email found for this Google account.");
     }
 
+    const idToken = await firebaseUser.getIdToken();
+
     const { data: syncData, error: syncError } = await supabase.functions.invoke("google-auth-sync", {
       body: {
-        email: firebaseUser.email,
-        name: firebaseUser.displayName || "",
-        phone: firebaseUser.phoneNumber || "",
+        idToken,
       },
     });
 
@@ -32,89 +30,6 @@ export const authService = {
         throw new Error("Supabase Edge Function 'google-auth-sync' is not deployed or reachable on your Supabase project. Please deploy your edge functions.");
       }
       throw new Error(syncError?.message || syncData?.error || "Failed to sync Google user with database.");
-    }
-
-    const { data: sessionData, error: verifyError } = await supabase.auth.verifyOtp({
-      token_hash: syncData.hashed_token,
-      type: syncData.verification_type,
-    });
-
-    if (verifyError) throw verifyError;
-    return sessionData;
-  },
-
-  /**
-   * Gets or initializes an invisible RecaptchaVerifier for phone authentication.
-   * @param {string} containerId 
-   * @returns {RecaptchaVerifier}
-   */
-  getRecaptchaVerifier(containerId = "recaptcha-container") {
-    if (window.recaptchaVerifier) {
-      return window.recaptchaVerifier;
-    }
-    window.recaptchaVerifier = new RecaptchaVerifier(auth, containerId, {
-      size: "invisible",
-      callback: () => {},
-      "expired-callback": () => {
-        if (window.recaptchaVerifier) {
-          try {
-            window.recaptchaVerifier.clear();
-          } catch (_) {}
-          window.recaptchaVerifier = null;
-        }
-      }
-    });
-    return window.recaptchaVerifier;
-  },
-
-  /**
-   * Sends SMS OTP to a phone number using Firebase Phone Auth.
-   * @param {string} phoneNumber 
-   * @param {string} containerId 
-   * @returns {Promise<any>} confirmationResult
-   */
-  async sendPhoneOtpFirebase(phoneNumber, containerId = "recaptcha-container") {
-    const appVerifier = this.getRecaptchaVerifier(containerId);
-    try {
-      const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
-      return confirmationResult;
-    } catch (err) {
-      if (window.recaptchaVerifier) {
-        try {
-          window.recaptchaVerifier.clear();
-        } catch (_) {}
-        window.recaptchaVerifier = null;
-      }
-      throw err;
-    }
-  },
-
-  /**
-   * Verifies the SMS OTP and establishes a session in Supabase & users table.
-   * @param {any} confirmationResult 
-   * @param {string} otpCode 
-   * @returns {Promise<any>}
-   */
-  async verifyPhoneOtpFirebase(confirmationResult, otpCode) {
-    const result = await confirmationResult.confirm(otpCode);
-    const firebaseUser = result.user;
-    if (!firebaseUser) {
-      throw new Error("Phone verification failed.");
-    }
-
-    const { data: syncData, error: syncError } = await supabase.functions.invoke("google-auth-sync", {
-      body: {
-        phone: firebaseUser.phoneNumber || "",
-        email: firebaseUser.email || "",
-        name: firebaseUser.displayName || "",
-      },
-    });
-
-    if (syncError || !syncData?.success) {
-      if (syncError && syncError.message?.includes("Failed to send a request to the Edge Function")) {
-        throw new Error("Supabase Edge Function 'google-auth-sync' is not deployed or reachable on your Supabase project. Please deploy your edge functions.");
-      }
-      throw new Error(syncError?.message || syncData?.error || "Failed to sync user with database.");
     }
 
     const { data: sessionData, error: verifyError } = await supabase.auth.verifyOtp({

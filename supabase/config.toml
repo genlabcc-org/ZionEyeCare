@@ -438,16 +438,6 @@ entrypoint = "./functions/upload-image/index.ts"
 # For example, if you want to serve static HTML pages in your function:
 # static_files = [ "./functions/upload-image/*.html" ]
 
-[functions.icarry]
-enabled = true
-verify_jwt = false
-entrypoint = "./functions/icarry/index.ts"
-
-[functions.icarry-webhook]
-enabled = true
-verify_jwt = false
-entrypoint = "./functions/icarry-webhook/index.ts"
-
 [functions.razorpay-webhook]
 enabled = true
 verify_jwt = false

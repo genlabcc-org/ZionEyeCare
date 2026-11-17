@@ -5,7 +5,6 @@ import { supabase } from "../lib/supabase";
 import { getUserInitials } from "../utils/avatarUtils";
 import Navbar from "../components/SiteHeader";
 import Footer from "../components/SiteFooter";
-import TopBar from "../components/TopBar";
 import SEO from "../components/SEO";
 import "./ProfileLayout.css";
 
@@ -73,7 +72,6 @@ export default function ProfileLayout({ children }) {
         description="Manage your Zion Eye Care profile, saved addresses, and order history."
         robots="noindex, nofollow"
       />
-      <TopBar />
       <Navbar onLinkClick={handleNavClick} />
       <div className="pl-root">
         <main className="pl-main">
