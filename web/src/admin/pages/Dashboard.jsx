@@ -2147,7 +2147,7 @@ const Dashboard = () => {
 
     if (currentPath === "/admin/products/add" || currentPath === "/admin/products/add-multiple" || currentPath === "/admin/products/edit-multiple") {
       const hasId = editingProduct || new URLSearchParams(location.search).get("id") || location.state?.editingProductId;
-      return hasId ? "Update product details, variants, inventory, and pricing" : "Add a new product to your store catalog with variants, colors, and sizes";
+      return hasId ? "Update eyewear details, frame specs, variants, inventory, and pricing" : "Add a new eyewear product to your catalog with frame specs, colors, and sizes";
     }
     if (currentPath.startsWith("/admin/products")) {
       return "Manage, search, and organize your store's product catalog";

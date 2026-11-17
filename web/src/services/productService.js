@@ -759,7 +759,7 @@ export const productService = {
     try {
       let query = supabase
         .from('products')
-        .select('product_id, name, description, care_instructions, price, compare_price, stock, image_url, images, sizes, colors, material, category_id, categories(name), has_variants, subcategory_id, subcategories(name), product_variants(variant_id, price, compare_price, stock, images, color, size)')
+        .select('product_id, name, description, care_instructions, price, compare_price, stock, image_url, images, sizes, colors, frame_shape, frame_measurements, category_id, categories(name), has_variants, subcategory_id, subcategories(name), product_variants(variant_id, price, compare_price, stock, images, color, size)')
         .eq('is_active', true)
         .order('created_at', { ascending: false });
 
@@ -774,9 +774,7 @@ export const productService = {
           return {
             ...p,
             category: p.categories?.name || p.category || (catData ? categoryName : null),
-            subcategory: joinedSub || p.subcategory || null,
-            material: p.material || p.fabric || '',
-            fabric: p.material || p.fabric || ''
+            subcategory: joinedSub || p.subcategory || null
           };
         });
       }
@@ -787,7 +785,7 @@ export const productService = {
     if (!queryData) {
       let query = supabase
         .from('products')
-        .select('product_id, name, description, care_instructions, price, compare_price, stock, image_url, images, sizes, colors, material, category_id, categories(name), has_variants, subcategory_id, product_variants(variant_id, price, compare_price, stock, images, color, size)')
+        .select('product_id, name, description, care_instructions, price, compare_price, stock, image_url, images, sizes, colors, frame_shape, frame_measurements, category_id, categories(name), has_variants, subcategory_id, product_variants(variant_id, price, compare_price, stock, images, color, size)')
         .eq('is_active', true)
         .order('created_at', { ascending: false });
 
@@ -801,9 +799,7 @@ export const productService = {
       queryData = (data || []).map(p => ({
         ...p,
         category: p.categories?.name || p.category || (catData ? categoryName : null),
-        subcategory: p.subcategory || null,
-        material: p.material || p.fabric || '',
-        fabric: p.material || p.fabric || ''
+        subcategory: p.subcategory || null
       }));
     }
 

@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { supabase } from '../lib/supabase';
 import { productService } from '../services/productService';
-import { variantService } from '../services/variantService';
+import { addProductService } from '../services/addProductService';
 import { cartService } from '../services/cartService';
 import { authService } from '../services/authService';
 import { orderService } from '../services/orderService';
@@ -341,7 +341,6 @@ export const useStore = create((set, get) => ({
         });
 
         const categoryNameResolved = p.category || p.categories?.name || (categoryName.toLowerCase() !== 'all products' && categoryName.toLowerCase() !== 'all' ? categoryName : '');
-        const mat = (p.material || p.fabric || '').trim();
 
         return {
           id: p.product_id || p.id,
@@ -357,8 +356,6 @@ export const useStore = create((set, get) => ({
           sizes: combinedSizes,
           colors: combinedColors,
           product_variants: variants,
-          material: mat,
-          fabric: mat,
           category: categoryNameResolved,
           category_id: p.category_id || null,
           subcategory: p.subcategory || p.subcategories?.name || null,
@@ -419,7 +416,7 @@ export const useStore = create((set, get) => ({
       let variantRows = [];
       if (baseData?.has_variants) {
         try {
-          variantRows = await variantService.getVariantsByProductId(productId);
+          variantRows = await addProductService.getVariantsByProductId(productId);
         } catch (err) {
           console.error('Failed to load variants in store:', err);
         }

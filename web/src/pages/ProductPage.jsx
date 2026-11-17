@@ -341,10 +341,6 @@ export default function ProductPage({ category = "Trending" }) {
       count
     }));
 
-    if (list.length === 0 && products.length > 0) {
-      return [{ name: "Cotton", count: products.length }];
-    }
-
     return list;
   }, [products]);
 

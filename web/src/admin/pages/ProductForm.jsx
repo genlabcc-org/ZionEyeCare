@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { variantService } from "../../services/variantService";
+import { addProductService } from "../../services/addProductService";
 import { useStore } from "../../hooks/useStore";
 import { getColorName } from "../../utils/colorUtils";
 import ConfirmDialog from "./dialogs/confirmdialogs";
@@ -220,7 +220,8 @@ const ProductForm = ({
   const [description, setDescription] = useState(() => initialDraft?.description || "");
   const [careInstructions, setCareInstructions] = useState(() => initialDraft?.careInstructions || "");
   const [sku, setSku] = useState(() => initialDraft?.sku || generateVariantSKU());
-  const [material, setMaterial] = useState(() => initialDraft?.material || "");
+  const [frameShape, setFrameShape] = useState(() => initialDraft?.frameShape || "");
+  const [frameMeasurements, setFrameMeasurements] = useState(() => initialDraft?.frameMeasurements || "");
   const [category, setCategory] = useState(() => initialDraft?.category || "");
   const [subCategory, setSubCategory] = useState(() => initialDraft?.subCategory || "");
   const [loadingSubcategories, setLoadingSubcategories] = useState(false);
@@ -344,7 +345,8 @@ const ProductForm = ({
         description,
         careInstructions,
         sku,
-        material,
+        frameShape,
+        frameMeasurements,
         category,
         subCategory,
         commonColors,
@@ -367,14 +369,15 @@ const ProductForm = ({
         }
       }
     } catch (e) {
-      console.warn("Could not save variant draft:", e);
+      console.warn("Could not save product draft:", e);
     }
   }, [
     title,
     description,
     careInstructions,
     sku,
-    material,
+    frameShape,
+    frameMeasurements,
     category,
     subCategory,
     commonColors,
@@ -421,14 +424,15 @@ const ProductForm = ({
     const load = async () => {
       setLoading(true);
       try {
-        const { product, variants: existingVariants } = await variantService.getProductWithVariants(editingProductId);
+        const { product, variants: existingVariants } = await addProductService.getProductWithVariants(editingProductId);
         if (!isCurrent) return;
 
         setTitle(product.name || "");
         setDescription(product.description || "");
         setCareInstructions(product.care_instructions || product.careInstructions || "");
         setSku(product.sku || generateVariantSKU());
-        setMaterial(product.material || "");
+        setFrameShape(product.frame_shape || "");
+        setFrameMeasurements(product.frame_measurements || "");
         setCategory(product.category_id != null ? String(product.category_id) : "");
         setSubCategory(product.subcategory_id != null ? String(product.subcategory_id) : "");
         setShowOnStore(!!product.is_active);
@@ -1171,7 +1175,8 @@ const ProductForm = ({
     setDescription("");
     setCareInstructions("");
     setSku(generateVariantSKU());
-    setMaterial("");
+    setFrameShape("");
+    setFrameMeasurements("");
     setCategory("");
     setSubCategory("");
     setCommonColors([]);
@@ -1201,7 +1206,7 @@ const ProductForm = ({
     };
   }, []);
 
-  // ── Flatten all size & color variants into the format expected by variantService ──
+  // ── Flatten all size & color variants into the format expected by addProductService ──
   const buildFlatVariants = () => {
     if (sizeRows.length === 0) {
       return [
@@ -1264,7 +1269,7 @@ const ProductForm = ({
     if (!description.trim()) topErrors.description = ["Description Cannot Be Empty"];
     if (!globalStock.trim()) topErrors.globalStock = ["Stock Cannot Be Empty"];
     if (sizeRows.length === 0) {
-      topErrors.sizes = ["At least one size with a product image is required"];
+      topErrors.sizes = ["At least one frame size with a product image is required"];
     }
 
     const rowErrors = {};
@@ -1331,7 +1336,7 @@ const ProductForm = ({
     const baseComparePrice = validComparePrices.length > 0 ? Math.max(...validComparePrices) : null;
     const totalStock = variants.reduce((sum, v) => sum + (parseInt(v.stockQuantity) || 0), 0);
 
-    // Base cover image is automatically synced from the first variant with images in variantService.
+    // Base cover image is automatically synced from the first variant with images in addProductService.
     // Check if any variant already has an image as initial fallback
     const firstVariantWithImages = variants.find((v) => v.images && v.images.length > 0);
     const initialCoverUrl = firstVariantWithImages
@@ -1345,7 +1350,8 @@ const ProductForm = ({
       description,
       care_instructions: careInstructions.trim() || null,
       sku: sku || undefined,
-      material: material.trim() || null,
+      frame_shape: frameShape.trim() || null,
+      frame_measurements: frameMeasurements.trim() || null,
       category_id: parseInt(category) || null,
       subcategory_id: subCategory || null,
       is_active: showOnStore,
@@ -1361,8 +1367,8 @@ const ProductForm = ({
     setSaving(true);
     try {
       const result = isEditing
-        ? await variantService.updateProductWithVariants(editingProductId, productData, variants, deletedVariantIds)
-        : await variantService.createProductWithVariants({ ...productData, has_variants: true }, variants);
+        ? await addProductService.updateProductWithVariants(editingProductId, productData, variants, deletedVariantIds)
+        : await addProductService.createProductWithVariants({ ...productData, has_variants: true }, variants);
       savedSuccessRef.current = true;
       useStore.getState().invalidateProductDetails(result?.product?.product_id || editingProductId);
       try {
@@ -1429,11 +1435,11 @@ const ProductForm = ({
       <div className="card cmp-card">
         <div className="card-title">Product Details</div>
         <label className="cmp-field">
-          <span className="cmp-label">Product Name</span>
+          <span className="cmp-label">Product / Model Name</span>
           <input
             type="text"
             className={`cmp-input${errors.title ? " cmp-input--error" : ""}`}
-            placeholder="e.g. Classic Cotton Ribbed Vest"
+            placeholder="e.g. Elsie"
             value={title}
             onChange={(e) => {
               setTitle(e.target.value);
@@ -1449,7 +1455,7 @@ const ProductForm = ({
           <span className="cmp-label">Description</span>
           <textarea
             className={`cmp-textarea${errors.description ? " cmp-input--error" : ""}`}
-            placeholder="Describe the fabric, breathability, and fit..."
+            placeholder="Enter description"
             value={description}
             onChange={(e) => {
               setDescription(e.target.value);
@@ -1467,7 +1473,7 @@ const ProductForm = ({
           </span>
           <textarea
             className="cmp-textarea"
-            placeholder="e.g. Machine wash cold, do not bleach, tumble dry low..."
+            placeholder="e.g. Wipe with microfiber cloth"
             value={careInstructions}
             onChange={(e) => setCareInstructions(e.target.value)}
           />
@@ -1528,17 +1534,36 @@ const ProductForm = ({
               <InfoHint>No subcategories under this category</InfoHint>
             )}
           </label>
+        </div>
+
+        {/* ── Eyewear Frame Specifications ── */}
+        <div className="cmp-row">
+          <label className="cmp-field">
+            <span className="cmp-label">
+              Frame Shape <span className="scc-optional-tag">optional</span>
+            </span>
+            <select
+              className="cmp-select"
+              value={frameShape}
+              onChange={(e) => setFrameShape(e.target.value)}
+            >
+              <option value="">Select Frame Shape</option>
+              {["Rectangle", "Round", "Square", "Aviator", "Cat-Eye", "Wayfarer", "Geometric", "Oval", "Clubmaster", "Wraparound"].map((shape) => (
+                <option key={shape} value={shape}>{shape}</option>
+              ))}
+            </select>
+          </label>
 
           <label className="cmp-field">
             <span className="cmp-label">
-              Product Material <span className="scc-optional-tag">optional</span>
+              Frame Measurements <span className="scc-optional-tag">optional</span>
             </span>
             <input
               type="text"
               className="cmp-input"
-              placeholder="e.g. 100% Combed Cotton, MicroModal, Cotton Spandex"
-              value={material}
-              onChange={(e) => setMaterial(e.target.value)}
+              placeholder="e.g. 52-18-140"
+              value={frameMeasurements}
+              onChange={(e) => setFrameMeasurements(e.target.value)}
             />
           </label>
         </div>
@@ -1719,14 +1744,14 @@ const ProductForm = ({
 
         {/* ── Sizes, Colors, Images & Pricing ── */}
         <div className="cmp-section">
-          <div className="cmp-section-title">Product Sizes, Colors &amp; Pricing</div>
+          <div className="cmp-section-title">Frame Sizes, Colors &amp; Pricing</div>
 
           {/* Add size input */}
           <div className="cmp-add-size-row">
             <input
               type="text"
               className="cmp-input cmp-add-size-input"
-              placeholder="Enter size (e.g. S, M, L, XL, XXL or 75, 80, 85, 90)"
+              placeholder="e.g. Medium, 52mm"
               value={sizeInput}
               onChange={(e) => setSizeInput(e.target.value)}
               onKeyDown={(e) => {
@@ -1744,7 +1769,7 @@ const ProductForm = ({
           {/* Quick preset chips */}
           <div className="cmp-quick-sizes">
             <span className="cmp-quick-sizes-label">Quick Add:</span>
-            {["Free Size", "S", "M", "L", "XL", "XXL", "70", "75", "80", "85", "90", "95", "100"].map((sz) => {
+            {["Narrow", "Medium", "Wide", "Extra Wide", "Kids", "Free Size", "48mm", "50mm", "52mm", "54mm", "56mm"].map((sz) => {
               const isAdded = sizeRows.some((r) => r.size.toLowerCase() === sz.toLowerCase());
               return (
                 <button

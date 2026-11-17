@@ -195,6 +195,14 @@
   border-color: var(--admin-primary);
 }
 
+.cmp-input::placeholder,
+.cmp-textarea::placeholder,
+.cmp-add-size-input::placeholder,
+.cmp-table-input::placeholder {
+  color: #c4cad4;
+  opacity: 1;
+}
+
 .cmp-input[readonly] {
   background: #f3f4f6;
   color: #6b7280;

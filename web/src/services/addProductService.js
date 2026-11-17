@@ -36,7 +36,7 @@ const makeUniqueSku = (desiredSku, baseSku, index, usedSkus) => {
   return unique;
 };
 
-export const variantService = {
+export const addProductService = {
   /**
    * Creates a base product plus all its variants in one flow.
    */

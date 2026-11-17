@@ -295,13 +295,14 @@ export const sortSizesAscending = (sizes) => {
   if (!Array.isArray(sizes)) return [];
 
   const letterRank = {
+    'KIDS': 1,
+    'NARROW': 2, 'SMALL': 2, 'S': 2,
+    'MEDIUM': 3, 'M': 3,
+    'WIDE': 4, 'LARGE': 4, 'L': 4,
+    'EXTRA WIDE': 5, 'XL': 5,
     'XXXS': 1, '3XS': 1,
     'XXS': 2, '2XS': 2,
     'XS': 3,
-    'S': 4,
-    'M': 5,
-    'L': 6,
-    'XL': 7,
     'XXL': 8, '2XL': 8,
     'XXXL': 9, '3XL': 9,
     '4XL': 10, 'XXXXL': 10,
@@ -499,11 +500,11 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
           image: baseImages[0] || '',
           images: baseImages,
           image_url: data.image_url || baseImages[0] || '',
-          category: data.categories?.name || 'Innerwear',
+          category: data.categories?.name || 'Eyewear',
           type: data.subcategories?.name || '',
           subcategory: data.subcategories?.name || '',
-          material: data.material || '',
-          fabric: data.material || '',
+          frame_shape: data.frame_shape || '',
+          frame_measurements: data.frame_measurements || '',
           sku: data.sku || '',
           stock: data.stock,
           sizes: [],
@@ -1514,17 +1515,27 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
                 <div className="dp-sizeguide-body dp-info-dropdown-body">
                   <div className="dp-specs-table">
                     <div className="dp-specs-row">
-                      <span className="dp-specs-label">Product Type :</span>
-                      <span className="dp-specs-value">{selectedProduct?.type || selectedProduct?.subcategory || cat || "Brief"}</span>
-                    </div>
-                    <div className="dp-specs-row">
-                      <span className="dp-specs-label">Product Material :</span>
-                      <span className="dp-specs-value">{selectedProduct?.fabric || selectedProduct?.material || "Cotton"}</span>
-                    </div>
-                    <div className="dp-specs-row">
                       <span className="dp-specs-label">Category :</span>
-                      <span className="dp-specs-value">{selectedProduct?.gender || selectedProduct?.category || "Male"}</span>
+                      <span className="dp-specs-value">{selectedProduct?.category || cat || "Eyewear"}</span>
                     </div>
+                    {(selectedProduct?.subcategory || selectedProduct?.type) && (
+                      <div className="dp-specs-row">
+                        <span className="dp-specs-label">Collection / Style :</span>
+                        <span className="dp-specs-value">{selectedProduct?.subcategory || selectedProduct?.type}</span>
+                      </div>
+                    )}
+                    {selectedProduct?.frame_shape && (
+                      <div className="dp-specs-row">
+                        <span className="dp-specs-label">Frame Shape :</span>
+                        <span className="dp-specs-value">{selectedProduct.frame_shape}</span>
+                      </div>
+                    )}
+                    {selectedProduct?.frame_measurements && (
+                      <div className="dp-specs-row">
+                        <span className="dp-specs-label">Measurements (mm) :</span>
+                        <span className="dp-specs-value">{selectedProduct.frame_measurements}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

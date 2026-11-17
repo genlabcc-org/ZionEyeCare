@@ -433,8 +433,6 @@ const ProductList = ({ onAddProduct, onEditProduct, onDeleteProduct, products = 
         p.category,
         p.categories?.name,
         resolvedProdSubName,
-        p.material,
-        p.fabric,
         p.description,
         p.status,
         ...productColors,
