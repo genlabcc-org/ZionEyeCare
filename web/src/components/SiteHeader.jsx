@@ -10,6 +10,7 @@ import "./SiteHeader.css";
 
 // ── Default static page nav items (About, Contact, FAQ) ──
 const DEFAULT_PAGE_NAV_ITEMS = [
+  { name: "All Products", path: "/products", hasDropdown: false },
   { name: "About", path: "/about", hasDropdown: false },
   { name: "Contact", path: "/contact", hasDropdown: false },
   { name: "FAQ", path: "/#faq", hasDropdown: false, isAnchor: true },

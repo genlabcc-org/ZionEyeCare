@@ -567,6 +567,16 @@ select {
   margin-top: 6px;
 }
 
+.cart-price-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.cart-price-breakdown strong { color: #111827; font-size: 14px; }
+
 .cart-item-price {
   font-size: 16px;
   font-weight: 700;

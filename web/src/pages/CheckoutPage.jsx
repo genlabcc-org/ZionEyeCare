@@ -520,6 +520,8 @@ export default function CheckoutPage() {
     (sum, item) => sum + (parsePrice(item.price) || 0) * (Number(item.qty) || 0),
     0
   );
+  const frameTotal = checkoutItems.reduce((sum, item) => sum + parsePrice(item.framePrice ?? (parsePrice(item.price) - parsePrice(item.lensAddonPrice ?? item.lensSelection?.addonPrice))) * (Number(item.qty) || 0), 0);
+  const lensTotal = checkoutItems.reduce((sum, item) => sum + parsePrice(item.lensAddonPrice ?? item.lensSelection?.addonPrice) * (Number(item.qty) || 0), 0);
 
   // Fetch active coupons based on initialized subtotal and userId
   useEffect(() => {
@@ -803,6 +805,7 @@ export default function CheckoutPage() {
           quantity: item.qty || 1,
           size: item.size || null,
           color: item.color || null,
+          lensSelection: item.lensSelection || null,
           image: item.img || item.image || (item.images && item.images[0]) || null,
           sku: item.sku || item.sku_id || null,
         }));
@@ -960,13 +963,10 @@ export default function CheckoutPage() {
                         <div className="checkout-product-info">
                           <div className="checkout-product-header-row">
                             <h2 className="checkout-product-title">{item.name}</h2>
-                            <div className="checkout-product-price-tag">
-                              Rs. {itemTotal.toLocaleString('en-IN')}
-                            </div>
                           </div>
-                          <p className="checkout-product-desc">
-                            {item.description || item.short_description || `${item.name} - Premium Quality Fabric & Fit`}
-                          </p>
+                          {(item.description || item.short_description) && (
+                            <p className="checkout-product-desc">{item.description || item.short_description}</p>
+                          )}
 
                           {/* Selected Color, Size & Qty Badges */}
                           <div className="checkout-product-badges-row">
@@ -984,6 +984,12 @@ export default function CheckoutPage() {
                               <span className="checkout-product-badge">
                                 <span className="checkout-badge-label">Size:</span>
                                 <strong className="checkout-badge-val">{itemSize}</strong>
+                              </span>
+                            )}
+                            {item.lensSelection && (
+                              <span className="checkout-product-badge">
+                                <span className="checkout-badge-label">Lens:</span>
+                                <strong className="checkout-badge-val">{item.lensSelection.lensName}{item.lensSelection.thicknessName ? ` · ${item.lensSelection.thicknessName}` : ""}</strong>
                               </span>
                             )}
                             <span className="checkout-product-badge checkout-badge-qty">
@@ -1336,16 +1342,17 @@ export default function CheckoutPage() {
 
                 <div className="checkout-billing-details-list">
                   <div className="checkout-billing-line">
-                    <span className="billing-key">Price:</span>
-                    <span className="billing-val">
-                      {totalQuantity > 1
-                        ? `${totalQuantity} * ₹${primaryItemPrice.toFixed(2)}`
-                        : `₹${primaryItemPrice.toFixed(2)}`}
-                    </span>
+                    <span className="billing-key">Frame Price:</span>
+                    <span className="billing-val">₹{frameTotal.toFixed(2)}</span>
                   </div>
 
                   <div className="checkout-billing-line">
-                    <span className="billing-key">Subtotal</span>
+                    <span className="billing-key">Lens Price</span>
+                    <span className="billing-val">₹{lensTotal.toFixed(2)}</span>
+                  </div>
+
+                  <div className="checkout-billing-line">
+                    <span className="billing-key">Total</span>
                     <span className="billing-val">₹{subtotal.toFixed(2)}</span>
                   </div>
 

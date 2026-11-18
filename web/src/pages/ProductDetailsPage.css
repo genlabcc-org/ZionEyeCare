@@ -983,8 +983,9 @@
 .dp-lens-option.selected { border: 2px solid #111; background: #fff; }
 .dp-lens-option-copy { display: flex; flex: 1; flex-direction: column; gap: 2px; }
 .dp-lens-option strong { font-size: 16px; }.dp-lens-option small { color: #666; font-size: 12px; }.dp-lens-option b { font-size: 15px; white-space: nowrap; }
+.dp-lens-option .dp-lens-suitability { color: #475569; margin-top: 2px; }
 .dp-thickness-icon { width: 34px; height: 44px; flex: 0 0 34px; color: #0a72ff; }.dp-thickness-icon svg { display: block; width: 100%; height: 100%; }
-.dp-lens-type-card { width: 100%; min-height: 78px; display: flex; align-items: center; gap: 14px; padding: 13px; border: 0; border-radius: 8px; background: #f5f5f5; text-align: left; cursor: pointer; color: #111; }.dp-lens-type-card:hover { outline: 2px solid #111; background: #fff; }.dp-lens-type-card .dp-lens-icon { width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 7px; background: #fff; color: #172033; }.dp-lens-type-card .dp-lens-icon svg { width: 42px; height: auto; }.dp-lens-type-card span:last-child { display: flex; flex-direction: column; gap: 3px; }.dp-lens-type-card strong { font-size: 16px; }.dp-lens-type-card small { color: #666; font-size: 12px; line-height: 1.3; }.dp-lens-thickness-title { margin: -4px 0 0; font-size: 21px; }.dp-lens-note { margin: -2px 0 8px; padding: 9px 0; border-top: 1px solid #e5e5e5; color: #444; font-size: 12px; font-weight: 600; }
+.dp-lens-type-card { width: 100%; min-height: 78px; display: flex; align-items: center; gap: 14px; padding: 13px; border: 0; border-radius: 8px; background: #f5f5f5; text-align: left; cursor: pointer; color: #111; }.dp-lens-type-card:hover, .dp-lens-type-card.selected { outline: 2px solid #111; background: #fff; }.dp-lens-type-card .dp-lens-icon { width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; border-radius: 7px; background: #fff; color: #172033; }.dp-lens-type-card .dp-lens-icon svg { width: 42px; height: auto; }.dp-lens-type-card span:last-child { display: flex; flex-direction: column; gap: 3px; }.dp-lens-type-card strong { font-size: 16px; }.dp-lens-type-card small { color: #666; font-size: 12px; line-height: 1.3; }.dp-lens-thickness-title { margin: -4px 0 0; font-size: 21px; }.dp-lens-note { margin: -2px 0 8px; padding: 9px 0; border-top: 1px solid #e5e5e5; color: #444; font-size: 12px; font-weight: 600; }
 .dp-lens-step-label { margin-top: 2px; color: #475569; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }.dp-lens-type-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }.dp-lens-type { padding: 9px 12px; border: 1px solid #e2e8f0; border-radius: 7px; background: #fff; color: #334155; font-size: 13px; cursor: pointer; }.dp-lens-type.selected { border-color: #0A2582; background: #f5f8ff; color: #0A2582; font-weight: 600; }
 .dp-lens-summary { position: sticky; bottom: 0; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 4px 20px; margin-top: auto; padding: 24px 40px; border-top: 1px solid #ddd; background: #fff; }.dp-lens-summary span { color: #666; font-size: 16px; }.dp-lens-summary b { color: #000; font-size: 32px; }.dp-lens-summary button { grid-column: 2; grid-row: 1 / 3; border: 0; border-radius: 14px; padding: 16px 24px; background: #444; color: #fff; font-size: 17px; cursor: pointer; }
 @media (max-width: 700px) { .dp-lens-drawer { width: 100%; min-width: 0; }.dp-lens-options { padding: 28px 20px 130px; }.dp-lens-drawer-header { min-height: 72px; padding: 0 14px; }.dp-lens-drawer-header h3 { font-size: 22px; }.dp-lens-type-card { min-height: 110px; }.dp-lens-type-card .dp-lens-icon { width: 64px; height: 64px; font-size: 42px; }.dp-lens-option { padding: 18px; } }
@@ -1004,3 +1005,32 @@
 .dp-lens-summary button:hover { background: #1f1f1f; }
 .dp-lens-drawer-header .dp-lens-back { width: 36px; height: 36px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border: 1px solid #e0e0e0; border-radius: 10px; background: #fff; color: #374151; font-size: 0; }
 .dp-lens-drawer-header .dp-lens-back:hover { background: #f1f3f5; color: #111827; }
+
+/* Minimal product lens selector */
+.dp-lens-drawer-header { min-height: 72px; border-color: #eceff3; }
+.dp-lens-drawer-header h3 { font-size: 20px; font-weight: 400; letter-spacing: -.02em; }
+.dp-lens-options { gap: 8px; padding: 20px 28px 104px; }
+.dp-lens-type-card,
+.dp-lens-option { border-radius: 6px; background: #f7f8fa; }
+.dp-lens-type-card { min-height: 70px; padding: 12px; }
+.dp-lens-option { padding: 12px 14px; }
+.dp-lens-type-card:hover,
+.dp-lens-type-card.selected,
+.dp-lens-option.selected { outline: 1px solid #111827; border: 0; }
+.dp-lens-type-card .dp-lens-icon { width: 44px; height: 44px; border-radius: 5px; }
+.dp-lens-type-card .dp-lens-icon svg { width: 37px; }
+.dp-lens-type-card strong,
+.dp-lens-option strong { font-size: 15px; font-weight: 400; }
+.dp-lens-type-card small,
+.dp-lens-option small,
+.dp-lens-option .dp-lens-suitability { font-size: 11px; line-height: 1.35; color: #6b7280; }
+.dp-lens-option b { font-size: 13px; font-weight: 400; }
+.dp-thickness-icon { width: 29px; height: 38px; flex-basis: 29px; }
+.dp-lens-thickness-title { font-size: 19px; font-weight: 400; }
+.dp-lens-note { padding: 8px 0; font-size: 11px; color: #6b7280; }
+.dp-lens-summary { grid-template-columns: 1fr; gap: 3px; padding: 18px 28px 20px; border-color: #eceff3; }
+.dp-lens-summary span { font-size: 13px; }
+.dp-lens-summary b { font-size: 23px; font-weight: 400; }
+.dp-lens-summary button { grid-column: 1; grid-row: auto; width: 100%; margin-top: 10px; padding: 12px 18px; border-radius: 6px; background: #000; font-size: 14px; font-weight: 400; }
+.dp-lens-summary button:hover:not(:disabled) { background: #222; }
+.dp-lens-summary button:disabled { opacity: .45; cursor: not-allowed; }

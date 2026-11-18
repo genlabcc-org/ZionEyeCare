@@ -187,16 +187,19 @@
 .trending-image-box {
   position: relative;
   width: 100%;
-  aspect-ratio: 3 / 4.1;
-  background-color: #f3f4f6;
-  border-radius: 2px;
+  aspect-ratio: 1.05 / 1;
+  background-color: #f6f7f8;
+  border-radius: 16px;
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .trending-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  width: 82%;
+  height: 82%;
+  object-fit: contain;
   display: block;
 }
 
@@ -253,17 +256,14 @@
 
 /* Product Info Below Image */
 .trending-details-box {
-  margin-top: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
+  margin-top: 0;
+  padding: 12px 2px 0;
   min-width: 0;
   width: 100%;
 }
 
 .trending-details-top-row {
-  display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
   gap: 8px;
   width: 100%;
@@ -271,19 +271,18 @@
 }
 
 .trending-details-info {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
   flex: 1;
   min-width: 0;
 }
 
 .trending-product-name {
-  font-size: 14.5px;
-  font-weight: 500;
-  color: #000000;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #475569;
+  letter-spacing: .04em;
   margin: 0;
-  line-height: 1.35;
+  line-height: 1.25;
+  text-transform: uppercase;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -292,11 +291,7 @@
 }
 
 .trending-product-price {
-  font-size: 14.5px;
-  font-weight: 700;
-  color: #000000;
-  margin: 0;
-  line-height: 1.35;
+  display: none;
 }
 
 .trending-card-colors {
@@ -311,10 +306,10 @@
 }
 
 .trending-color-swatch-btn {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  border: 1.5px solid transparent;
+  width: 15px;
+  height: 15px;
+  border-radius: 3.5px;
+  border: 1px solid rgba(0, 0, 0, .16);
   padding: 0;
   background: none;
   display: inline-flex;
@@ -334,9 +329,9 @@
 }
 
 .trending-color-dot {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
+  width: 100%;
+  height: 100%;
+  border-radius: 3px;
   display: block;
   border: 1px solid rgba(0, 0, 0, 0.15);
   box-sizing: border-box;
@@ -345,6 +340,9 @@
 .trending-color-dot--white {
   border: 1.5px solid #cbd5e1;
 }
+
+/* The catalogue uses the same clean card treatment as the home-page arrivals. */
+.trending-cart-pill-btn { display: none; }
 
 /* ─── Pagination Bar ─── */
 .trending-pagination-container {

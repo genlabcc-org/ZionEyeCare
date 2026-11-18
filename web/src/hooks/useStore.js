@@ -551,7 +551,7 @@ export const useStore = create((set, get) => ({
           await cartService.updateCartItemQty(existingItem.id, newQty);
         } else {
           const initialQty = itemStock != null && itemStock > 0 ? Math.min(qty, itemStock) : qty;
-          await cartService.addCartItem(user.id, product.productId || product.id, initialQty, normSize, normColor);
+          await cartService.addCartItem(user.id, product.productId || product.id, initialQty, normSize, normColor, product.lensSelection || null);
         }
 
         const updatedItems = await cartService.getCartItems(user.id);
@@ -581,6 +581,7 @@ export const useStore = create((set, get) => ({
           productId: product.productId || product.id,
           name: product.name,
           price: parsePrice(product.price),
+          framePrice: parsePrice(product.framePrice ?? product.price),
           originalPrice: parsePrice(product.originalPrice || product.original || product.compare_price || Math.round(parsePrice(product.price) * 1.3)),
           category: product.category,
           category_id: product.category_id || null,
@@ -590,6 +591,8 @@ export const useStore = create((set, get) => ({
           stock: itemStock,
           size: normSize,
           color: normColor,
+          lensSelection: product.lensSelection || null,
+          lensAddonPrice: Number(product.lensSelection?.addonPrice || 0),
           image: product.img || product.image || (product.images && product.images[0]) || '/src/assets/cart/bangle1.webp',
           deliveryDate: 'Sep 12, 2025'
         });

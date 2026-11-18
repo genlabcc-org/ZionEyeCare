@@ -63,7 +63,7 @@ export const cartService = {
           category_id: null,
           subcategory_id: null,
           subcategory: '',
-          qty: item.qty || 1,
+          qty: item.quantity || 1,
           size: item.size || '',
           color: item.color || '',
           image: '/src/assets/cart/bangle1.webp',
@@ -109,25 +109,29 @@ export const cartService = {
       const storedColor = item.color || '';
       const realColor = getRealColors(product, variants).includes(normalizeColor(storedColor)) ? storedColor : '';
 
+      const lensAddonPrice = parsePrice(item.lens_addon_price);
       return {
         id: item.id,
         productId: item.product_id,
         name: product.name || '',
-        price: price,
+        price: price + lensAddonPrice,
+        framePrice: price,
         originalPrice: originalPrice,
         category: product.categories?.name || '',
         category_id: product.category_id || null,
         subcategory_id: product.subcategory_id || null,
         subcategory: product.subcategories?.name || '',
         sku: sku,
-        qty: item.qty || 1,
+        qty: item.quantity || 1,
         stock: stock,
         size: item.size || '',
         color: realColor,
         // Exact value in the DB row; part of the cart's unique key, so sync must use it
         storedColor,
         image: getOriginalImageUrl(image),
-        deliveryDate: "2 - 3 days"
+        deliveryDate: "2 - 3 days",
+        lensSelection: item.lens_selection || null,
+        lensAddonPrice,
       };
     });
   },
@@ -140,7 +144,7 @@ export const cartService = {
    * @param {string|null} size
    * @param {string|null} color
    */
-  async addCartItem(userId, productId, qty = 1, size = null, color = null) {
+  async addCartItem(userId, productId, qty = 1, size = null, color = null, lensSelection = null) {
     const normSize = size || '';
     const normColor = color || '';
     const { data, error } = await supabase
@@ -148,9 +152,11 @@ export const cartService = {
       .upsert({
         user_id: userId,
         product_id: productId,
-        qty,
+        quantity: qty,
         size: normSize,
-        color: normColor
+        color: normColor,
+        lens_selection: lensSelection,
+        lens_addon_price: parsePrice(lensSelection?.addonPrice)
       }, { onConflict: 'user_id,product_id,size,color' })
       .select();
 
@@ -166,7 +172,7 @@ export const cartService = {
   async updateCartItemQty(itemId, qty) {
     const { data, error } = await supabase
       .from('cart_items')
-      .update({ qty })
+      .update({ quantity: qty })
       .eq('id', itemId)
       .select();
 
@@ -194,9 +200,13 @@ export const cartService = {
    */
   async syncCartItems(items) {
     if (!items || items.length === 0) return;
+    const rows = items.map(({ qty, ...item }) => ({
+      ...item,
+      quantity: item.quantity ?? qty ?? 1,
+    }));
     const { data, error } = await supabase
       .from('cart_items')
-      .upsert(items, { onConflict: 'user_id,product_id,size,color' })
+      .upsert(rows, { onConflict: 'user_id,product_id,size,color' })
       .select();
 
     if (error) throw error;

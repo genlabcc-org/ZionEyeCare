@@ -272,7 +272,7 @@ const ProductForm = ({
         const next = current.map((option) => String(option.lensId) !== lensId ? option : { ...option, thicknesses: option.thicknesses.filter((item) => String(item.thicknessId) !== tierId) }).filter((option) => option.thicknesses.length > 0);
         return next;
       }
-      const entry = { thicknessId: tier.id, name: tier.name, index: tier.index || tier.lens_index || "", range: tier.range || tier.power_range || "", addonPrice: Number(tier.basePrice ?? tier.base_price ?? 0) };
+      const entry = { thicknessId: tier.id, name: tier.name, index: tier.index || tier.lens_index || "", range: tier.range || tier.power_range || "", bestSuitedFor: tier.bestSuitedFor || tier.best_suited_for || "", addonPrice: Number(tier.basePrice ?? tier.base_price ?? 0) };
       return existingLens
         ? current.map((option) => String(option.lensId) === lensId ? { ...option, thicknesses: [...option.thicknesses, entry] } : option)
         : [...current, { lensId: lens.id, lensName: lens.name, thicknesses: [entry] }];

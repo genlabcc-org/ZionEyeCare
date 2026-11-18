@@ -79,6 +79,8 @@ export default function CartPage() {
     (sum, i) => sum + parsePrice(i.price) * (Number(i.qty) || 1),
     0
   );
+  const frameTotal = cartItems.reduce((sum, i) => sum + parsePrice(i.framePrice ?? (parsePrice(i.price) - parsePrice(i.lensAddonPrice ?? i.lensSelection?.addonPrice))) * (Number(i.qty) || 1), 0);
+  const lensTotal = cartItems.reduce((sum, i) => sum + parsePrice(i.lensAddonPrice ?? i.lensSelection?.addonPrice) * (Number(i.qty) || 1), 0);
 
   // Delivery Fee calculation based on active shipping rates in DB
   const deliveryFee = cartItems.length > 0
@@ -139,6 +141,8 @@ export default function CartPage() {
                   {cartItems.map((item) => {
                     const priceNum = parsePrice(item.price);
                     const origNum = parsePrice(item.originalPrice);
+                    const lensPrice = parsePrice(item.lensAddonPrice ?? item.lensSelection?.addonPrice);
+                    const framePrice = parsePrice(item.framePrice ?? priceNum - lensPrice);
                     const hasStock = item.stock != null && !isNaN(parseInt(item.stock, 10));
                     const stockCount = hasStock ? Math.max(0, parseInt(item.stock, 10)) : null;
                     const isOutOfStock = stockCount !== null && stockCount === 0;
@@ -159,12 +163,6 @@ export default function CartPage() {
                         </div>
                         <div className="cart-item-info">
                           <h3 className="cart-item-name">{item.name}</h3>
-                          <div className="cart-item-pricing">
-                            <span className="cart-item-price">₹{priceNum.toLocaleString("en-IN")}</span>
-                            {origNum > priceNum && (
-                              <span className="cart-item-original">₹{origNum.toLocaleString("en-IN")}</span>
-                            )}
-                          </div>
                           <div className="cart-qty-stepper-wrap">
                             <button
                               type="button"
@@ -216,6 +214,7 @@ export default function CartPage() {
                                 Color: <span className="cart-color-dot" style={{ backgroundColor: item.color }} /> <strong>{getColorName(item.color)}</strong>
                               </span>
                             )}
+                            {item.lensSelection && <><span className="cart-item-meta-dot">•</span><span className="cart-item-lens">Lens: <strong>{item.lensSelection.lensName}{item.lensSelection.thicknessName ? ` · ${item.lensSelection.thicknessName}` : ""}</strong>{Number(item.lensSelection.addonPrice || 0) > 0 ? ` (+₹${Number(item.lensSelection.addonPrice).toLocaleString("en-IN")})` : ""}</span></>}
                           </div>
                         </div>
 
@@ -251,7 +250,15 @@ export default function CartPage() {
               <div className="order-summary">
                 <div className="summary-details-list">
                   <div className="summary-row summary-subtotal">
-                    <span className="summary-label">Subtotal</span>
+                    <span className="summary-label">Frame Price</span>
+                    <span className="summary-val">₹{frameTotal.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                  </div>
+                  <div className="summary-row summary-subtotal">
+                    <span className="summary-label">Lens Price</span>
+                    <span className="summary-val">₹{lensTotal.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                  </div>
+                  <div className="summary-row summary-subtotal">
+                    <span className="summary-label">Total</span>
                     <span className="summary-val">₹{subtotal.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                   </div>
                   <div className="summary-row summary-gst-row">
