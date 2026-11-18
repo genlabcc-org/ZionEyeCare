@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { addProductService } from "../../services/addProductService";
 import { useStore } from "../../hooks/useStore";
 import { getColorName } from "../../utils/colorUtils";
+import { lensService } from "../../services/lensService";
 import ConfirmDialog from "./dialogs/confirmdialogs";
 import "./ProductForm.css";
 
@@ -218,19 +219,17 @@ const ProductForm = ({
 
   const [title, setTitle] = useState(() => initialDraft?.title || "");
   const [description, setDescription] = useState(() => initialDraft?.description || "");
-  const [careInstructions, setCareInstructions] = useState(() => initialDraft?.careInstructions || "");
   const [sku, setSku] = useState(() => initialDraft?.sku || generateVariantSKU());
   const [frameShape, setFrameShape] = useState(() => initialDraft?.frameShape || "");
   const [frameMeasurements, setFrameMeasurements] = useState(() => initialDraft?.frameMeasurements || "");
   const [category, setCategory] = useState(() => initialDraft?.category || "");
-  const [subCategory, setSubCategory] = useState(() => initialDraft?.subCategory || "");
-  const [loadingSubcategories, setLoadingSubcategories] = useState(false);
-  const subcategories = subcategoriesCache[category] || [];
 
   // ── Global stock & prices ──
   const [globalStock, setGlobalStock] = useState(() => initialDraft?.globalStock || "");
   const [globalOriginalPrice, setGlobalOriginalPrice] = useState(() => initialDraft?.globalOriginalPrice || "");
   const [globalOfferPrice, setGlobalOfferPrice] = useState(() => initialDraft?.globalOfferPrice || "");
+  const [availableLenses, setAvailableLenses] = useState([]);
+  const [lensOptions, setLensOptions] = useState(() => initialDraft?.lensOptions || []);
 
   // Common colors (optional default template for all sizes)
   const [commonColors, setCommonColors] = useState(() => initialDraft?.commonColors || []);
@@ -256,6 +255,33 @@ const ProductForm = ({
   const mediaHydratedRef = React.useRef(isEditing);
   const [deletedVariantIds, setDeletedVariantIds] = useState([]);
   const [sizeToDelete, setSizeToDelete] = useState(null);
+
+  useEffect(() => {
+    lensService.getLenses()
+      .then((rows) => setAvailableLenses((rows || []).filter((lens) => lens.is_active !== false)))
+      .catch((error) => console.warn("Failed to load lenses for product form:", error));
+  }, []);
+
+  const toggleLensTier = (lens, tier) => {
+    setLensOptions((current) => {
+      const lensId = String(lens.id);
+      const tierId = String(tier.id);
+      const existingLens = current.find((option) => String(option.lensId) === lensId);
+      const existingTier = existingLens?.thicknesses?.find((option) => String(option.thicknessId) === tierId);
+      if (existingTier) {
+        const next = current.map((option) => String(option.lensId) !== lensId ? option : { ...option, thicknesses: option.thicknesses.filter((item) => String(item.thicknessId) !== tierId) }).filter((option) => option.thicknesses.length > 0);
+        return next;
+      }
+      const entry = { thicknessId: tier.id, name: tier.name, index: tier.index || tier.lens_index || "", range: tier.range || tier.power_range || "", addonPrice: Number(tier.basePrice ?? tier.base_price ?? 0) };
+      return existingLens
+        ? current.map((option) => String(option.lensId) === lensId ? { ...option, thicknesses: [...option.thicknesses, entry] } : option)
+        : [...current, { lensId: lens.id, lensName: lens.name, thicknesses: [entry] }];
+    });
+  };
+
+  const updateLensTierPrice = (lensId, tierId, addonPrice) => {
+    setLensOptions((current) => current.map((lens) => String(lens.lensId) !== String(lensId) ? lens : { ...lens, thicknesses: lens.thicknesses.map((tier) => String(tier.thicknessId) !== String(tierId) ? tier : { ...tier, addonPrice }) }));
+  };
 
   // Rehydrate uploaded File objects & preview URLs from IndexedDB on page refresh
   useEffect(() => {
@@ -343,16 +369,15 @@ const ProductForm = ({
       const draftData = {
         title,
         description,
-        careInstructions,
         sku,
         frameShape,
         frameMeasurements,
         category,
-        subCategory,
         commonColors,
         globalStock,
         globalOriginalPrice,
         globalOfferPrice,
+        lensOptions,
         sizeRows: serializableSizes,
         showOnStore,
         showOnStoreExplicit,
@@ -374,16 +399,15 @@ const ProductForm = ({
   }, [
     title,
     description,
-    careInstructions,
     sku,
     frameShape,
     frameMeasurements,
     category,
-    subCategory,
     commonColors,
     globalStock,
     globalOriginalPrice,
     globalOfferPrice,
+    lensOptions,
     sizeRows,
     showOnStore,
     showOnStoreExplicit,
@@ -429,12 +453,11 @@ const ProductForm = ({
 
         setTitle(product.name || "");
         setDescription(product.description || "");
-        setCareInstructions(product.care_instructions || product.careInstructions || "");
         setSku(product.sku || generateVariantSKU());
         setFrameShape(product.frame_shape || "");
         setFrameMeasurements(product.frame_measurements || "");
+        setLensOptions(Array.isArray(product.lens_options) ? product.lens_options : []);
         setCategory(product.category_id != null ? String(product.category_id) : "");
-        setSubCategory(product.subcategory_id != null ? String(product.subcategory_id) : "");
         setShowOnStore(!!product.is_active);
         setFeaturedProduct(!!product.is_featured);
 
@@ -582,23 +605,6 @@ const ProductForm = ({
       isCurrent = false;
     };
   }, [editingProductId]);
-
-  useEffect(() => {
-    if (!category) return;
-    if (subcategoriesCache[category]) return;
-
-    const fetchSubcategories = async () => {
-      setLoadingSubcategories(true);
-      try {
-        await onFetchSubcategories?.(category);
-      } catch (err) {
-        console.error("Failed to load subcategories:", err);
-      } finally {
-        setLoadingSubcategories(false);
-      }
-    };
-    fetchSubcategories();
-  }, [category, subcategoriesCache, onFetchSubcategories]);
 
   // ── Global Stock & Price Synchronizers ──
   const handleUpdateGlobalStock = (val) => {
@@ -1173,16 +1179,15 @@ const ProductForm = ({
     clearDraftMediaFromIDB(draftKey);
     setTitle("");
     setDescription("");
-    setCareInstructions("");
     setSku(generateVariantSKU());
     setFrameShape("");
     setFrameMeasurements("");
     setCategory("");
-    setSubCategory("");
     setCommonColors([]);
     setGlobalStock("");
     setGlobalOriginalPrice("");
     setGlobalOfferPrice("");
+    setLensOptions([]);
     setSizeRows([]);
     setSizeInput("");
     setShowOnStore(true);
@@ -1348,12 +1353,10 @@ const ProductForm = ({
     const productData = {
       name: title,
       description,
-      care_instructions: careInstructions.trim() || null,
       sku: sku || undefined,
       frame_shape: frameShape.trim() || null,
       frame_measurements: frameMeasurements.trim() || null,
       category_id: parseInt(category) || null,
-      subcategory_id: subCategory || null,
       is_active: showOnStore,
       is_featured: featuredProduct,
       price: basePrice,
@@ -1362,6 +1365,10 @@ const ProductForm = ({
       image_url: initialCoverUrl,
       images: initialCoverUrl ? [initialCoverUrl] : [],
       has_variants: true,
+      lens_options: lensOptions.map((lens) => ({
+        ...lens,
+        thicknesses: lens.thicknesses.map((tier) => ({ ...tier, addonPrice: Number(tier.addonPrice) || 0 })),
+      })),
     };
 
     setSaving(true);
@@ -1467,18 +1474,6 @@ const ProductForm = ({
           ))}
         </label>
 
-        <label className="cmp-field">
-          <span className="cmp-label">
-            Care Instructions <span className="scc-optional-tag">optional</span>
-          </span>
-          <textarea
-            className="cmp-textarea"
-            placeholder="e.g. Wipe with microfiber cloth"
-            value={careInstructions}
-            onChange={(e) => setCareInstructions(e.target.value)}
-          />
-        </label>
-
         <div className="cmp-row">
           <label className="cmp-field">
             <span className="cmp-label">SKU</span>
@@ -1497,10 +1492,7 @@ const ProductForm = ({
             <select
               className="cmp-select"
               value={category}
-              onChange={(e) => {
-                setCategory(e.target.value);
-                setSubCategory("");
-              }}
+              onChange={(e) => setCategory(e.target.value)}
             >
               <option value="">Select Category</option>
               {categories.map((c) => (
@@ -1509,30 +1501,6 @@ const ProductForm = ({
                 </option>
               ))}
             </select>
-          </label>
-
-          <label className="cmp-field">
-            <span className="cmp-label">
-              Subcategory <span className="scc-optional-tag">optional</span>
-            </span>
-            <select
-              className="cmp-select"
-              value={subCategory}
-              onChange={(e) => setSubCategory(e.target.value)}
-              disabled={!category || loadingSubcategories || subcategories.length === 0}
-            >
-              <option value="">
-                {loadingSubcategories ? "Loading…" : "Select Subcategory"}
-              </option>
-              {subcategories.map((sc) => (
-                <option key={sc.subcategory_id} value={sc.subcategory_id}>
-                  {sc.name}
-                </option>
-              ))}
-            </select>
-            {category && !loadingSubcategories && subcategories.length === 0 && (
-              <InfoHint>No subcategories under this category</InfoHint>
-            )}
           </label>
         </div>
 
@@ -1740,6 +1708,29 @@ const ProductForm = ({
           <InfoHint style={{ marginTop: "12px" }}>
             Set common colors, stock &amp; prices for all variants, or customize each size &amp; color individually below.
           </InfoHint>
+        </div>
+
+        <div className="cmp-section">
+          <div className="cmp-section-title">Lens Options <span className="scc-optional-tag">optional add-on</span></div>
+          <div className="cmp-sizes-subtitle">Choose lens thicknesses available for this frame and set the frame-specific add-on amount.</div>
+          <div className="cmp-lens-options">
+            {availableLenses.length === 0 ? (
+              <span className="cmp-hint">No active lenses are available. Add lenses from the Lenses admin page.</span>
+            ) : availableLenses.map((lens) => (
+              <div className="cmp-lens-option" key={lens.id}>
+                <div className="cmp-lens-option-name">{lens.name}</div>
+                <div className="cmp-lens-tier-list">
+                  {(lens.thicknesses || []).map((tier) => {
+                    const selected = lensOptions.find((option) => String(option.lensId) === String(lens.id))?.thicknesses?.find((option) => String(option.thicknessId) === String(tier.id));
+                    return <div className="cmp-lens-tier" key={tier.id}>
+                      <label className="cmp-lens-tier-select"><input type="checkbox" checked={Boolean(selected)} onChange={() => toggleLensTier(lens, tier)} /><span>{tier.name} · {tier.index || tier.lens_index} · {tier.range || tier.power_range}</span></label>
+                      {selected && <label className="cmp-lens-price"><span>Frame add-on ₹</span><input className="cmp-input" type="number" min="0" step="1" value={selected.addonPrice} onChange={(event) => updateLensTierPrice(lens.id, tier.id, event.target.value)} /></label>}
+                    </div>;
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* ── Sizes, Colors, Images & Pricing ── */}

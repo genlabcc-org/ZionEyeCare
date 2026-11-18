@@ -740,6 +740,15 @@
   border-top: 1px solid #f0f0f0;
 }
 
+.cmp-lens-options { display: flex; flex-direction: column; gap: 12px; }
+.cmp-lens-option { border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; }
+.cmp-lens-option-name { padding: 10px 12px; background: #f8fafc; color: #111827; font-size: 13px; font-weight: 600; }
+.cmp-lens-tier-list { display: flex; flex-direction: column; }
+.cmp-lens-tier { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 10px 12px; border-top: 1px solid #edf0f4; }
+.cmp-lens-tier-select { display: flex; align-items: center; gap: 8px; color: #374151; font-size: 13px; cursor: pointer; }
+.cmp-lens-price { display: flex; align-items: center; gap: 8px; color: #64748b; font-size: 12px; white-space: nowrap; }
+.cmp-lens-price .cmp-input { width: 88px; height: 34px; padding: 6px 8px; }
+
 /* ── Discount Badge ── */
 .ap-discount-badge {
   display: inline-flex;
