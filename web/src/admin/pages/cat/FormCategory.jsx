@@ -23,6 +23,17 @@ const formatBytes = (bytes) => {
   return `${mb.toFixed(1)}MB`;
 };
 
+const createSlug = (value) => {
+  const normalized = String(value || "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return normalized || `subcategory-${Date.now()}`;
+};
+
 // Toast notification (matches "Sub Category Created Successfully" style)
 const SuccessToast = ({ message, onClose }) => (
   <div className="scc-toast">
@@ -57,7 +68,7 @@ const CreateSubCategory = ({ parentCategory, categories = [], onBack, onDiscard,
   const parentId = searchParams.get("parentId");
   const subcategoryId = searchParams.get("subcategoryId");
   const isEditMode = !!subcategoryId;
-  const [currentParentId, setCurrentParentId] = useState(parentId || parentCategory?.id || null);
+  const [currentParentId, setCurrentParentId] = useState(parentId || parentCategory?.category_id || parentCategory?.id || null);
 
   const handleBack = () => {
     if (onBack) {
@@ -118,11 +129,11 @@ const CreateSubCategory = ({ parentCategory, categories = [], onBack, onDiscard,
           if (existing.image_url) {
             setCoverImage({ url: existing.image_url, name: "current-image", file: null });
           }
-          if (existing.parent_id) {
-            setCurrentParentId(existing.parent_id);
+          if (existing.category_id) {
+            setCurrentParentId(existing.category_id);
             if (!parentCategoryName) {
               const foundParent = categories.find(
-                (c) => String(c.category_id ?? c.id) === String(existing.parent_id)
+                (c) => String(c.category_id ?? c.id) === String(existing.category_id)
               );
               if (foundParent) {
                 setParentCategoryName(foundParent.name);
@@ -208,17 +219,20 @@ const CreateSubCategory = ({ parentCategory, categories = [], onBack, onDiscard,
         imageUrl = productService.getSubcategoryImagePublicUrl(filePath);
       }
 
-      const resolvedParentId = currentParentId || parentId || parentCategory?.id;
+      const resolvedParentId = currentParentId || parentId || parentCategory?.category_id || parentCategory?.id;
+      if (!resolvedParentId) {
+        setIsSaving(false);
+        alert("Please select a parent category before saving this subcategory.");
+        return;
+      }
 
       const payload = {
         name: name.trim(),
+        slug: createSlug(name),
         image_url: imageUrl,
         is_active: showOnStore,
+        category_id: resolvedParentId,
       };
-
-      if (resolvedParentId) {
-        payload.parent_id = resolvedParentId;
-      }
 
       const saved = isEditMode
         ? await productService.updateSubcategory(subcategoryId, payload)

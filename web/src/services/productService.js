@@ -49,7 +49,7 @@ export const productService = {
         if (raw) savedOrderIds = JSON.parse(raw).map(String);
       }
       if (savedOrderIds.length === 0) {
-        const firstParent = list[0]?.parent_id ?? list[0]?.category_id;
+        const firstParent = list[0]?.category_id;
         if (firstParent != null) {
           const raw = localStorage.getItem(`zion_subcategory_order_${firstParent}`);
           if (raw) savedOrderIds = JSON.parse(raw).map(String);
@@ -153,7 +153,7 @@ export const productService = {
 
     const subsByParent = {};
     (subs || []).forEach(s => {
-      const pId = s.parent_id ?? s.category_id;
+      const pId = s.category_id;
       if (pId != null) {
         const key = String(pId);
         if (!subsByParent[key]) subsByParent[key] = [];
@@ -189,7 +189,6 @@ export const productService = {
   async updateSubcategoriesOrder(orderedSubcategories = [], parentId = null) {
     const resolvedParentId =
       parentId ??
-      orderedSubcategories[0]?.parent_id ??
       orderedSubcategories[0]?.category_id ??
       null;
     const ids = orderedSubcategories
@@ -549,7 +548,7 @@ export const productService = {
     const { data: subs, error: subError } = await supabase
       .from('subcategories')
       .select('subcategory_id')
-      .eq('parent_id', categoryId);
+      .eq('category_id', categoryId);
     if (subError) throw subError;
 
     if (subs && subs.length) {
@@ -889,7 +888,7 @@ export const productService = {
       .order("created_at", { ascending: false });
 
     if (parentId !== null && parentId !== undefined) {
-      query = query.eq("parent_id", parentId);
+      query = query.eq("category_id", parentId);
     }
 
     const { data, error } = await query;

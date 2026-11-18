@@ -3,6 +3,8 @@ import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { productService } from "../../../services/productService";
 import { useStore } from "../../../hooks/useStore";
+import editIcon from "../../../assets/admin/Edit.png";
+import trashIcon from "../../../assets/admin/Trash.png";
 import "../categorylist.css";
 import "./SubCategory.css";
 
@@ -498,29 +500,20 @@ const SubcategoryCards = ({
           </div>
         </div>
       ) : (
-        <div className="cat-grid">
-          {list.map((sub, idx) => (
-            <SubcategoryCard
-              key={sub.subcategory_id ?? sub.id}
-              sub={sub}
-              index={idx}
-              totalCount={list.length}
-              canReorder={canReorder}
-              isDragging={dragIndex === idx}
-              isDragOver={dragOverIndex === idx && dragIndex !== idx}
-              onMoveSubcategory={handleMoveSubcategory}
-              onDragStart={handleDragStart}
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-              onDragEnd={handleDragEnd}
-              productCount={productCountBySubcategory[String(sub.subcategory_id ?? sub.id)] || 0}
-              openDropdownId={openDropdownId}
-              setOpenDropdownId={setOpenDropdownId}
-              onOpen={handleOpen}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
-          ))}
+        <div className="cat-list-wrap">
+          <table className="cat-list-table">
+            <thead><tr><th>Order</th><th>Subcategory</th><th>Products</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody>{list.map((sub, idx) => {
+              const subId = sub.subcategory_id ?? sub.id;
+              const thumbnail = sub.image_url;
+              return <tr key={subId} draggable={canReorder} onDragStart={(event) => canReorder && handleDragStart(event, idx)} onDragOver={(event) => canReorder && handleDragOver(event, idx)} onDrop={(event) => canReorder && handleDrop(event, idx)} onDragEnd={handleDragEnd}>
+                <td className="cat-list-order"><span>#{idx + 1}</span>{canReorder && <span className="cat-list-order-actions"><button type="button" disabled={idx === 0} onClick={() => handleMoveSubcategory(idx, idx - 1)}>↑</button><button type="button" disabled={idx === list.length - 1} onClick={() => handleMoveSubcategory(idx, idx + 1)}>↓</button></span>}</td>
+                <td><button type="button" className="cat-list-name" onClick={() => handleOpen(sub)}><span className="cat-list-thumb">{thumbnail ? <img src={thumbnail} alt="" /> : <PlaceholderImage />}</span><span>{sub.name}</span></button></td>
+                <td>{productCountBySubcategory[String(subId)] || 0}</td><td><span className={`cat-list-status ${sub.is_active !== false ? "cat-list-status--active" : ""}`}>{sub.is_active !== false ? "Active" : "Draft"}</span></td>
+                <td><div className="cat-list-actions"><button type="button" onClick={() => handleOpen(sub)} title="Open" aria-label={`Open ${sub.name}`}><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 12s3.2-6 9-6 9 6 9 6-3.2 6-9 6-9-6-9-6Z" /><circle cx="12" cy="12" r="2.5" /></svg></button><button type="button" onClick={() => handleEdit(sub)} title="Edit" aria-label={`Edit ${sub.name}`}><img src={editIcon} alt="" /></button><button type="button" className="cat-list-delete" onClick={() => handleDelete(sub)} title="Delete" aria-label={`Delete ${sub.name}`}><img src={trashIcon} alt="" /></button></div></td>
+              </tr>;
+            })}</tbody>
+          </table>
         </div>
       )}
 

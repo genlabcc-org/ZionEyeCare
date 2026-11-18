@@ -3,6 +3,8 @@ import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { productService } from "../../services/productService";
 import { useStore } from "../../hooks/useStore";
+import editIcon from "../../assets/admin/Edit.png";
+import trashIcon from "../../assets/admin/Trash.png";
 import "./categorylist.css";
 
 // ─── Placeholder when category has no image ──────────────────────────────────
@@ -479,29 +481,51 @@ const CategoryList = ({
           </div>
         </div>
       ) : (
-        <div className="cat-grid">
-          {filtered.map((cat, idx) => (
-            <CategoryCard
-              key={cat.category_id || cat.id}
-              cat={cat}
-              index={idx}
-              totalCount={filtered.length}
-              canReorder={canReorder}
-              isDragging={dragIndex === idx}
-              isDragOver={dragOverIndex === idx && dragIndex !== idx}
-              onMoveCategory={handleMoveCategory}
-              onDragStart={handleDragStart}
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-              onDragEnd={handleDragEnd}
-              openDropdownId={openDropdownId}
-              setOpenDropdownId={setOpenDropdownId}
-              onOpen={handleOpen}
-              onEdit={handleEdit}
-              onManageDiscounts={handleManageDiscounts}
-              onDelete={handleDelete}
-            />
-          ))}
+        <div className="cat-list-wrap">
+          <table className="cat-list-table">
+            <thead>
+              <tr>
+                <th>Order</th>
+                <th>Category</th>
+                <th>Products</th>
+                <th>Subcategories</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map((cat, idx) => {
+                const thumbnail = cat.categoryImage || cat.image_url || cat.images?.[0];
+                const categoryId = cat.category_id || cat.id;
+                return (
+                  <tr
+                    key={categoryId}
+                    className={dragIndex === idx ? "cat-list-row--dragging" : ""}
+                    draggable={canReorder}
+                    onDragStart={(event) => canReorder && handleDragStart(event, idx)}
+                    onDragOver={(event) => canReorder && handleDragOver(event, idx)}
+                    onDrop={(event) => canReorder && handleDrop(event, idx)}
+                    onDragEnd={handleDragEnd}
+                  >
+                    <td className="cat-list-order">
+                      <span>#{idx + 1}</span>
+                      {canReorder && <span className="cat-list-order-actions"><button type="button" disabled={idx === 0} onClick={() => handleMoveCategory(idx, idx - 1)} aria-label={`Move ${cat.name} earlier`}>↑</button><button type="button" disabled={idx === filtered.length - 1} onClick={() => handleMoveCategory(idx, idx + 1)} aria-label={`Move ${cat.name} later`}>↓</button></span>}
+                    </td>
+                    <td>
+                      <button type="button" className="cat-list-name" onClick={() => handleOpen(cat)}>
+                        <span className="cat-list-thumb">{thumbnail ? <img src={thumbnail} alt="" /> : <PlaceholderImage />}</span>
+                        <span>{cat.name}</span>
+                      </button>
+                    </td>
+                    <td>{cat.productCount ?? 0}</td>
+                    <td>{cat.subcategories?.length ?? 0}</td>
+                    <td><span className={`cat-list-status ${cat.is_active !== false ? "cat-list-status--active" : ""}`}>{cat.is_active !== false ? "Active" : "Draft"}</span></td>
+                    <td><div className="cat-list-actions"><button type="button" onClick={() => handleOpen(cat)} aria-label={`Open ${cat.name}`} title="Open"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12s3.2-6 9-6 9 6 9 6-3.2 6-9 6-9-6-9-6Z" /><circle cx="12" cy="12" r="2.5" /></svg></button><button type="button" onClick={() => handleEdit(cat)} aria-label={`Edit ${cat.name}`} title="Edit"><img src={editIcon} alt="" /></button><button type="button" className="cat-list-delete" onClick={() => handleDelete(cat)} aria-label={`Delete ${cat.name}`} title="Delete"><img src={trashIcon} alt="" /></button></div></td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         </div>
       )}
 

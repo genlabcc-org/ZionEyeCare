@@ -1202,13 +1202,13 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
               </button>
             </div>
 
-            {/* Price, MRP & Stock Status */}
+            {/* Price & Stock Status */}
             <div className="dp-price-row">
               <span className="dp-price-text">Rs. {payPrice.toLocaleString('en-IN')}</span>
               {strikePrice != null && strikePrice > payPrice && (
                 <>
                   <span className="dp-price-mrp-cut">
-                    <span className="dp-price-mrp-label">MRP</span> Rs. {strikePrice.toLocaleString('en-IN')}
+                    Rs. {strikePrice.toLocaleString('en-IN')}
                   </span>
                   {discountPercent > 0 && (
                     <span className="dp-price-discount-badge">{discountPercent}% OFF</span>
@@ -1295,61 +1295,6 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
             </div>
           )}
 
-          {/* Size Guide Dropdown */}
-          <div className={`dp-sizeguide-dropdown ${sizeGuideOpen ? "open" : ""}`}>
-            <button
-              type="button"
-              className="dp-sizeguide-toggle"
-              onClick={() => setSizeGuideOpen((prev) => !prev)}
-              aria-expanded={sizeGuideOpen}
-            >
-              <span className="dp-sizeguide-label">
-                <svg
-                  width="17"
-                  height="17"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.9"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                >
-                  <path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z" />
-                  <path d="m14.5 12.5 2-2" />
-                  <path d="m11.5 9.5 2-2" />
-                  <path d="m8.5 6.5 2-2" />
-                  <path d="m17.5 15.5 2-2" />
-                </svg>
-                <span>Size Guide</span>
-              </span>
-              <svg
-                className="dp-sizeguide-chevron"
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <polyline points="6 9 12 15 18 9" />
-              </svg>
-            </button>
-            {sizeGuideOpen && (
-              <div className="dp-sizeguide-body">
-                <img
-                  src="/sizeguide.jpeg"
-                  alt="Zion Eye Care Size Guide"
-                  className="dp-sizeguide-img"
-                  loading="lazy"
-                />
-              </div>
-            )}
-          </div>
-
           {/* Select Quantity */}
           <div className="dp-option-section">
             <h4 className="dp-option-title">
@@ -1402,74 +1347,10 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
             >
               Buy Now
             </button>
-
-            <div className="dp-bulk-inquiry-row">
-              <span>Want to buy in bulk? </span>
-              <button
-                type="button"
-                className="dp-contact-link-btn"
-                onClick={() => navigate('/contact')}
-              >
-                Contact Here
-              </button>
-            </div>
           </div>
 
           {/* Care Instructions & Product Specifications Dropdowns */}
           <div className="dp-info-accordions">
-            {(productService.normalizeProductCare(selectedProduct)?.care_instructions ||
-              selectedProduct?.care_instructions ||
-              selectedProduct?.careInstructions) && (
-              <div className={`dp-sizeguide-dropdown dp-info-dropdown ${careOpen ? "open" : ""}`}>
-                <button
-                  type="button"
-                  className="dp-sizeguide-toggle"
-                  onClick={() => setCareOpen((prev) => !prev)}
-                  aria-expanded={careOpen}
-                >
-                  <span className="dp-sizeguide-label">
-                    <svg
-                      width="17"
-                      height="17"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="1.9"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      aria-hidden="true"
-                    >
-                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                    </svg>
-                    <span>Care Instructions</span>
-                  </span>
-                  <svg
-                    className="dp-sizeguide-chevron"
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                  >
-                    <polyline points="6 9 12 15 18 9" />
-                  </svg>
-                </button>
-                {careOpen && (
-                  <div className="dp-sizeguide-body dp-info-dropdown-body">
-                    <div className="dp-short-desc">
-                      {productService.normalizeProductCare(selectedProduct)?.care_instructions ||
-                        selectedProduct?.care_instructions ||
-                        selectedProduct?.careInstructions}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
             <div className={`dp-sizeguide-dropdown dp-info-dropdown ${specsOpen ? "open" : ""}`}>
               <button
                 type="button"

@@ -553,6 +553,53 @@ CREATE POLICY "Admins can manage coupon_usages"
 
 
 -- =============================================================================
+-- 13c. LENSES & LENS THICKNESSES TABLES
+-- =============================================================================
+CREATE TABLE IF NOT EXISTS public.lenses (
+  id          bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  name        text NOT NULL,
+  is_active   boolean NOT NULL DEFAULT true,
+  thicknesses jsonb DEFAULT '[]'::jsonb,
+  created_at  timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
+  updated_at  timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.lenses ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow public read access to lenses"
+  ON public.lenses FOR SELECT
+  USING (true);
+
+CREATE POLICY "Admins can manage lenses"
+  ON public.lenses FOR ALL
+  USING (public.is_admin());
+
+CREATE TABLE IF NOT EXISTS public.lens_thicknesses (
+  id              bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  lens_id         bigint NOT NULL REFERENCES public.lenses(id) ON DELETE CASCADE,
+  name            text NOT NULL,
+  lens_index      text NOT NULL,
+  power_range     text,
+  base_price      numeric(10,2) NOT NULL DEFAULT 0,
+  best_suited_for text,
+  sort_order      integer DEFAULT 0,
+  created_at      timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+CREATE INDEX IF NOT EXISTS lens_thicknesses_lens_id_idx ON public.lens_thicknesses(lens_id);
+
+ALTER TABLE public.lens_thicknesses ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow public read access to lens_thicknesses"
+  ON public.lens_thicknesses FOR SELECT
+  USING (true);
+
+CREATE POLICY "Admins can manage lens_thicknesses"
+  ON public.lens_thicknesses FOR ALL
+  USING (public.is_admin());
+
+
+-- =============================================================================
 -- 14. FUNCTIONS & TRIGGERS
 -- =============================================================================
 

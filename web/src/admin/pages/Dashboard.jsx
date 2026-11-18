@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { supabase } from "../../lib/supabase";
 import { productService } from "../../services/productService";
+import { lensService } from "../../services/lensService";
 import { useAdminData } from "../../hooks/useAdminData";
 import { Routes, Route, Link, useNavigate, useLocation, Navigate, useSearchParams } from "react-router-dom";
 import { useStore } from "../../hooks/useStore";
@@ -43,6 +44,8 @@ import AdminAccount from "./Adminaccount";
 import DangerZone from "./Dangerzone";
 import Invoices from "./Invoices";
 import CouponManagement from "./CouponManagement";
+import LensList from "./LensList";
+import AddLens from "./AddLens";
 
 // ── Icons ───────────────────────────────────────────────────────
 const StatIcon = ({ type }) => {
@@ -93,12 +96,8 @@ const HamburgerIcon = ({ open }) =>
 const menuItems = [
   { id: "dashboard", label: "Dashboard", path: "/admin" },
   { id: "product", label: "Products", path: "/admin/products" },
-  {
-    id: "category", label: "Category", path: "/admin/categories", children: [
-      { label: "All Categories", path: "/admin/categories" },
-      { label: "Add Category", path: "/admin/categories/add" },
-    ]
-  },
+  { id: "category", label: "Category", path: "/admin/categories" },
+  { id: "lens", label: "Lenses", path: "/admin/lenses" },
   { id: "order", label: "Orders", path: "/admin/orders" },
   { id: "customer", label: "Customers", path: "/admin/customers" },
   { id: "coupons", label: "Coupons Management", path: "/admin/coupons" },
@@ -135,6 +134,15 @@ const sidebarIcons = {
   category: (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+    </svg>
+  ),
+  lens: (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="6" cy="14" r="4" />
+      <circle cx="18" cy="14" r="4" />
+      <path d="M10 14h4" />
+      <path d="M2 14l1.5-6h3" />
+      <path d="M22 14l-1.5-6h-3" />
     </svg>
   ),
   order: (
@@ -1803,6 +1811,9 @@ const Dashboard = () => {
   const currentUser = useStore((state) => state.user);
   const [banners, setBanners] = useState([]);
   const [editingBanner, setEditingBanner] = useState(null);
+  const [lenses, setLenses] = useState([]);
+  const [lensesLoading, setLensesLoading] = useState(false);
+  const [editingLens, setEditingLens] = useState(null);
 
   const {
     orders,
@@ -2068,9 +2079,22 @@ const Dashboard = () => {
     }
   }, []);
 
+  const fetchLenses = useCallback(async () => {
+    try {
+      setLensesLoading(true);
+      const data = await lensService.getLenses();
+      setLenses(data || []);
+    } catch (error) {
+      console.error("Error fetching lenses:", error);
+    } finally {
+      setLensesLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     fetchProducts();
-  }, [fetchProducts]);
+    fetchLenses();
+  }, [fetchProducts, fetchLenses]);
 
   useEffect(() => {
     const handleResize = () => { if (window.innerWidth > 768) setSidebarOpen(false); };
@@ -2111,6 +2135,12 @@ const Dashboard = () => {
       return parentCat ? `${parentCat.name} Subcategories` : "Subcategories";
     }
     if (currentPath.startsWith("/admin/categories")) return "All Categories";
+
+    if (currentPath === "/admin/lenses/add") {
+      const hasId = editingLens || new URLSearchParams(location.search).get("id") || location.state?.editingLensId;
+      return hasId ? "Edit Lens" : "Add Lens";
+    }
+    if (currentPath.startsWith("/admin/lenses")) return "All Lenses";
 
     if (currentPath.startsWith("/admin/orders/detail")) return "Order Details";
     if (currentPath.startsWith("/admin/orders")) return "All Orders";
@@ -2164,6 +2194,16 @@ const Dashboard = () => {
     }
     if (currentPath.startsWith("/admin/categories")) {
       return "Organize products into categories and collections";
+    }
+
+    if (currentPath === "/admin/lenses/add") {
+      const hasId = editingLens || new URLSearchParams(location.search).get("id") || location.state?.editingLensId;
+      return hasId
+        ? "Update lens name and thickness options (index, range, base price, and suitability)"
+        : "Add a new optical lens with multiple thickness options, refractive index, range, and base price";
+    }
+    if (currentPath.startsWith("/admin/lenses")) {
+      return "Manage optical lenses, thickness options, refractive indexes, power ranges, and pricing";
     }
 
     if (currentPath.startsWith("/admin/orders/detail")) {
@@ -2467,6 +2507,43 @@ const Dashboard = () => {
     navigate("/admin/banners");
   };
 
+  const goToAddLens = () => {
+    setEditingLens(null);
+    navigate("/admin/lenses/add");
+  };
+
+  const handleEditLens = (lens) => {
+    setEditingLens(lens);
+    navigate(`/admin/lenses/add?id=${lens.id}`, { state: { editingLensId: lens.id } });
+  };
+
+  const handleDeleteLens = async (id) => {
+    await lensService.deleteLens(id);
+    setLenses((prev) => prev.filter((l) => l.id !== id));
+  };
+
+  const handleToggleLensStatus = async (id, nextActive) => {
+    await lensService.toggleLensStatus(id, nextActive);
+    setLenses((prev) =>
+      prev.map((l) => (l.id === id ? { ...l, is_active: nextActive } : l))
+    );
+  };
+
+  const handleSaveLens = (savedLens) => {
+    if (savedLens) {
+      setLenses((prev) => {
+        const exists = prev.some((l) => l.id === savedLens.id);
+        return exists
+          ? prev.map((l) => (l.id === savedLens.id ? savedLens : l))
+          : [savedLens, ...prev];
+      });
+    } else {
+      fetchLenses();
+    }
+    setEditingLens(null);
+    navigate("/admin/lenses");
+  };
+
   return (
     <div className="db">
       {/* Navbar */}
@@ -2482,7 +2559,8 @@ const Dashboard = () => {
             (currentPath === "/admin/products" && location.search) ||
             currentPath.startsWith("/admin/categories/add") ||
             currentPath.startsWith("/admin/subcategories") ||
-            currentPath.startsWith("/admin/banners/add")) && (
+            currentPath.startsWith("/admin/banners/add") ||
+            currentPath.startsWith("/admin/lenses/add")) && (
               <button
                 type="button"
                 className="db__header-back-btn"
@@ -2518,6 +2596,9 @@ const Dashboard = () => {
                   } else if (currentPath.startsWith("/admin/banners/add")) {
                     setEditingBanner(null);
                     navigate("/admin/banners");
+                  } else if (currentPath.startsWith("/admin/lenses/add")) {
+                    setEditingLens(null);
+                    navigate("/admin/lenses");
                   } else {
                     setEditingProduct(null);
                     navigate("/admin/products");
@@ -2568,6 +2649,21 @@ const Dashboard = () => {
               </button>
             </div>
           )}
+          {currentPath === "/admin/lenses" && (
+            <div className="db__header-inline-actions">
+              <button
+                type="button"
+                className="ap-header-variant-btn"
+                onClick={goToAddLens}
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19" />
+                  <line x1="5" y1="12" x2="19" y2="12" />
+                </svg>
+                Add Lens
+              </button>
+            </div>
+          )}
           {currentPath.startsWith("/admin/subcategories") && currentPath !== "/admin/subcategories/new" && (
             <div className="db__header-inline-actions">
               <button
@@ -2597,6 +2693,24 @@ const Dashboard = () => {
                 className="ap-header-clear-btn"
                 onClick={() => {
                   window.dispatchEvent(new CustomEvent("zion:clear-product-form"));
+                }}
+                title="Clear all entered fields"
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                  <path d="M3 3v5h5" />
+                </svg>
+                Clear All
+              </button>
+            </div>
+          )}
+          {currentPath === "/admin/lenses/add" && (
+            <div className="db__header-inline-actions">
+              <button
+                type="button"
+                className="ap-header-clear-btn"
+                onClick={() => {
+                  window.dispatchEvent(new CustomEvent("zion:clear-lens-form"));
                 }}
                 title="Clear all entered fields"
               >
@@ -2890,6 +3004,33 @@ const Dashboard = () => {
             />
 
             <Route path="/categories/add" element={<AddCategory initialData={editingCategory} onBack={() => { setEditingCategory(null); navigate("/admin/categories"); }} onPublish={handlePublishCategory} onSaveDraft={handleSaveDraftCategory} />} />
+
+            {/* Lenses */}
+            <Route
+              path="/lenses"
+              element={
+                <LensList
+                  lenses={lenses}
+                  loading={lensesLoading}
+                  onEditLens={handleEditLens}
+                  onDeleteLens={handleDeleteLens}
+                  onToggleStatus={handleToggleLensStatus}
+                />
+              }
+            />
+            <Route
+              path="/lenses/add"
+              element={
+                <AddLens
+                  initialData={editingLens}
+                  onBack={() => {
+                    setEditingLens(null);
+                    navigate("/admin/lenses");
+                  }}
+                  onSave={handleSaveLens}
+                />
+              }
+            />
 
             {/* Orders */}
             <Route path="/orders" element={<AllOrders orders={orders} products={products} categories={categories} loading={adminDataLoading} onViewDetail={handleViewOrderDetail} onInvoicePrinted={updateOrderInvoicePrinted} onRefresh={refetchAdminData} />} />

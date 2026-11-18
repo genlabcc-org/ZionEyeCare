@@ -238,8 +238,8 @@ export default function NewArrivals({ onProductClick }) {
     <section className="new-arrivals-section" aria-label="New Arrivals">
       <div className="new-arrivals-header-row">
         <div className="new-arrivals-header-left">
-          <h2 className="new-arrivals-title">NEW ARRIVALS</h2>
-          <p className="new-arrivals-subtitle">Check what's new in our stock</p>
+          <h2 className="new-arrivals-title">FEATURED</h2>
+          <p className="new-arrivals-subtitle">Discover Our Finest</p>
         </div>
       </div>
 
@@ -304,27 +304,6 @@ export default function NewArrivals({ onProductClick }) {
                       NEW
                     </div>
 
-                    {/* Top-Right Wishlist Heart Button */}
-                    <button
-                      type="button"
-                      className={`new-arrival-wishlist-btn ${isWishlisted ? 'is-active' : ''}`}
-                      onClick={(e) => handleWishlistToggle(e, product.id)}
-                      aria-label={isWishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
-                    >
-                      <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill={isWishlisted ? '#ef4444' : 'none'}
-                        stroke={isWishlisted ? '#ef4444' : '#1f2937'}
-                        strokeWidth="1.9"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      >
-                        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                      </svg>
-                    </button>
-
                     {/* Centered Eyewear Product Image */}
                     <img
                       src={productService.getResizedImageUrl(currentImage, 'card')}
@@ -338,35 +317,7 @@ export default function NewArrivals({ onProductClick }) {
                       }}
                     />
 
-                    {/* Bottom-Right 3D Rotation Badge */}
-                    <div className="new-arrival-3d-badge" title="3D Interactive View" aria-label="3D View">
-                      <svg width="22" height="22" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <text
-                          x="14"
-                          y="13"
-                          textAnchor="middle"
-                          fontSize="8.5"
-                          fontWeight="700"
-                          fill="#1f2937"
-                          fontFamily="'Outfit', 'Inter', sans-serif"
-                        >
-                          3D
-                        </text>
-                        <path
-                          d="M7.5 17.5C9.2 19.8 12 21 14.8 20.8C18.2 20.4 21 18 21.8 14.8"
-                          stroke="#1f2937"
-                          strokeWidth="1.6"
-                          strokeLinecap="round"
-                        />
-                        <path
-                          d="M6 14.8L7.4 18.2L10.8 17.2"
-                          stroke="#1f2937"
-                          strokeWidth="1.6"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                        />
-                      </svg>
-                    </div>
+
                   </div>
 
                   {/* Details Bar: Product Name (Left) & Swatches (Right) */}
