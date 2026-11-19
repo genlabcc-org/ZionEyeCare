@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { addProductService } from "../../services/addProductService";
 import { useStore } from "../../hooks/useStore";
 import { getColorName } from "../../utils/colorUtils";
@@ -232,6 +232,10 @@ const ProductForm = ({
   const [availableLenses, setAvailableLenses] = useState([]);
   const [lensOptions, setLensOptions] = useState(() => initialDraft?.lensOptions || []);
 
+  const selectedLensCount = useMemo(() => {
+    return (lensOptions || []).length;
+  }, [lensOptions]);
+
   // Common colors (optional default template for all sizes)
   const [commonColors, setCommonColors] = useState(() => initialDraft?.commonColors || []);
 
@@ -263,25 +267,30 @@ const ProductForm = ({
       .catch((error) => console.warn("Failed to load lenses for product form:", error));
   }, []);
 
-  const toggleLensTier = (lens, tier) => {
+  const toggleLens = (lens) => {
     setLensOptions((current) => {
       const lensId = String(lens.id);
-      const tierId = String(tier.id);
-      const existingLens = current.find((option) => String(option.lensId) === lensId);
-      const existingTier = existingLens?.thicknesses?.find((option) => String(option.thicknessId) === tierId);
-      if (existingTier) {
-        const next = current.map((option) => String(option.lensId) !== lensId ? option : { ...option, thicknesses: option.thicknesses.filter((item) => String(item.thicknessId) !== tierId) }).filter((option) => option.thicknesses.length > 0);
-        return next;
+      const exists = current.some((option) => String(option.lensId) === lensId);
+      if (exists) {
+        return current.filter((option) => String(option.lensId) !== lensId);
       }
-      const entry = { thicknessId: tier.id, name: tier.name, index: tier.index || tier.lens_index || "", range: tier.range || tier.power_range || "", bestSuitedFor: tier.bestSuitedFor || tier.best_suited_for || "", addonPrice: Number(tier.basePrice ?? tier.base_price ?? 0) };
-      return existingLens
-        ? current.map((option) => String(option.lensId) === lensId ? { ...option, thicknesses: [...option.thicknesses, entry] } : option)
-        : [...current, { lensId: lens.id, lensName: lens.name, thicknesses: [entry] }];
+      const thicknesses = (lens.thicknesses || []).map((tier) => ({
+        thicknessId: tier.id,
+        name: tier.name,
+        index: tier.index || tier.lens_index || "",
+        range: tier.range || tier.power_range || "",
+        bestSuitedFor: tier.bestSuitedFor || tier.best_suited_for || "",
+        addonPrice: Number(tier.basePrice ?? tier.base_price ?? 0),
+      }));
+      return [
+        ...current,
+        {
+          lensId: lens.id,
+          lensName: lens.name,
+          thicknesses,
+        },
+      ];
     });
-  };
-
-  const updateLensTierPrice = (lensId, tierId, addonPrice) => {
-    setLensOptions((current) => current.map((lens) => String(lens.lensId) !== String(lensId) ? lens : { ...lens, thicknesses: lens.thicknesses.map((tier) => String(tier.thicknessId) !== String(tierId) ? tier : { ...tier, addonPrice }) }));
   };
 
   // Rehydrate uploaded File objects & preview URLs from IndexedDB on page refresh
@@ -2140,28 +2149,95 @@ const ProductForm = ({
           )}
         </div>
 
-        {/* ── Lens Options ── */}
+        {/* ── Lens Options / Frame Only Notice ── */}
         <div className="cmp-section">
-          <div className="cmp-section-title">Lens Options <span className="scc-optional-tag">optional add-on</span></div>
-          <div className="cmp-sizes-subtitle">Choose lens thicknesses available for this frame and set the frame-specific add-on amount.</div>
-          <div className="cmp-lens-options">
-            {availableLenses.length === 0 ? (
-              <span className="cmp-hint">No active lenses are available. Add lenses from the Lenses admin page.</span>
-            ) : availableLenses.map((lens) => (
-              <div className="cmp-lens-option" key={lens.id}>
-                <div className="cmp-lens-option-name">{lens.name}</div>
-                <div className="cmp-lens-tier-list">
-                  {(lens.thicknesses || []).map((tier) => {
-                    const selected = lensOptions.find((option) => String(option.lensId) === String(lens.id))?.thicknesses?.find((option) => String(option.thicknessId) === String(tier.id));
-                    return <div className="cmp-lens-tier" key={tier.id}>
-                      <label className="cmp-lens-tier-select"><input type="checkbox" checked={Boolean(selected)} onChange={() => toggleLensTier(lens, tier)} /><span>{tier.name} · {tier.index || tier.lens_index} · {tier.range || tier.power_range}</span></label>
-                      {selected && <label className="cmp-lens-price"><span>Frame add-on ₹</span><input className="cmp-input" type="number" min="0" step="1" value={selected.addonPrice} onChange={(event) => updateLensTierPrice(lens.id, tier.id, event.target.value)} /></label>}
-                    </div>;
-                  })}
+          {availableLenses.length === 0 ? (
+            <div className="cmp-frame-only-notice">
+              <div className="cmp-frame-only-icon">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="8" x2="12" y2="12" />
+                  <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
+              </div>
+              <div className="cmp-frame-only-body">
+                <div className="cmp-frame-only-highlight">
+                  No lenses are available in the store catalog. This frame will be sold as frame only without lenses.
+                </div>
+                <div className="cmp-frame-only-badge-row">
+                  <span className="cmp-frame-only-pill">Frame Only</span>
+                  <span className="cmp-frame-only-title">Sold as Frame Only (Without Lenses)</span>
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ) : (
+            <>
+              <div className="cmp-section-title">
+                Lens Options{" "}
+                <span
+                  className={`scc-optional-tag ${
+                    selectedLensCount === 0 ? "scc-tag--frame-only" : "scc-tag--lenses"
+                  }`}
+                >
+                  {selectedLensCount === 0 ? "Frame Only (No Lenses)" : `${selectedLensCount} selected`}
+                </span>
+              </div>
+              <div className="cmp-sizes-subtitle">
+                Select which lenses are available for this frame.
+              </div>
+
+              {selectedLensCount === 0 ? (
+                <div className="cmp-frame-only-notice">
+                  <div className="cmp-frame-only-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="12" y1="8" x2="12" y2="12" />
+                      <line x1="12" y1="16" x2="12.01" y2="16" />
+                    </svg>
+                  </div>
+                  <div className="cmp-frame-only-body">
+                    <div className="cmp-frame-only-highlight">
+                      No lenses are selected for this frame. This frame will be sold on the store as frame only without lenses. Check any lens below if you want to offer lenses with this frame.
+                    </div>
+                    <div className="cmp-frame-only-badge-row">
+                      <span className="cmp-frame-only-pill">Frame Only</span>
+                      <span className="cmp-frame-only-title">Sold as Frame Only (Without Lenses)</span>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="cmp-lens-enabled-alert">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  <div>
+                    <strong>{selectedLensCount} lens{selectedLensCount > 1 ? "es" : ""} selected:</strong> Customers can customize with these lenses or buy this frame alone.
+                  </div>
+                </div>
+              )}
+
+              <div className="cmp-lens-simple-list">
+                {availableLenses.map((lens) => {
+                  const isChecked = lensOptions.some(
+                    (opt) => String(opt.lensId) === String(lens.id)
+                  );
+                  return (
+                    <label
+                      key={lens.id}
+                      className={`cmp-lens-simple-item ${isChecked ? "checked" : ""}`}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => toggleLens(lens)}
+                      />
+                      <span className="cmp-lens-simple-name">{lens.name}</span>
+                    </label>
+                  );
+                })}
+              </div>
+            </>
+          )}
         </div>
 
         {/* ── Visibility Options ── */}

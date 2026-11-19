@@ -720,12 +720,27 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
     const configuredOptions = productPrices?.lens_options || selectedProduct?.lens_options || [];
     return configuredOptions.map((option) => {
       const catalogLens = lensCatalog.find((lens) => String(lens.id) === String(option.lensId));
+      const rawTiers = Array.isArray(option.thicknesses) && option.thicknesses.length > 0
+        ? option.thicknesses
+        : (catalogLens?.thicknesses || []).map((t) => ({
+            thicknessId: t.id,
+            name: t.name,
+            index: t.index || t.lens_index || "",
+            range: t.range || t.power_range || "",
+            addonPrice: Number(t.basePrice ?? t.base_price ?? 0),
+            bestSuitedFor: t.bestSuitedFor || t.best_suited_for || "",
+          }));
       return {
         ...option,
-        thicknesses: (option.thicknesses || []).map((tier) => {
-          const catalogTier = catalogLens?.thicknesses?.find((catalogItem) => String(catalogItem.id) === String(tier.thicknessId));
+        lensName: option.lensName || catalogLens?.name || "Lens",
+        thicknesses: rawTiers.map((tier) => {
+          const catalogTier = catalogLens?.thicknesses?.find((catalogItem) => String(catalogItem.id) === String(tier.thicknessId || tier.id));
           return {
             ...tier,
+            name: tier.name || catalogTier?.name || "Standard",
+            index: tier.index || catalogTier?.index || catalogTier?.lens_index || "",
+            range: tier.range || catalogTier?.range || catalogTier?.power_range || "",
+            addonPrice: Number(tier.addonPrice ?? catalogTier?.basePrice ?? catalogTier?.base_price ?? 0),
             bestSuitedFor: tier.bestSuitedFor || tier.best_suited_for || catalogTier?.bestSuitedFor || catalogTier?.best_suited_for || "",
           };
         }),
@@ -1394,7 +1409,7 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
             <div className="dp-purchase-actions">
               <button type="button" className="dp-lens-select-btn" disabled={!productLensOptions.length} onClick={() => { setLensDrawerOpen(true); setLensStep(1); }}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="7" cy="13" r="4" /><circle cx="17" cy="13" r="4" /><path d="M11 13h2M3 13l1-5h3M21 13l-1-5h-3" /></svg>
-                {productLensOptions.length ? "Select Lens" : "Lens Not Available"}
+                {productLensOptions.length ? "Select Lens" : "Frame Only (Without Lenses)"}
               </button>
             </div>
             <button
@@ -1407,6 +1422,12 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
               {canAddToCart ? (isCurrentProductInCart ? "ALREADY IN CART" : "ADD TO CART") : "OUT OF STOCK"}
             </button>
           </div>
+
+          {!productLensOptions.length && (
+            <div className="dp-frame-only-note">
+              <span>Sold as frame only (without lenses)</span>
+            </div>
+          )}
 
           {lensDrawerOpen && (
             <div className="dp-lens-overlay" onClick={() => setLensDrawerOpen(false)}>

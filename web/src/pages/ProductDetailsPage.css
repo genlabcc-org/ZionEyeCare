@@ -574,6 +574,15 @@
 .dp-lens-select-btn { width: 100%; height: 36px; border-radius: 6px; border: 1.5px solid #3B71C1; background: #3B71C1; color: #fff; font-size: 11.5px; font-weight: 600; font-family: inherit; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
 .dp-lens-select-btn:hover:not(:disabled) { background: #315fa4; }
 .dp-lens-select-btn:disabled { opacity: .45; cursor: not-allowed; }
+.dp-frame-only-note {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #64748b;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-style: italic;
+}
 
 /* Bulk Inquiry */
 .dp-bulk-inquiry-row {
