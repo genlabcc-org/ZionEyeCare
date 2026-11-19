@@ -3,6 +3,13 @@ import { useSearchParams, useLocation } from "react-router-dom";
 import { lensService } from "../../services/lensService";
 import "./AddLens.css";
 
+export const LENS_THICKNESS_PRESETS = [
+  { name: "Standard", index: "1.56", range: "(from +2.00 to -2.00)", bestSuitedFor: "Low Powers" },
+  { name: "Thin", index: "1.60", range: "(from +4.00 to -4.00)", bestSuitedFor: "Moderate Powers" },
+  { name: "Super Thin", index: "1.67", range: "(from +6.00 to -6.00)", bestSuitedFor: "High Powers" },
+  { name: "Ultra Thin", index: "1.74", range: "(for above +6.00 and below -6.00)", bestSuitedFor: "Very High Powers" },
+];
+
 const createEmptyThickness = () => ({
   id: `thick-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
   name: "",
@@ -118,7 +125,18 @@ export default function AddLens({ initialData = null, onBack, onSave }) {
 
   const handleThicknessChange = (id, field, value) => {
     setThicknesses((prev) =>
-      prev.map((t) => (t.id === id ? { ...t, [field]: value } : t))
+      prev.map((t) => {
+        if (t.id !== id) return t;
+        const updated = { ...t, [field]: value };
+        if (field === "index" && !t.name.trim()) {
+          const val = String(value).trim();
+          if (val === "1.56" || val === "1.5") updated.name = "Standard";
+          else if (val === "1.60" || val === "1.6") updated.name = "Thin";
+          else if (val === "1.67") updated.name = "Super Thin";
+          else if (val === "1.74") updated.name = "Ultra Thin";
+        }
+        return updated;
+      })
     );
     setErrors((prev) => {
       const next = { ...prev };
@@ -127,27 +145,25 @@ export default function AddLens({ initialData = null, onBack, onSave }) {
     });
   };
 
+  const isThicknessRowEmpty = (t) =>
+    !String(t.name || "").trim() &&
+    !String(t.index || "").trim() &&
+    !String(t.range || "").trim() &&
+    !String(t.bestSuitedFor || "").trim() &&
+    (t.basePrice === "" || t.basePrice === null || t.basePrice === 0);
+
   const validate = () => {
     const nextErrors = {};
     if (!lensName.trim()) {
       nextErrors.lensName = "Lens name is required";
     }
 
+    // Only validate thickness rows that are at least partially filled
     thicknesses.forEach((t) => {
-      if (!String(t.name || "").trim()) {
-        nextErrors[`${t.id}_name`] = "Thickness name is required";
-      }
+      if (isThicknessRowEmpty(t)) return; // skip fully empty rows
+      // Partial fill: if any field is filled, require index (minimum)
       if (!String(t.index || "").trim()) {
-        nextErrors[`${t.id}_index`] = "Index is required";
-      }
-      if (!String(t.range || "").trim()) {
-        nextErrors[`${t.id}_range`] = "Range is required";
-      }
-      if (t.basePrice === "" || t.basePrice === null || isNaN(Number(t.basePrice)) || Number(t.basePrice) < 0) {
-        nextErrors[`${t.id}_basePrice`] = "Valid base price is required";
-      }
-      if (!String(t.bestSuitedFor || "").trim()) {
-        nextErrors[`${t.id}_bestSuitedFor`] = "Best suited for is required";
+        nextErrors[`${t.id}_index`] = "Index is required for this thickness";
       }
     });
 
@@ -161,10 +177,12 @@ export default function AddLens({ initialData = null, onBack, onSave }) {
 
     try {
       setSaving(true);
+      // Filter out completely empty thickness rows before saving
+      const filledThicknesses = thicknesses.filter((t) => !isThicknessRowEmpty(t));
       const payload = {
         name: lensName.trim(),
         is_active: isActive,
-        thicknesses: thicknesses.map((t) => ({
+        thicknesses: filledThicknesses.map((t) => ({
           name: String(t.name || "").trim(),
           index: String(t.index || "").trim(),
           range: String(t.range || "").trim(),
@@ -249,7 +267,63 @@ export default function AddLens({ initialData = null, onBack, onSave }) {
             {thicknesses.map((item, idx) => (
                 <div key={item.id} className="al-thickness-row">
                 <div className="al-thickness-box-top">
-                  <span className="al-thickness-badge">Thickness #{idx + 1}</span>
+                  <div className="al-thickness-badge-wrap">
+                    <span className="al-thickness-badge">Thickness #{idx + 1}</span>
+                    {(() => {
+                      const isCurrentFilled = Boolean(item.name?.trim() && item.index?.trim());
+                      if (isCurrentFilled) return null;
+
+                      const availablePresets = LENS_THICKNESS_PRESETS.filter(
+                        (p) =>
+                          !thicknesses.some(
+                            (t) =>
+                              t.id !== item.id &&
+                              ((t.name || "").trim().toLowerCase() === p.name.toLowerCase() ||
+                                (t.index || "").trim() === p.index)
+                          )
+                      );
+
+                      if (availablePresets.length === 0) return null;
+
+                      return (
+                        <div className="al-preset-quick-pills">
+                          {availablePresets.map((p) => (
+                            <button
+                              key={p.name}
+                              type="button"
+                              className="al-preset-quick-btn"
+                              onClick={() => {
+                                setThicknesses((prev) =>
+                                  prev.map((t) =>
+                                    t.id === item.id
+                                      ? {
+                                          ...t,
+                                          name: p.name,
+                                          index: p.index,
+                                          range: p.range,
+                                          bestSuitedFor: p.bestSuitedFor,
+                                        }
+                                      : t
+                                  )
+                                );
+                                setErrors((prev) => {
+                                  const next = { ...prev };
+                                  delete next[`${item.id}_name`];
+                                  delete next[`${item.id}_index`];
+                                  delete next[`${item.id}_range`];
+                                  delete next[`${item.id}_bestSuitedFor`];
+                                  return next;
+                                });
+                              }}
+                              title={`Auto-fill ${p.name} (${p.index})`}
+                            >
+                              + {p.name} ({p.index})
+                            </button>
+                          ))}
+                        </div>
+                      );
+                    })()}
+                  </div>
                   {thicknesses.length > 1 && (
                     <button
                       type="button"
@@ -269,9 +343,7 @@ export default function AddLens({ initialData = null, onBack, onSave }) {
                 <div className="al-thickness-grid">
                   {/* 1. Thickness Name */}
                   <div className="al-field">
-                    <label className="al-label">
-                      Name <span className="al-req">*</span>
-                    </label>
+                    <label className="al-label">Name</label>
                     <input
                       type="text"
                       className={`al-input${errors[`${item.id}_name`] ? " al-input--error" : ""}`}
@@ -286,9 +358,7 @@ export default function AddLens({ initialData = null, onBack, onSave }) {
 
                   {/* 2. Index */}
                   <div className="al-field">
-                    <label className="al-label">
-                      Index <span className="al-req">*</span>
-                    </label>
+                    <label className="al-label">Index</label>
                     <input
                       type="text"
                       className={`al-input${errors[`${item.id}_index`] ? " al-input--error" : ""}`}
@@ -303,9 +373,7 @@ export default function AddLens({ initialData = null, onBack, onSave }) {
 
                   {/* 3. Range */}
                   <div className="al-field">
-                    <label className="al-label">
-                      Range <span className="al-req">*</span>
-                    </label>
+                    <label className="al-label">Range</label>
                     <input
                       type="text"
                       className={`al-input${errors[`${item.id}_range`] ? " al-input--error" : ""}`}
@@ -320,9 +388,7 @@ export default function AddLens({ initialData = null, onBack, onSave }) {
 
                   {/* 4. Base Price */}
                   <div className="al-field">
-                    <label className="al-label">
-                      Base Price (₹) <span className="al-req">*</span>
-                    </label>
+                    <label className="al-label">Base Price (₹)</label>
                     <input
                       type="number"
                       min="0"
@@ -339,9 +405,7 @@ export default function AddLens({ initialData = null, onBack, onSave }) {
 
                   {/* 5. Best Suited For */}
                   <div className="al-field al-field--full">
-                    <label className="al-label">
-                      Best Suited For <span className="al-req">*</span>
-                    </label>
+                    <label className="al-label">Best Suited For</label>
                     <input
                       type="text"
                       className={`al-input${errors[`${item.id}_bestSuitedFor`] ? " al-input--error" : ""}`}
