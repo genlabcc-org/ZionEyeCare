@@ -17,7 +17,6 @@ CREATE TABLE IF NOT EXISTS public.users (
   phone      text,
   email      text,
   role       text NOT NULL DEFAULT 'user',
-  status     text DEFAULT 'Active',
   updated_at timestamp with time zone DEFAULT now(),
   created_at timestamp with time zone DEFAULT timezone('utc'::text, now())
 );
@@ -94,36 +93,7 @@ CREATE POLICY "Admins can manage categories"
 
 
 -- =============================================================================
--- 3. PRODUCT SUBCATEGORIES TABLE
--- =============================================================================
-CREATE TABLE IF NOT EXISTS public.subcategories (
-  subcategory_id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-  category_id    bigint REFERENCES public.categories(category_id) ON DELETE CASCADE NOT NULL,
-  name           text NOT NULL,
-  slug           text NOT NULL,
-  description    text,
-  image_url      text,
-  sort_order     integer DEFAULT 0,
-  is_active      boolean DEFAULT true,
-  created_at     timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
-  UNIQUE (category_id, slug)
-);
-
-CREATE INDEX IF NOT EXISTS subcategories_category_id_idx ON public.subcategories (category_id);
-
-ALTER TABLE public.subcategories ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "Allow public read access to subcategories"
-  ON public.subcategories FOR SELECT
-  USING (true);
-
-CREATE POLICY "Admins can manage subcategories"
-  ON public.subcategories FOR ALL
-  USING (public.is_admin());
-
-
--- =============================================================================
--- 4. PRODUCTS TABLE
+-- 3. PRODUCTS TABLE
 -- =============================================================================
 CREATE TABLE IF NOT EXISTS public.products (
   product_id          bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -131,40 +101,31 @@ CREATE TABLE IF NOT EXISTS public.products (
   description         text,
   sku                 text,
   category_id         bigint REFERENCES public.categories(category_id) ON DELETE SET NULL,
-  subcategory_id      bigint REFERENCES public.subcategories(subcategory_id) ON DELETE SET NULL,
+  gender              text NOT NULL DEFAULT 'universal' CHECK (gender IN ('men', 'women', 'universal')),
   price               numeric(10,2) NOT NULL DEFAULT 0,
   compare_price       numeric(10,2),
-  compare_at_price    numeric(10,2),
   discount_price      numeric(10,2),
   stock               integer DEFAULT 0,
-  stock_quantity      integer DEFAULT 0,
   image_url           text,
   images              jsonb DEFAULT '[]'::jsonb,
   slug                text UNIQUE,
   has_variants        boolean DEFAULT false,
   is_featured         boolean DEFAULT false,
   is_active           boolean DEFAULT true,
-  is_new_arrival      boolean DEFAULT false,
-  is_best_seller      boolean DEFAULT false,
-  is_trending         boolean DEFAULT false,
-  rating              numeric(3,2) DEFAULT 0,
-  review_count        integer DEFAULT 0,
   frame_shape         text,
   frame_measurements  text,
   fit                 text,
-  care_instructions   text,
   color               text,
   colors              jsonb DEFAULT '[]'::jsonb,
   sizes               jsonb DEFAULT '[]'::jsonb,
-  available_sizes     jsonb DEFAULT '[]'::jsonb,
   tags                jsonb DEFAULT '[]'::jsonb,
   badge               text,
+  lens_options        jsonb NOT NULL DEFAULT '[]'::jsonb,
   created_at          timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
   updated_at          timestamp with time zone DEFAULT timezone('utc'::text, now())
 );
 
 CREATE INDEX IF NOT EXISTS products_category_id_idx ON public.products (category_id);
-CREATE INDEX IF NOT EXISTS products_subcategory_id_idx ON public.products (subcategory_id);
 CREATE INDEX IF NOT EXISTS products_slug_idx ON public.products (slug);
 
 ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
@@ -190,9 +151,7 @@ CREATE TABLE IF NOT EXISTS public.product_variants (
   sku              text UNIQUE,
   price            numeric(10,2) DEFAULT 0,
   compare_price    numeric(10,2),
-  price_override   numeric(10,2),
   stock            integer DEFAULT 0,
-  stock_quantity   integer NOT NULL DEFAULT 0,
   stock_alert      integer,
   images           jsonb DEFAULT '[]'::jsonb,
   is_active        boolean DEFAULT true,
@@ -411,6 +370,8 @@ CREATE TABLE IF NOT EXISTS public.cart_items (
   size       text NOT NULL,
   color      text,
   quantity   integer NOT NULL DEFAULT 1,
+  lens_selection   jsonb,
+  lens_addon_price numeric NOT NULL DEFAULT 0,
   created_at timestamp with time zone DEFAULT timezone('utc'::text, now()) NOT NULL,
   UNIQUE (user_id, product_id, size, color)
 );
@@ -485,7 +446,6 @@ CREATE TABLE IF NOT EXISTS public.coupons (
   min_order_amount    numeric(10,2) DEFAULT 0,
   max_discount_amount numeric(10,2),
   category_id         bigint REFERENCES public.categories(category_id) ON DELETE SET NULL,
-  subcategory_id      bigint REFERENCES public.subcategories(subcategory_id) ON DELETE SET NULL,
   usage_limit         integer,
   per_user_limit      integer DEFAULT 1,
   used_count          integer NOT NULL DEFAULT 0,
@@ -498,7 +458,6 @@ CREATE TABLE IF NOT EXISTS public.coupons (
 
 CREATE UNIQUE INDEX IF NOT EXISTS coupons_code_upper_idx ON public.coupons (UPPER(code));
 CREATE INDEX IF NOT EXISTS coupons_category_id_idx ON public.coupons(category_id);
-CREATE INDEX IF NOT EXISTS coupons_subcategory_id_idx ON public.coupons(subcategory_id);
 
 ALTER TABLE public.coupons ENABLE ROW LEVEL SECURITY;
 

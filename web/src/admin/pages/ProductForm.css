@@ -225,6 +225,18 @@
   cursor: pointer;
 }
 
+.cmp-select:has(option[value=""]:checked) {
+  color: #9ca3af !important;
+}
+
+.cmp-select option {
+  color: #111827;
+}
+
+.cmp-select option[value=""] {
+  color: #9ca3af;
+}
+
 .cmp-select:disabled {
   background-color: #f9fafb;
   color: #9ca3af;

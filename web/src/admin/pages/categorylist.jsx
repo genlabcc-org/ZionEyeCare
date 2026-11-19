@@ -289,10 +289,9 @@ const CategoryList = ({
   const categoriesWithLiveCount = React.useMemo(() => {
     return categories.map((c) => {
       const catId = c.category_id || c.id;
-      const count =
-        products && products.length > 0
-          ? products.filter((p) => String(p.category_id) === String(catId)).length
-          : c.productCount ?? 0;
+      const count = Array.isArray(products)
+        ? products.filter((p) => String(p.category_id) === String(catId)).length
+        : (c.productCount ?? 0);
       return {
         ...c,
         productCount: count,
@@ -391,13 +390,8 @@ const CategoryList = ({
   };
 
   const handleDelete = (cat) => {
-    const subCount = cat.subcategories?.length ?? 0;
     if ((cat.productCount ?? 0) > 0) {
       setBlockedCategory({ ...cat, reason: "products" });
-      return;
-    }
-    if (subCount > 0) {
-      setBlockedCategory({ ...cat, reason: "subcategories", subCount });
       return;
     }
     setPendingDeleteCategory(cat);
@@ -411,11 +405,11 @@ const CategoryList = ({
       await onDeleteCategory?.(catId);
     } catch (err) {
       console.error("Failed to delete category:", err);
-      if (err?.code === "CATEGORY_HAS_SUBCATEGORIES") {
+      if (err?.code === "CATEGORY_HAS_PRODUCTS") {
         setBlockedCategory({
           ...pendingDeleteCategory,
-          reason: "subcategories",
-          subCount: pendingDeleteCategory.subcategories?.length || 1,
+          reason: "products",
+          productCount: pendingDeleteCategory.productCount || 1,
         });
       }
     } finally {

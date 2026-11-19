@@ -546,16 +546,35 @@ export const productService = {
    * @returns {Promise<void>}
    */
   async deleteCategory(categoryId) {
-    const { data: subs, error: subError } = await supabase
-      .from('subcategories')
-      .select('subcategory_id')
-      .eq('category_id', categoryId);
-    if (subError) throw subError;
+    const { data: linkedProducts, error: prodError } = await supabase
+      .from('products')
+      .select('product_id')
+      .eq('category_id', categoryId)
+      .limit(1);
+    if (prodError) throw prodError;
 
-    if (subs && subs.length) {
-      const err = new Error('CATEGORY_HAS_SUBCATEGORIES');
-      err.code = 'CATEGORY_HAS_SUBCATEGORIES';
+    if (linkedProducts && linkedProducts.length > 0) {
+      const err = new Error('CATEGORY_HAS_PRODUCTS');
+      err.code = 'CATEGORY_HAS_PRODUCTS';
       throw err;
+    }
+
+    try {
+      const { data: subs, error: subError } = await supabase
+        .from('subcategories')
+        .select('subcategory_id, image_url')
+        .eq('category_id', categoryId);
+
+      if (!subError && subs && subs.length > 0) {
+        const { error: delSubError } = await supabase
+          .from('subcategories')
+          .delete()
+          .eq('category_id', categoryId);
+        if (delSubError) throw delSubError;
+        await this.deleteR2Images(subs.map((s) => s.image_url));
+      }
+    } catch {
+      // Ignore if legacy subcategories table has already been dropped
     }
 
     const { data: existing } = await supabase

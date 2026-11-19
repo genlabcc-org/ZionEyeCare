@@ -222,7 +222,7 @@ const ProductForm = ({
   const [sku, setSku] = useState(() => initialDraft?.sku || generateVariantSKU());
   const [frameShape, setFrameShape] = useState(() => initialDraft?.frameShape || "");
   const [frameMeasurements, setFrameMeasurements] = useState(() => initialDraft?.frameMeasurements || "");
-  const [gender, setGender] = useState(() => initialDraft?.gender || "universal");
+  const [gender, setGender] = useState(() => initialDraft?.gender || "");
   const [category, setCategory] = useState(() => initialDraft?.category || "");
 
   // ── Global stock & prices ──
@@ -459,7 +459,7 @@ const ProductForm = ({
         setSku(product.sku || generateVariantSKU());
         setFrameShape(product.frame_shape || "");
         setFrameMeasurements(product.frame_measurements || "");
-        setGender(product.gender || "universal");
+        setGender(product.gender || "");
         setLensOptions(Array.isArray(product.lens_options) ? product.lens_options : []);
         setCategory(product.category_id != null ? String(product.category_id) : "");
         setShowOnStore(!!product.is_active);
@@ -1186,7 +1186,7 @@ const ProductForm = ({
     setSku(generateVariantSKU());
     setFrameShape("");
     setFrameMeasurements("");
-    setGender("universal");
+    setGender("");
     setCategory("");
     setCommonColors([]);
     setGlobalStock("");
@@ -1361,7 +1361,7 @@ const ProductForm = ({
       sku: sku || undefined,
       frame_shape: frameShape.trim() || null,
       frame_measurements: frameMeasurements.trim() || null,
-      gender,
+      gender: gender || "universal",
       category_id: parseInt(category) || null,
       is_active: showOnStore,
       is_featured: featuredProduct,
@@ -1512,6 +1512,7 @@ const ProductForm = ({
           <label className="cmp-field">
             <span className="cmp-label">Gender</span>
             <select className="cmp-select" value={gender} onChange={(e) => setGender(e.target.value)}>
+              <option value="">Select Gender</option>
               <option value="men">Men</option>
               <option value="women">Women</option>
               <option value="universal">Universal</option>
@@ -1535,19 +1536,6 @@ const ProductForm = ({
                 <option key={shape} value={shape}>{shape}</option>
               ))}
             </select>
-          </label>
-
-          <label className="cmp-field">
-            <span className="cmp-label">
-              Frame Measurements <span className="scc-optional-tag">optional</span>
-            </span>
-            <input
-              type="text"
-              className="cmp-input"
-              placeholder="e.g. 52-18-140"
-              value={frameMeasurements}
-              onChange={(e) => setFrameMeasurements(e.target.value)}
-            />
           </label>
         </div>
 
@@ -1723,29 +1711,6 @@ const ProductForm = ({
           <InfoHint style={{ marginTop: "12px" }}>
             Set common colors, stock &amp; prices for all variants, or customize each size &amp; color individually below.
           </InfoHint>
-        </div>
-
-        <div className="cmp-section">
-          <div className="cmp-section-title">Lens Options <span className="scc-optional-tag">optional add-on</span></div>
-          <div className="cmp-sizes-subtitle">Choose lens thicknesses available for this frame and set the frame-specific add-on amount.</div>
-          <div className="cmp-lens-options">
-            {availableLenses.length === 0 ? (
-              <span className="cmp-hint">No active lenses are available. Add lenses from the Lenses admin page.</span>
-            ) : availableLenses.map((lens) => (
-              <div className="cmp-lens-option" key={lens.id}>
-                <div className="cmp-lens-option-name">{lens.name}</div>
-                <div className="cmp-lens-tier-list">
-                  {(lens.thicknesses || []).map((tier) => {
-                    const selected = lensOptions.find((option) => String(option.lensId) === String(lens.id))?.thicknesses?.find((option) => String(option.thicknessId) === String(tier.id));
-                    return <div className="cmp-lens-tier" key={tier.id}>
-                      <label className="cmp-lens-tier-select"><input type="checkbox" checked={Boolean(selected)} onChange={() => toggleLensTier(lens, tier)} /><span>{tier.name} · {tier.index || tier.lens_index} · {tier.range || tier.power_range}</span></label>
-                      {selected && <label className="cmp-lens-price"><span>Frame add-on ₹</span><input className="cmp-input" type="number" min="0" step="1" value={selected.addonPrice} onChange={(event) => updateLensTierPrice(lens.id, tier.id, event.target.value)} /></label>}
-                    </div>;
-                  })}
-                </div>
-              </div>
-            ))}
-          </div>
         </div>
 
         {/* ── Sizes, Colors, Images & Pricing ── */}
@@ -2173,6 +2138,30 @@ const ProductForm = ({
               ))}
             </div>
           )}
+        </div>
+
+        {/* ── Lens Options ── */}
+        <div className="cmp-section">
+          <div className="cmp-section-title">Lens Options <span className="scc-optional-tag">optional add-on</span></div>
+          <div className="cmp-sizes-subtitle">Choose lens thicknesses available for this frame and set the frame-specific add-on amount.</div>
+          <div className="cmp-lens-options">
+            {availableLenses.length === 0 ? (
+              <span className="cmp-hint">No active lenses are available. Add lenses from the Lenses admin page.</span>
+            ) : availableLenses.map((lens) => (
+              <div className="cmp-lens-option" key={lens.id}>
+                <div className="cmp-lens-option-name">{lens.name}</div>
+                <div className="cmp-lens-tier-list">
+                  {(lens.thicknesses || []).map((tier) => {
+                    const selected = lensOptions.find((option) => String(option.lensId) === String(lens.id))?.thicknesses?.find((option) => String(option.thicknessId) === String(tier.id));
+                    return <div className="cmp-lens-tier" key={tier.id}>
+                      <label className="cmp-lens-tier-select"><input type="checkbox" checked={Boolean(selected)} onChange={() => toggleLensTier(lens, tier)} /><span>{tier.name} · {tier.index || tier.lens_index} · {tier.range || tier.power_range}</span></label>
+                      {selected && <label className="cmp-lens-price"><span>Frame add-on ₹</span><input className="cmp-input" type="number" min="0" step="1" value={selected.addonPrice} onChange={(event) => updateLensTierPrice(lens.id, tier.id, event.target.value)} /></label>}
+                    </div>;
+                  })}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* ── Visibility Options ── */}

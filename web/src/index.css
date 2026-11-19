@@ -176,3 +176,16 @@ img:not(.logo-img):not(.header-logo-img):not(.search-icon) {
 .fw-logo-img {
   border-radius: 0 !important;
 }
+
+/* ── Global Form Dropdown Placeholder Styling (Dimmed Before Select) ── */
+select:has(option[value=""]:checked) {
+  color: #9ca3af !important;
+}
+
+select option {
+  color: #111827;
+}
+
+select option[value=""] {
+  color: #9ca3af;
+}
