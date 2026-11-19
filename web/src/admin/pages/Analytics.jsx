@@ -378,7 +378,7 @@ const Analytics = ({ orders = [], customers = [], products = [], loading = false
     const countStatus = (st) => filteredOrders.filter((o) => o.status?.toLowerCase() === st.toLowerCase()).length;
     return [
       { label: "Delivered", value: countStatus("Delivered"), color: "#22c55e" },
-      { label: "Shipped", value: countStatus("Shipped"), color: "#3b82f6" },
+      { label: "Shipped", value: countStatus("Shipped"), color: "#51ADE8" },
       { label: "Confirmed", value: countStatus("Confirmed"), color: "#06b6d4" },
       { label: "Pending", value: countStatus("Pending"), color: "#f59e0b" },
       { label: "Cancelled", value: cancelledCount + returnsCount, color: "#ef4444" },
@@ -396,10 +396,10 @@ const Analytics = ({ orders = [], customers = [], products = [], loading = false
       catMap[cat] = (catMap[cat] || 0) + getOrderRevenue(o);
     });
 
-    const colors = ["#f87171", "#fb923c", "#3b82f6", "#facc15", "#a855f7", "#10b981"];
+    const colors = ["#f87171", "#fb923c", "#51ADE8", "#facc15", "#a855f7", "#10b981"];
     const entries = Object.entries(catMap);
     if (entries.length === 0) {
-      return [{ label: "All Items", value: totalRevenue || 1, color: "#3b82f6" }];
+      return [{ label: "All Items", value: totalRevenue || 1, color: "#51ADE8" }];
     }
     return entries.map(([label, value], i) => ({
       label,

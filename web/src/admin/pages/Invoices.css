@@ -54,7 +54,7 @@
 }
 
 .inv__toast--info {
-  border-left: 4px solid #3b82f6;
+  border-left: 4px solid #51ADE8;
 }
 
 .inv__toast-icon {
@@ -201,8 +201,8 @@
 }
 
 .inv__batch-print-btn {
-  background: var(--admin-primary, #002277);
-  border-color: var(--admin-primary, #002277);
+  background: var(--admin-primary, #3B71C1);
+  border-color: var(--admin-primary, #3B71C1);
 }
 
 .inv__btn-badge {
@@ -403,9 +403,9 @@
 }
 
 .inv__dd-item--active {
-  color: var(--admin-primary, #002277);
+  color: var(--admin-primary, #3B71C1);
   font-weight: 600;
-  background: #eff6ff;
+  background-color: rgba(81, 173, 232, 0.12);
 }
 
 /* Clear filter button */
@@ -451,7 +451,7 @@
 }
 
 .inv__search-box:focus-within {
-  border-color: var(--admin-primary, #002277);
+  border-color: var(--admin-primary, #3B71C1);
   box-shadow: 0 0 0 2px rgba(0, 34, 119, 0.1);
 }
 
@@ -519,7 +519,7 @@
   width: 18px;
   height: 18px;
   border-radius: 4px;
-  accent-color: var(--admin-primary, #002277);
+  accent-color: var(--admin-primary, #3B71C1);
   cursor: pointer;
 }
 
@@ -557,7 +557,7 @@
 }
 
 .inv__cell-id-link:hover {
-  color: var(--admin-primary, #002277);
+  color: var(--admin-primary, #3B71C1);
   text-decoration: underline;
 }
 
@@ -662,7 +662,7 @@
 }
 
 .inv__action-link:hover {
-  color: var(--admin-primary, #002277);
+  color: var(--admin-primary, #3B71C1);
 }
 
 .inv__row-print-btn {
@@ -735,8 +735,8 @@
 .inv__mobile-selected-badge {
   font-size: 11.5px;
   font-weight: 600;
-  color: var(--admin-primary, #002277);
-  background: #eff6ff;
+  color: var(--admin-primary, #3B71C1);
+  background-color: rgba(81, 173, 232, 0.12);
   padding: 2px 8px;
   border-radius: 999px;
 }
@@ -762,7 +762,7 @@
 }
 
 .inv__card--selected {
-  border-color: var(--admin-primary, #002277);
+  border-color: var(--admin-primary, #3B71C1);
   background: #fafcff;
 }
 
@@ -903,13 +903,13 @@
 }
 
 .inv__pg-num--active {
-  background: var(--admin-primary, #002277);
+  background: var(--admin-primary, #3B71C1);
   color: #ffffff;
   font-weight: 700;
 }
 
 .inv__pg-num--active:hover {
-  background: var(--admin-primary, #002277);
+  background: var(--admin-primary, #3B71C1);
   color: #ffffff;
 }
 
@@ -1132,7 +1132,7 @@
   gap: 6px;
   padding: 8px 18px;
   border-radius: 8px;
-  background: var(--admin-primary, #002277);
+  background: var(--admin-primary, #3B71C1);
   color: #ffffff;
   border: none;
   font-size: 13px;

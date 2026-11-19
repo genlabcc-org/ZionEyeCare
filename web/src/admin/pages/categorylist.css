@@ -51,7 +51,7 @@
 }
 
 .cat-search-input:focus {
-  border-color: var(--admin-primary, #002277);
+  border-color: var(--admin-primary, #3B71C1);
 }
 
 /* Flat table list, shared visually with the lenses list. */
@@ -77,7 +77,7 @@
 .cat-list-order-actions button:disabled { opacity: .3; cursor: not-allowed; }
 .cat-list-actions { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
 .cat-list-actions button { width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; border: 0; background: transparent; color: #475569; cursor: pointer; padding: 0; }
-.cat-list-actions button:hover { color: var(--admin-primary, #002277); }
+.cat-list-actions button:hover { color: var(--admin-primary, #3B71C1); }
 .cat-list-actions .cat-list-delete { color: #dc2626; }
 .cat-list-actions img { width: 15px; height: 15px; object-fit: contain; }
 
@@ -87,7 +87,7 @@
   gap: 6px;
   height: 38px;
   padding: 0 18px;
-  background: var(--admin-primary, #002277);
+  background: var(--admin-primary, #3B71C1);
   color: #ffffff;
   border: none;
   border-radius: 8px;
@@ -137,8 +137,8 @@
 }
 
 .cat-section-add-btn:hover {
-  border-color: var(--admin-primary, #002277);
-  color: var(--admin-primary, #002277);
+  border-color: var(--admin-primary, #3B71C1);
+  color: var(--admin-primary, #3B71C1);
   background: #f8fafc;
 }
 
@@ -200,7 +200,7 @@
 }
 
 .cat-card--drag-over {
-  border-color: var(--admin-primary, #002277);
+  border-color: var(--admin-primary, #3B71C1);
   box-shadow: 0 0 0 2px rgba(0, 34, 119, 0.15);
 }
 
@@ -274,7 +274,7 @@
 }
 
 .cat-order-btn:hover:not(:disabled) {
-  background: var(--admin-primary, #002277);
+  background: var(--admin-primary, #3B71C1);
   color: #ffffff;
 }
 
@@ -338,7 +338,7 @@
 }
 
 .cat-card-title:hover {
-  color: var(--admin-primary, #002277);
+  color: var(--admin-primary, #3B71C1);
 }
 
 .cat-card-qty {

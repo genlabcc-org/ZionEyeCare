@@ -230,8 +230,8 @@
 }
 
 .sh__input:focus {
-  border-color: var(--admin-primary, #0A2582);
-  box-shadow: 0 0 0 3px rgba(10, 37, 130, 0.12);
+  border-color: var(--admin-primary, #3B71C1);
+  box-shadow: 0 0 0 3px rgba(81, 173, 232, 0.12);
 }
 
 select.sh__input {
@@ -269,7 +269,7 @@ select.sh__input {
 }
 
 .sh__toggle input:checked + .sh__toggle-track {
-  background: var(--admin-primary, #0A2582);
+  background: var(--admin-primary, #3B71C1);
 }
 
 .sh__toggle-thumb {
@@ -337,7 +337,7 @@ select.sh__input {
 
 /* Buttons */
 .sh__btn-primary {
-  background: var(--admin-primary, #0A2582);
+  background: var(--admin-primary, #3B71C1);
   color: #ffffff;
   border: none;
   border-radius: 8px;
@@ -354,7 +354,7 @@ select.sh__input {
 .sh__btn-primary:hover:not(:disabled) {
   background: var(--admin-primary-hover, #081d66);
   transform: translateY(-1px);
-  box-shadow: 0 4px 10px rgba(10, 37, 130, 0.22);
+  box-shadow: 0 4px 10px rgba(81, 173, 232, 0.22);
 }
 
 .sh__btn-primary:disabled {
@@ -364,8 +364,8 @@ select.sh__input {
 
 .sh__btn-secondary {
   background: #ffffff;
-  color: var(--admin-primary, #0A2582);
-  border: 1px solid var(--admin-primary, #0A2582);
+  color: var(--admin-primary, #3B71C1);
+  border: 1px solid var(--admin-primary, #3B71C1);
   border-radius: 8px;
   padding: 8px 16px;
   font-size: 13px;
@@ -378,7 +378,7 @@ select.sh__input {
 }
 
 .sh__btn-secondary:hover {
-  background: rgba(10, 37, 130, 0.05);
+  background: rgba(81, 173, 232, 0.05);
 }
 
 .sh__btn-refresh {
@@ -408,7 +408,7 @@ select.sh__input {
 }
 
 .sh__btn-save {
-  background: var(--admin-primary, #0A2582);
+  background: var(--admin-primary, #3B71C1);
   color: #ffffff;
   border: none;
   border-radius: 8px;
@@ -503,8 +503,8 @@ select.sh__input {
 
 .sh__search-box:focus-within {
   background: #ffffff;
-  border-color: var(--admin-primary, #0A2582);
-  box-shadow: 0 0 0 3px rgba(10, 37, 130, 0.08);
+  border-color: var(--admin-primary, #3B71C1);
+  box-shadow: 0 0 0 3px rgba(81, 173, 232, 0.08);
 }
 
 .sh__search-box input {
@@ -629,8 +629,8 @@ select.sh__input {
   display: inline-flex;
   align-items: center;
   padding: 2px 7px;
-  background: #eff6ff;
-  color: var(--admin-primary, #0A2582);
+  background-color: rgba(81, 173, 232, 0.12);
+  color: var(--admin-primary, #3B71C1);
   border: 1px solid #dbeafe;
   border-radius: 4px;
   font-size: 10.5px;
@@ -719,7 +719,7 @@ select.sh__input {
   width: 32px;
   height: 32px;
   border: 3px solid #f3f4f6;
-  border-top-color: var(--admin-primary, #0A2582);
+  border-top-color: var(--admin-primary, #3B71C1);
   border-radius: 50%;
   animation: shSpin 0.75s linear infinite;
   margin: 0 auto 16px;

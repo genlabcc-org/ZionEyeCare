@@ -83,7 +83,7 @@
   align-items: center;
   gap: 8px;
   padding: 9px 18px;
-  background: var(--admin-primary, #002277);
+  background: var(--admin-primary, #3B71C1);
   color: #ffffff;
   border: none;
   border-radius: 8px;
@@ -133,7 +133,7 @@
 
 .cpm-stat-icon-wrap--blue {
   background: #f0f4ff;
-  color: #1d4ed8;
+  color: #3B71C1;
 }
 
 .cpm-stat-icon-wrap--green {
@@ -224,7 +224,7 @@
 }
 
 .cpm-filter-select:focus {
-  border-color: var(--admin-primary, #002277);
+  border-color: var(--admin-primary, #3B71C1);
   box-shadow: 0 0 0 3px rgba(0, 34, 119, 0.08);
 }
 
@@ -237,7 +237,7 @@
 }
 
 .cpm-select-wrapper:focus-within .cpm-select-chevron {
-  color: var(--admin-primary, #002277);
+  color: var(--admin-primary, #3B71C1);
 }
 
 .cpm-search-box {
@@ -253,7 +253,7 @@
 }
 
 .cpm-search-box:focus-within {
-  border-color: var(--admin-primary, #002277);
+  border-color: var(--admin-primary, #3B71C1);
   box-shadow: 0 0 0 3px rgba(0, 34, 119, 0.08);
 }
 
@@ -469,7 +469,7 @@
 }
 
 .cpm-switch input:checked + .cpm-slider {
-  background-color: #002277;
+  background-color: #3B71C1;
 }
 
 .cpm-switch input:checked + .cpm-slider:before {
@@ -521,7 +521,7 @@
 
 .cpm-action-btn--edit:hover {
   background: #f8fafc;
-  color: #002277;
+  color: #3B71C1;
   border-color: #cbd5e1;
 }
 
@@ -689,7 +689,7 @@
 }
 
 .cpm-input:focus {
-  border-color: #002277;
+  border-color: #3B71C1;
 }
 
 .cpm-select {
@@ -773,7 +773,7 @@
   padding: 8px 16px;
   border-radius: 6px;
   border: none;
-  background: var(--admin-primary, #002277);
+  background: var(--admin-primary, #3B71C1);
   color: #ffffff;
   font-size: 12.5px;
   font-weight: 600;

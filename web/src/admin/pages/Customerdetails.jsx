@@ -47,9 +47,7 @@ const formatJoinedDateTime = (dateVal) => {
 };
 
 const CustomerDetails = ({ customer, onBack }) => {
-  const [showDisableConfirm, setShowDisableConfirm] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [isDisabling, setIsDisabling] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [addresses, setAddresses] = useState([]);
   const [addressesLoading, setAddressesLoading] = useState(false);
@@ -166,21 +164,6 @@ const CustomerDetails = ({ customer, onBack }) => {
     }
     return "No phone set";
   }, [c, addresses, orders]);
-
-  const handleConfirmDisable = async () => {
-    try {
-      setIsDisabling(true);
-      if (c.id && c.id !== "UNKNOWN") {
-        await supabase.from("users").update({ status: "Disabled" }).eq("id", c.id);
-      }
-      setShowDisableConfirm(false);
-    } catch (err) {
-      console.error("Error disabling user:", err);
-      setShowDisableConfirm(false);
-    } finally {
-      setIsDisabling(false);
-    }
-  };
 
   const handleConfirmDelete = async () => {
     try {
@@ -488,53 +471,17 @@ const CustomerDetails = ({ customer, onBack }) => {
 
 
 
-      {/* ── Account Controls ── */}
+      {/* ── Account Management ── */}
       <div className="cd__section">
-        <div className="cd__section-title">Account Controls</div>
+        <div className="cd__section-title">Account Management</div>
         <div className="cd__card cd__controls-card">
-          <div className="cd__controls-warning">
-            <span className="cd__warning-dot" />
-            <div>
-              <div className="cd__warning-title">Disabling this account will prevent the customer from logging in or placing new orders.</div>
-              <div className="cd__warning-sub">Their catalog and history data will be preserved. You can re-enable at any time.</div>
-            </div>
-          </div>
           <div className="cd__controls-btns">
-            <button className="cd__btn cd__btn--disable" onClick={() => setShowDisableConfirm(true)}>
-              Disable Account
-            </button>
             <button className="cd__btn cd__btn--delete" onClick={() => setShowDeleteConfirm(true)}>
               Delete Account Permanently
             </button>
           </div>
         </div>
       </div>
-
-      {/* ── Disable Confirm Modal ── */}
-      <AdminModal
-        isOpen={showDisableConfirm}
-        onClose={() => !isDisabling && setShowDisableConfirm(false)}
-        title="Disable Account?"
-        maxWidth={440}
-        footer={
-          <>
-            <button className="cd__btn cd__btn--cancel" onClick={() => setShowDisableConfirm(false)} disabled={isDisabling}>Cancel</button>
-            <button className="cd__btn cd__btn--disable admin-btn-with-spinner" onClick={handleConfirmDisable} disabled={isDisabling}>
-              {isDisabling ? (
-                <>
-                  <span className="admin-btn-spinner" /> Disabling...
-                </>
-              ) : (
-                "Disable"
-              )}
-            </button>
-          </>
-        }
-      >
-        <p style={{ margin: 0, color: "#64748b", fontSize: "14px", lineHeight: 1.5 }}>
-          This will prevent the customer from logging in or placing orders. You can re-enable at any time.
-        </p>
-      </AdminModal>
 
       {/* ── Delete Confirm Modal ── */}
       <AdminModal

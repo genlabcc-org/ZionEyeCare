@@ -6,6 +6,7 @@
   padding: 84px 0 96px;
   background: transparent !important;
   box-sizing: border-box;
+  font-family: var(--font-body, 'Outfit', sans-serif);
 }
 
 .faq-container {
@@ -46,20 +47,20 @@
 }
 
 .faq-badge-text {
-  font-family: 'Outfit', 'Inter', sans-serif;
+  font-family: var(--font-body, 'Outfit', sans-serif);
   font-size: 13px;
-  font-weight: 600;
-  color: #1e293b;
+  font-weight: 500;
+  color: #172433;
   line-height: 1;
 }
 
 .faq-heading {
-  font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
-  font-size: clamp(34px, 3.8vw, 46px) !important;
-  font-weight: 700 !important;
+  font-family: var(--font-body, 'Outfit', sans-serif) !important;
+  font-size: clamp(36px, 4vw, 54px) !important;
+  font-weight: 600 !important;
   color: #17202f !important;
-  line-height: 1.15 !important;
-  letter-spacing: -0.035em !important;
+  line-height: 1.08 !important;
+  letter-spacing: -0.045em !important;
   margin: 0 0 54px 0 !important;
   text-transform: none !important;
   text-align: left !important;
@@ -72,11 +73,11 @@
 }
 
 .faq-contact-prompt {
-  font-family: 'Outfit', 'Inter', sans-serif;
+  font-family: var(--font-body, 'Outfit', sans-serif);
   font-size: 15.5px;
-  font-weight: 700;
+  font-weight: 500;
   color: #17202f;
-  line-height: 1.4;
+  line-height: 1.45;
   margin: 0 0 16px 0;
   letter-spacing: -0.01em;
 }
@@ -89,9 +90,9 @@
   color: #ffffff !important;
   padding: 6px 6px 6px 22px;
   border-radius: 9999px;
-  font-family: 'Outfit', 'Inter', sans-serif;
-  font-size: 14.5px;
-  font-weight: 600;
+  font-family: var(--font-body, 'Outfit', sans-serif);
+  font-size: 14px;
+  font-weight: 500;
   text-decoration: none;
   border: none !important;
   box-shadow: none !important;
@@ -163,13 +164,13 @@
 }
 
 .faq-question-text {
-  font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-family: var(--font-body, 'Outfit', sans-serif) !important;
   font-size: 16.5px !important;
-  font-weight: 700 !important;
-  color: #111827 !important;
+  font-weight: 600 !important;
+  color: #17202f !important;
   margin: 0 !important;
   line-height: 1.35 !important;
-  letter-spacing: -0.015em !important;
+  letter-spacing: -0.02em !important;
   flex: 1;
 }
 
@@ -190,6 +191,16 @@
 .faq-card.is-active .faq-toggle-circle {
   background: #0f172a;
 }
+
+/* Zion blue palette */
+.faq-badge,
+.faq-card { background: rgba(81, 173, 232, .08); }
+.faq-card.is-active { background: rgba(81, 173, 232, .16); }
+.faq-get-in-touch-btn { background: #3B71C1; }
+.faq-get-in-touch-btn:hover { background: #315fa4; }
+.faq-btn-icon-circle { color: #3B71C1; }
+.faq-toggle-circle,
+.faq-card.is-active .faq-toggle-circle { background: #3B71C1; }
 
 /* Smooth Icon Transition between Plus (+) and Minus (-) */
 .faq-icon-vert {
@@ -220,10 +231,10 @@
 }
 
 .faq-answer-text {
-  font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-family: var(--font-body, 'Outfit', sans-serif) !important;
   font-size: 14.5px !important;
   font-weight: 400 !important;
-  color: #64748b !important;
+  color: #66717e !important;
   line-height: 1.6 !important;
   margin: 0 !important;
   padding: 0 24px 22px 24px !important;

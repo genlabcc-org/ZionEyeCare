@@ -222,6 +222,7 @@ const ProductForm = ({
   const [sku, setSku] = useState(() => initialDraft?.sku || generateVariantSKU());
   const [frameShape, setFrameShape] = useState(() => initialDraft?.frameShape || "");
   const [frameMeasurements, setFrameMeasurements] = useState(() => initialDraft?.frameMeasurements || "");
+  const [gender, setGender] = useState(() => initialDraft?.gender || "universal");
   const [category, setCategory] = useState(() => initialDraft?.category || "");
 
   // ── Global stock & prices ──
@@ -372,6 +373,7 @@ const ProductForm = ({
         sku,
         frameShape,
         frameMeasurements,
+        gender,
         category,
         commonColors,
         globalStock,
@@ -402,6 +404,7 @@ const ProductForm = ({
     sku,
     frameShape,
     frameMeasurements,
+    gender,
     category,
     commonColors,
     globalStock,
@@ -456,6 +459,7 @@ const ProductForm = ({
         setSku(product.sku || generateVariantSKU());
         setFrameShape(product.frame_shape || "");
         setFrameMeasurements(product.frame_measurements || "");
+        setGender(product.gender || "universal");
         setLensOptions(Array.isArray(product.lens_options) ? product.lens_options : []);
         setCategory(product.category_id != null ? String(product.category_id) : "");
         setShowOnStore(!!product.is_active);
@@ -1182,6 +1186,7 @@ const ProductForm = ({
     setSku(generateVariantSKU());
     setFrameShape("");
     setFrameMeasurements("");
+    setGender("universal");
     setCategory("");
     setCommonColors([]);
     setGlobalStock("");
@@ -1274,7 +1279,7 @@ const ProductForm = ({
     if (!description.trim()) topErrors.description = ["Description Cannot Be Empty"];
     if (!globalStock.trim()) topErrors.globalStock = ["Stock Cannot Be Empty"];
     if (sizeRows.length === 0) {
-      topErrors.sizes = ["At least one frame size with a product image is required"];
+      topErrors.sizes = ["At least one frame size with a frame image is required"];
     }
 
     const rowErrors = {};
@@ -1314,7 +1319,7 @@ const ProductForm = ({
     });
 
     if (!hasAnyImage && sizeRows.length > 0) {
-      topErrors.images = ["At least one product image is required"];
+      topErrors.images = ["At least one frame image is required"];
     }
 
     setErrors({ ...topErrors, ...rowErrors });
@@ -1356,6 +1361,7 @@ const ProductForm = ({
       sku: sku || undefined,
       frame_shape: frameShape.trim() || null,
       frame_measurements: frameMeasurements.trim() || null,
+      gender,
       category_id: parseInt(category) || null,
       is_active: showOnStore,
       is_featured: featuredProduct,
@@ -1395,7 +1401,7 @@ const ProductForm = ({
   };
 
   if (loading) {
-    return <main className="dashboard-content cmp-page"><p style={{ padding: 24 }}>Loading product…</p></main>;
+    return <main className="dashboard-content cmp-page"><p style={{ padding: 24 }}>Loading frame…</p></main>;
   }
 
   // Live total stock across all size & color variants (read-only display)
@@ -1438,11 +1444,11 @@ const ProductForm = ({
         />
       )}
 
-      {/* ── Product Details (Single unified card) ── */}
+      {/* ── Frame Details (Single unified card) ── */}
       <div className="card cmp-card">
-        <div className="card-title">Product Details</div>
+        <div className="card-title">Frame Details</div>
         <label className="cmp-field">
-          <span className="cmp-label">Product / Model Name</span>
+          <span className="cmp-label">Frame / Model Name</span>
           <input
             type="text"
             className={`cmp-input${errors.title ? " cmp-input--error" : ""}`}
@@ -1500,6 +1506,15 @@ const ProductForm = ({
                   {c.name}
                 </option>
               ))}
+            </select>
+          </label>
+
+          <label className="cmp-field">
+            <span className="cmp-label">Gender</span>
+            <select className="cmp-select" value={gender} onChange={(e) => setGender(e.target.value)}>
+              <option value="men">Men</option>
+              <option value="women">Women</option>
+              <option value="universal">Universal</option>
             </select>
           </label>
         </div>

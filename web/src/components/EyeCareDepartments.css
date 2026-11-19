@@ -1,0 +1,273 @@
+/* ══════════════════════════════════════════════════════════
+   EYE CARE SPECIALIZED DEPARTMENTS SECTION
+   ══════════════════════════════════════════════════════════ */
+.eye-dept-section {
+  width: 100%;
+  padding: 56px 0 84px;
+  background-color: #ffffff;
+  box-sizing: border-box;
+  font-family: var(--font-body, 'Outfit', sans-serif);
+}
+
+.eye-dept-container {
+  max-width: 1320px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 32px;
+  box-sizing: border-box;
+}
+
+/* ── Top Header Row ── */
+.eye-dept-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 42px;
+  flex-wrap: wrap;
+}
+
+.eye-dept-header-left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.eye-dept-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  background-color: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  margin-bottom: 18px;
+  box-shadow: none;
+}
+
+.eye-dept-badge-icon {
+  display: block;
+  flex-shrink: 0;
+}
+
+.eye-dept-badge-text {
+  font-family: var(--font-body, 'Outfit', sans-serif);
+  font-size: 13px;
+  font-weight: 500;
+  color: #172433;
+  line-height: 1;
+}
+
+.eye-dept-heading {
+  font-family: var(--font-body, 'Outfit', sans-serif);
+  font-size: clamp(34px, 4vw, 52px);
+  font-weight: 600;
+  color: #17202f;
+  line-height: 1.08;
+  letter-spacing: -0.045em;
+  margin: 0;
+  text-transform: none;
+  text-align: left;
+}
+
+/* ── Top-Right Pill CTA Button ── */
+.eye-dept-more-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 5px 6px 5px 20px;
+  background-color: #ffffff;
+  border: 1px solid #dce1e7;
+  border-radius: 999px;
+  color: #17202f;
+  font-family: var(--font-body, 'Outfit', sans-serif);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  box-shadow: none;
+  transition: border-color 0.15s ease, color 0.15s ease;
+  white-space: nowrap;
+}
+
+.eye-dept-more-btn:hover {
+  border-color: #3B71C1;
+  color: #3B71C1;
+}
+
+.eye-dept-more-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background-color: #3B71C1;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background-color 0.15s ease;
+}
+
+.eye-dept-more-btn:hover .eye-dept-more-icon {
+  background-color: #2f5ea3;
+}
+
+.eye-dept-more-icon svg {
+  width: 17px;
+  height: 17px;
+}
+
+/* ── 2x2 Grid of Department Pairs (4 Columns on Desktop) ── */
+.eye-dept-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.eye-dept-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  align-items: stretch;
+}
+
+/* ── Image Tile ── */
+.eye-dept-image-card {
+  border-radius: 16px;
+  overflow: hidden;
+  background-color: #eef2f6;
+  min-height: 296px;
+  height: 100%;
+  box-shadow: none;
+}
+
+.eye-dept-image-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ── Info Card Tile ── */
+.eye-dept-info-card {
+  border-radius: 16px;
+  background-color: #f6f7f9;
+  padding: 28px 26px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 296px;
+  box-sizing: border-box;
+  box-shadow: none;
+  transition: background-color 0.15s ease;
+}
+
+.eye-dept-info-card:hover {
+  background-color: rgba(81, 173, 232, 0.1);
+}
+
+.eye-dept-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  color: #17202f;
+  margin-bottom: 24px;
+}
+
+.eye-dept-card-svg {
+  width: 44px;
+  height: 44px;
+  display: block;
+}
+
+.eye-dept-copy {
+  margin-top: auto;
+  margin-bottom: 24px;
+}
+
+.eye-dept-card-title {
+  font-family: var(--font-body, 'Outfit', sans-serif);
+  font-size: 22px;
+  font-weight: 600;
+  color: #17202f;
+  letter-spacing: -0.025em;
+  line-height: 1.25;
+  margin: 0 0 10px 0;
+}
+
+.eye-dept-card-desc {
+  font-family: var(--font-body, 'Outfit', sans-serif);
+  font-size: 14.5px;
+  font-weight: 400;
+  color: #66717e;
+  line-height: 1.55;
+  margin: 0;
+}
+
+.eye-dept-details-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--font-body, 'Outfit', sans-serif);
+  font-size: 14px;
+  font-weight: 600;
+  color: #17202f;
+  text-decoration: none;
+  transition: color 0.15s ease;
+  width: fit-content;
+}
+
+.eye-dept-info-card:hover .eye-dept-details-link,
+.eye-dept-details-link:hover {
+  color: #3B71C1;
+}
+
+.eye-dept-details-arrow {
+  width: 15px;
+  height: 15px;
+  flex-shrink: 0;
+}
+
+/* ── Responsive Breakpoints ── */
+@media (max-width: 1080px) {
+  .eye-dept-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .eye-dept-image-card,
+  .eye-dept-info-card {
+    min-height: 270px;
+  }
+}
+
+@media (max-width: 640px) {
+  .eye-dept-section {
+    padding: 36px 0 56px;
+  }
+
+  .eye-dept-container {
+    padding: 0 20px;
+  }
+
+  .eye-dept-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 18px;
+    margin-bottom: 28px;
+  }
+
+  .eye-dept-pair {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .eye-dept-image-card {
+    min-height: 220px;
+    max-height: 250px;
+  }
+
+  .eye-dept-info-card {
+    min-height: auto;
+    padding: 22px 20px;
+  }
+}

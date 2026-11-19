@@ -56,6 +56,7 @@ export default function ProductPage({ category = "Trending" }) {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const subcategoryParam = searchParams.get("sub") || "";
+  const genderParam = searchParams.get("gender") || "";
   const searchQueryParam = searchParams.get("search") || "";
 
   // Viewport detection
@@ -79,6 +80,7 @@ export default function ProductPage({ category = "Trending" }) {
   const [selectedSubcategories, setSelectedSubcategories] = useState(() =>
     subcategoryParam.trim() ? [subcategoryParam.trim()] : []
   );
+  const [selectedGenders, setSelectedGenders] = useState(() => genderParam.trim() ? [genderParam.trim()] : []);
   const [selectedFabrics, setSelectedFabrics] = useState([]);
   const [selectedSizes, setSelectedSizes] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -111,15 +113,20 @@ export default function ProductPage({ category = "Trending" }) {
     setSelectedSubcategories(subcategoryParam.trim() ? [subcategoryParam.trim()] : []);
   }, [subcategoryParam]);
 
+  useEffect(() => {
+    setSelectedGenders(genderParam.trim() ? [genderParam.trim()] : []);
+  }, [genderParam]);
+
   // Reset filters when category changes
   useEffect(() => {
     setSelectedCategories([]);
     setSelectedSubcategories(subcategoryParam.trim() ? [subcategoryParam.trim()] : []);
+    setSelectedGenders(genderParam.trim() ? [genderParam.trim()] : []);
     setSelectedFabrics([]);
     setSelectedSizes([]);
     setSortBy("featured");
     setCurrentPage(1);
-  }, [category, subcategoryParam]);
+  }, [category, subcategoryParam, genderParam]);
 
   const showToast = (message, type = "success") => {
     setToastMessage(message);
@@ -162,6 +169,11 @@ export default function ProductPage({ category = "Trending" }) {
     setCurrentPage(1);
   };
 
+  const handleGenderToggle = (gender) => {
+    setSelectedGenders((current) => current.includes(gender) ? current.filter((item) => item !== gender) : [...current, gender]);
+    setCurrentPage(1);
+  };
+
   const handleFabricToggle = (fabric) => {
     setSelectedFabrics(prev =>
       prev.includes(fabric) ? prev.filter(f => f !== fabric) : [...prev, fabric]
@@ -179,6 +191,7 @@ export default function ProductPage({ category = "Trending" }) {
   const handleClearFilters = () => {
     setSelectedCategories([]);
     setSelectedSubcategories([]);
+    setSelectedGenders([]);
     setSelectedFabrics([]);
     setSelectedSizes([]);
     setSortBy("featured");
@@ -344,6 +357,13 @@ export default function ProductPage({ category = "Trending" }) {
     return list;
   }, [products]);
 
+  const availableGenders = useMemo(() => {
+    const labels = { men: "Men", women: "Women", universal: "Universal" };
+    return Object.keys(labels)
+      .map((value) => ({ value, label: labels[value], count: products.filter((product) => String(product.gender || "universal").toLowerCase() === value).length }))
+      .filter((gender) => gender.count > 0);
+  }, [products]);
+
   // Dynamically compute real sizes from product catalog with live counts
   const availableSizes = useMemo(() => {
     const sizeCounts = new Map();
@@ -393,6 +413,10 @@ export default function ProductPage({ category = "Trending" }) {
           return pCat === cLow || String(product.category_id) === String(cat);
         });
         if (!matchesCategory) return false;
+      }
+
+      if (selectedGenders.length > 0 && !selectedGenders.some((gender) => String(product.gender || "universal").toLowerCase() === String(gender).toLowerCase())) {
+        return false;
       }
 
       // Real subcategory filter
@@ -490,7 +514,7 @@ export default function ProductPage({ category = "Trending" }) {
     }
 
     return expanded;
-  }, [products, subcategoryParam, searchQueryParam, selectedCategories, selectedSubcategories, selectedFabrics, selectedSizes, sortBy, subcategoryLookup]);
+  }, [products, subcategoryParam, searchQueryParam, selectedCategories, selectedGenders, selectedSubcategories, selectedFabrics, selectedSizes, sortBy, subcategoryLookup]);
 
   const totalPages = Math.max(1, Math.ceil(filteredProducts.length / itemsPerPage));
 
@@ -634,6 +658,9 @@ export default function ProductPage({ category = "Trending" }) {
           availableCategories={availableCategories}
           selectedCategories={selectedCategories}
           onCategoryToggle={handleCategoryToggle}
+          availableGenders={availableGenders}
+          selectedGenders={selectedGenders}
+          onGenderToggle={handleGenderToggle}
           availableSubcategories={availableSubcategories}
           selectedSubcategories={selectedSubcategories}
           onSubcategoryToggle={handleSubcategoryToggle}

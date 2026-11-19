@@ -19,14 +19,14 @@ const STATUS_STYLE = {
 };
 
 const PAYMENT_STYLE = {
-  Razorpay: { bg: "#EFF6FF", color: "#1D4ED8", border: "#BFDBFE" },
-  RAZORPAY: { bg: "#EFF6FF", color: "#1D4ED8", border: "#BFDBFE" },
-  "Razorpay (Online Payment)": { bg: "#EFF6FF", color: "#1D4ED8", border: "#BFDBFE" },
-  Paid: { bg: "#EFF6FF", color: "#1D4ED8", border: "#BFDBFE" },
-  PAID: { bg: "#EFF6FF", color: "#1D4ED8", border: "#BFDBFE" },
-  Online: { bg: "#EFF6FF", color: "#1D4ED8", border: "#BFDBFE" },
-  ONLINE: { bg: "#EFF6FF", color: "#1D4ED8", border: "#BFDBFE" },
-  Prepaid: { bg: "#EFF6FF", color: "#1D4ED8", border: "#BFDBFE" },
+  Razorpay: { bg: "#EFF6FF", color: "#3B71C1", border: "#BFDBFE" },
+  RAZORPAY: { bg: "#EFF6FF", color: "#3B71C1", border: "#BFDBFE" },
+  "Razorpay (Online Payment)": { bg: "#EFF6FF", color: "#3B71C1", border: "#BFDBFE" },
+  Paid: { bg: "#EFF6FF", color: "#3B71C1", border: "#BFDBFE" },
+  PAID: { bg: "#EFF6FF", color: "#3B71C1", border: "#BFDBFE" },
+  Online: { bg: "#EFF6FF", color: "#3B71C1", border: "#BFDBFE" },
+  ONLINE: { bg: "#EFF6FF", color: "#3B71C1", border: "#BFDBFE" },
+  Prepaid: { bg: "#EFF6FF", color: "#3B71C1", border: "#BFDBFE" },
   COD: { bg: "#FFF4E5", color: "#D97706", border: "#FED7AA" },
   cod: { bg: "#FFF4E5", color: "#D97706", border: "#FED7AA" },
 };
@@ -51,7 +51,7 @@ const getPaymentBadge = (order) => {
     return {
       label: upper.includes("RAZORPAY") ? "Razorpay" : str,
       bg: "#EFF6FF",
-      color: "#1D4ED8",
+      color: "#3B71C1",
       border: "#BFDBFE",
     };
   }
@@ -115,9 +115,9 @@ const getDeliveryStatusTag = (order) => {
     return {
       label,
       bg: "#DBEAFE",
-      color: "#1D4ED8",
+      color: "#3B71C1",
       border: "#BFDBFE",
-      dot: "#3B82F6",
+      dot: "#51ADE8",
     };
   }
 
@@ -822,7 +822,7 @@ const AllOrders = ({ orders = [], products = [], categories: categoriesProp = []
 
   const razorpayCount = localOrders.filter((o) => {
     const pb = getPaymentBadge(o);
-    return pb.color === "#1D4ED8" || pb.label.toLowerCase().includes("razorpay");
+    return pb.color === "#3B71C1" || pb.label.toLowerCase().includes("razorpay");
   }).length;
 
   const codCount = localOrders.filter((o) => {
@@ -982,7 +982,7 @@ const AllOrders = ({ orders = [], products = [], categories: categoriesProp = []
       if (paymentFilter !== "All Payment") {
         const pb = getPaymentBadge(o);
         if (paymentFilter === "Razorpay") {
-          if (!pb.label.toLowerCase().includes("razorpay") && pb.color !== "#1D4ED8") {
+          if (!pb.label.toLowerCase().includes("razorpay") && pb.color !== "#3B71C1") {
             return false;
           }
         } else if (paymentFilter === "COD") {
@@ -1351,7 +1351,7 @@ const AllOrders = ({ orders = [], products = [], categories: categoriesProp = []
                           rel="noopener noreferrer"
                           onClick={(e) => e.stopPropagation()}
                           style={{
-                            color: "#2563EB",
+                            color: "#3B71C1",
                             textDecoration: "underline",
                             fontFamily: "monospace",
                             fontWeight: 500,
@@ -1398,7 +1398,7 @@ const AllOrders = ({ orders = [], products = [], categories: categoriesProp = []
               <button
                 type="button"
                 className="ao__view-link"
-                style={{ color: "var(--admin-primary, #002277)" }}
+                style={{ color: "var(--admin-primary, #3B71C1)" }}
                 onClick={() => handleOpenPreview(order)}
                 title="Preview thermal receipt"
               >

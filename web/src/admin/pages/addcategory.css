@@ -620,8 +620,8 @@
 }
 .ap-ci-preview-edit {
   padding: 5px 18px;
-  background: #eff6ff;
-  color: #3b82f6;
+  background-color: rgba(81, 173, 232, 0.12);
+  color: #51ADE8;
   border: none;
   border-radius: 7px;
   font-size: 12.5px;

@@ -391,24 +391,6 @@
   flex: 1;
 }
 
-.ac__mobile-badge {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 12px;
-  text-transform: capitalize;
-}
-
-.ac__mobile-badge--active {
-  background: #DCFCE7;
-  color: #15803D;
-}
-
-.ac__mobile-badge--disabled {
-  background: #FEE2E2;
-  color: #B91C1C;
-}
-
 .ac__mobile-body {
   display: flex;
   flex-direction: column;
@@ -460,11 +442,11 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: #0A2582;
+  color: #3B71C1;
   font-size: 13px;
   font-weight: 600;
   padding: 6px 14px;
-  background: #EFF6FF;
+  background-color: rgba(81, 173, 232, 0.12);
   border: 1px solid #BFDBFE;
   border-radius: 20px;
 }

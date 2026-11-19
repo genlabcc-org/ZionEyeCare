@@ -278,37 +278,6 @@
   flex-wrap: wrap;
 }
 
-.cd__controls-warning {
-  display: flex;
-  align-items: flex-start;
-  gap: 12px;
-  flex: 1;
-  min-width: 260px;
-}
-
-.cd__warning-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #f59e0b;
-  flex-shrink: 0;
-  margin-top: 5px;
-}
-
-.cd__warning-title {
-  font-size: 13.5px;
-  font-weight: 600;
-  color: #111827;
-  margin-bottom: 2px;
-  line-height: 1.4;
-}
-
-.cd__warning-sub {
-  font-size: 12.5px;
-  color: #64748b;
-  line-height: 1.4;
-}
-
 .cd__controls-btns {
   display: flex;
   gap: 12px;
@@ -330,12 +299,6 @@
 }
 .cd__btn:hover { opacity: .9; transform: translateY(-1px); }
 .cd__btn:active { transform: translateY(0); }
-
-.cd__btn--disable {
-  background: #fef3c7;
-  color: #b45309;
-  border: 1px solid #fde68a;
-}
 
 .cd__btn--delete {
   background: #fee2e2;

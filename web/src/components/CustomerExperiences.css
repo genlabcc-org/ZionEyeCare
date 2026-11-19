@@ -101,6 +101,9 @@
   box-sizing: border-box;
 }
 
+/* Zion blue palette */
+.testimonial-card { background: rgba(81, 173, 232, .08); border: none; }
+
 .testimonial-quote-wrapper {
   margin-bottom: 18px;
   display: flex;

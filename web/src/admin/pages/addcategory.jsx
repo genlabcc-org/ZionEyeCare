@@ -267,6 +267,7 @@ export default function AddCategory({ onBack, onPublish, onSaveDraft, initialDat
 
 
 
+
       </div>
 
       {/* ── Category Image ── */}

@@ -11,7 +11,7 @@ import { getNavPath } from "../services/categoryRoute";
 
 const ServiceSection = lazy(() => import('../components/ServiceSection'));
 const NewArrivals = lazy(() => import('../components/NewArrivals'));
-const EyewearFeatureSection = lazy(() => import('../components/EyewearFeatureSection'));
+const EyeCareDepartments = lazy(() => import('../components/EyeCareDepartments'));
 const CustomerExperiences = lazy(() => import('../components/CustomerExperiences'));
 const FAQSection = lazy(() => import('../components/FAQSection'));
 
@@ -65,7 +65,7 @@ export default function HomePage() {
         <div id="new-arrivals">
           <NewArrivals onProductClick={handleProductClick} />
         </div>
-        <EyewearFeatureSection />
+        <EyeCareDepartments />
         <div id="reviews"><CustomerExperiences /></div>
         <div id="faq"><FAQSection /></div>
         <SiteFooter />

@@ -703,7 +703,7 @@ const ProductList = ({ onAddProduct, onEditProduct, onDeleteProduct, products = 
               ? selectedSubcategory
               : selectedCategory !== "All"
               ? selectedCategory
-              : "All products"}
+              : "All Frames"}
           </h1>
           <span className="pl-count">
             {filteredProducts.length} {filteredProducts.length === 1 ? "Item" : "Items"}
@@ -931,7 +931,7 @@ const ProductList = ({ onAddProduct, onEditProduct, onDeleteProduct, products = 
 
       {searchQuery && (
         <p className="pl-search-label">
-          Results for <strong>"{searchQuery}"</strong> — {totalItems} product{totalItems !== 1 ? "s" : ""} found
+          Results for <strong>"{searchQuery}"</strong> — {totalItems} frame{totalItems !== 1 ? "s" : ""} found
         </p>
       )}
 
@@ -946,8 +946,8 @@ const ProductList = ({ onAddProduct, onEditProduct, onDeleteProduct, products = 
                   <p className="pl-empty-title">No results found</p>
                   <span className="pl-empty-subtitle">
                     {searchQuery
-                      ? `No products match "${searchQuery}". Try a different name or SKU.`
-                      : "No products yet. Click Add product to get started."}
+                      ? `No frames match "${searchQuery}". Try a different name or SKU.`
+                      : "No frames yet. Click Add Frame to get started."}
                   </span>
                 </div>
               </div>
@@ -972,7 +972,7 @@ const ProductList = ({ onAddProduct, onEditProduct, onDeleteProduct, products = 
           <table className="ao__table pl-table">
             <thead>
               <tr>
-                <th className="pl-product-col">Product</th>
+                <th className="pl-product-col">Frame</th>
                 <th className="pl-category-col">Category</th>
                 <th className="pl-subcategory-col">Subcategory</th>
                 <th className="pl-price-col">Price</th>
@@ -996,8 +996,8 @@ const ProductList = ({ onAddProduct, onEditProduct, onDeleteProduct, products = 
                       <p className="pl-empty-title">No results found</p>
                       <span className="pl-empty-subtitle">
                         {searchQuery
-                          ? `No products match "${searchQuery}". Try a different name or SKU.`
-                          : "No products yet. Click Add product to get started."}
+                          ? `No frames match "${searchQuery}". Try a different name or SKU.`
+                          : "No frames yet. Click Add Frame to get started."}
                       </span>
                     </div>
                   </td>
@@ -1157,15 +1157,15 @@ const ProductList = ({ onAddProduct, onEditProduct, onDeleteProduct, products = 
       <div className="pl-scroll-footer" ref={observerTarget}>
         <span className="pl-showing">
           {totalItems === 0
-            ? "Showing 0 products"
+            ? "Showing 0 frames"
             : visibleCount >= totalItems
-            ? `Showing all ${totalItems} products`
-            : `Showing ${Math.min(visibleCount, totalItems)} of ${totalItems} products`}
+            ? `Showing all ${totalItems} frames`
+            : `Showing ${Math.min(visibleCount, totalItems)} of ${totalItems} frames`}
         </span>
         {visibleCount < totalItems && (
           <div className="pl-loading-more">
             <span className="admin-btn-spinner admin-btn-spinner--dark" />
-            <span>Loading more products...</span>
+            <span>Loading more frames...</span>
           </div>
         )}
       </div>
@@ -1186,9 +1186,9 @@ const ProductList = ({ onAddProduct, onEditProduct, onDeleteProduct, products = 
                 <line x1="14" y1="11" x2="14" y2="17" />
               </svg>
             </div>
-            <h3 id="pl-confirm-dialog-title" className="pl-confirm-title">Delete Product</h3>
+            <h3 id="pl-confirm-dialog-title" className="pl-confirm-title">Delete Frame</h3>
             <p className="pl-confirm-text">
-              Are you sure you want to delete {pendingProduct?.name ? <strong>"{pendingProduct.name}"</strong> : "this product"}? This action cannot be undone.
+              Are you sure you want to delete {pendingProduct?.name ? <strong>"{pendingProduct.name}"</strong> : "this frame"}? This action cannot be undone.
             </p>
             <div className="pl-confirm-actions">
               <button

@@ -152,6 +152,12 @@
   width: 100%;
 }
 
+/* Zion blue palette */
+.service-list { background: rgba(81, 173, 232, .10); }
+.service-appointment-link:hover { border-color: #3B71C1; color: #3B71C1; }
+.service-appointment-icon { background: #3B71C1; }
+.service-eyebrow svg { color: #3B71C1; }
+
 @media (max-width: 800px) {
   .service-section {
     gap: 30px;

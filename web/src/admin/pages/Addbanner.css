@@ -345,7 +345,7 @@
   left: 12px;
   top: 50%;
   transform: translateY(-50%);
-  color: #0A2582;
+  color: #3B71C1;
   pointer-events: none;
 }
 
@@ -395,7 +395,7 @@
 }
 
 .ab__link-preview-badge a {
-  color: #0A2582;
+  color: #3B71C1;
   font-weight: 600;
   text-decoration: underline;
   display: inline-flex;
@@ -509,7 +509,7 @@
 
 .ab__toggle-btn--active {
   background: #ffffff;
-  color: #0A2582;
+  color: #3B71C1;
   font-weight: 600;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
@@ -602,7 +602,7 @@
 }
 
 .ab__hero-dot--active {
-  background: var(--blue-primary, #002277);
+  background: var(--blue-primary, #3B71C1);
   opacity: 1;
 }
 

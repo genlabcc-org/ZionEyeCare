@@ -14,7 +14,7 @@ import "./Orderdetails.css";
 const STATUS_CONFIG = {
   "Order Placed": { bg: "#E0F2FE", color: "#0284C7", border: "#BAE6FD", dot: "#0284C7" },
   Delivered: { bg: "#DCFCE7", color: "#15803D", border: "#BBF7D0", dot: "#22C55E" },
-  Shipped: { bg: "#DBEAFE", color: "#1D4ED8", border: "#BFDBFE", dot: "#3B82F6" },
+  Shipped: { bg: "#DBEAFE", color: "#3B71C1", border: "#BFDBFE", dot: "#51ADE8" },
   Pending: { bg: "#FEF9C3", color: "#A16207", border: "#FEF08A", dot: "#EAB308" },
   "Pending Booking": { bg: "#FEF9C3", color: "#A16207", border: "#FEF08A", dot: "#EAB308" },
   Cancelled: { bg: "#F1F5F9", color: "#64748B", border: "#E2E8F0", dot: "#94A3B8" },
@@ -1249,7 +1249,7 @@ const OrderDetails = ({ order, onBack, onInvoicePrinted }) => {
                   fontSize: '12px',
                   fontWeight: '600',
                   backgroundColor: (o.payment || '').toLowerCase().includes('razorpay') || o.payment_id ? '#eff6ff' : '#f8fafc',
-                  color: (o.payment || '').toLowerCase().includes('razorpay') || o.payment_id ? '#1d4ed8' : '#334155',
+                  color: (o.payment || '').toLowerCase().includes('razorpay') || o.payment_id ? '#3B71C1' : '#334155',
                   border: 'none'
                 }}
               >
@@ -1470,7 +1470,7 @@ const OrderDetails = ({ order, onBack, onInvoicePrinted }) => {
             disabled={savingNote}
             className="admin-btn-with-spinner"
             style={{
-              backgroundColor: 'var(--admin-primary, #002277)',
+              backgroundColor: 'var(--admin-primary, #3B71C1)',
               color: '#fff',
               border: 'none',
               borderRadius: '8px',

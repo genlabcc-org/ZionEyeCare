@@ -112,7 +112,7 @@ export const productService = {
     try {
       const { data, error } = await supabase
         .from('categories')
-        .select('*, subcategories(*), products(count)')
+        .select('*, subcategories(*), products(gender)')
         .order('sort_order', { ascending: true })
         .order('category_id', { ascending: true });
       if (!error && data) {
@@ -125,7 +125,7 @@ export const productService = {
     if (!cats) {
       const { data, error: catErr } = await supabase
         .from('categories')
-        .select('*, products(count)')
+        .select('*, products(gender)')
         .order('category_id', { ascending: true });
       if (catErr) throw catErr;
       cats = data || [];
@@ -174,7 +174,8 @@ export const productService = {
         });
         return {
           ...c,
-          productCount: c.products?.[0]?.count ?? 0,
+          products: c.products || [],
+          productCount: c.products?.length ?? 0,
           subcategories: this.sortSubcategoriesByOrder(Array.from(mergedMap.values()), catKey)
         };
       })
@@ -758,7 +759,7 @@ export const productService = {
     try {
       let query = supabase
         .from('products')
-        .select('product_id, name, description, care_instructions, price, compare_price, stock, image_url, images, sizes, colors, frame_shape, frame_measurements, category_id, categories(name), has_variants, subcategory_id, subcategories(name), product_variants(variant_id, price, compare_price, stock, images, color, size)')
+        .select('product_id, name, description, care_instructions, price, compare_price, stock, image_url, images, sizes, colors, frame_shape, frame_measurements, gender, category_id, categories(name), has_variants, subcategory_id, subcategories(name), product_variants(variant_id, price, compare_price, stock, images, color, size)')
         .eq('is_active', true)
         .order('created_at', { ascending: false });
 
@@ -784,7 +785,7 @@ export const productService = {
     if (!queryData) {
       let query = supabase
         .from('products')
-        .select('product_id, name, description, care_instructions, price, compare_price, stock, image_url, images, sizes, colors, frame_shape, frame_measurements, category_id, categories(name), has_variants, subcategory_id, product_variants(variant_id, price, compare_price, stock, images, color, size)')
+        .select('product_id, name, description, care_instructions, price, compare_price, stock, image_url, images, sizes, colors, frame_shape, frame_measurements, gender, category_id, categories(name), has_variants, subcategory_id, product_variants(variant_id, price, compare_price, stock, images, color, size)')
         .eq('is_active', true)
         .order('created_at', { ascending: false });
 

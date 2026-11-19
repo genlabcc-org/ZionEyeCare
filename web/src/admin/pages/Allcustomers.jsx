@@ -73,9 +73,6 @@ const CustomerCard = ({ customer, selected, onToggle, onViewDetail, loading }) =
           <span className="ac__checkmark" />
         </label>
         <div className="ac__mobile-name">{customer.name || customer.email?.split("@")[0] || "Customer"}</div>
-        <span className={`ac__mobile-badge ac__mobile-badge--${(customer.status || "Confirmed") === "Confirmed" ? "active" : "disabled"}`}>
-          {customer.status || "Active"}
-        </span>
       </div>
 
       <div className="ac__mobile-body">
@@ -119,7 +116,6 @@ const EMPTY_FORM = {
   orders: "",
   totalSpent: "",
   joined: "",
-  status: "Confirmed",
 };
 
 const AddCustomerModal = ({ onClose, onAdd }) => {
@@ -153,7 +149,6 @@ const AddCustomerModal = ({ onClose, onAdd }) => {
         orders: parseInt(form.orders, 10) || 0,
         totalSpent: parseFloat(form.totalSpent) || 0,
         joined: form.joined.trim() || new Date().toISOString(),
-        status: form.status,
       });
       onClose();
     } finally {
@@ -200,32 +195,15 @@ const AddCustomerModal = ({ onClose, onAdd }) => {
           </div>
         </div>
 
-        <div className="ac__modal-row">
-          <div className="ac__field">
-            <label className="ac__field-label">Phone <span className="ac__required">*</span></label>
-            <input
-              className={`ac__field-input${errors.phone ? " ac__field-input--error" : ""}`}
-              placeholder="e.g. +91 98400 11111"
-              value={form.phone}
-              onChange={(e) => handleChange("phone", e.target.value)}
-            />
-            {errors.phone && <span className="ac__field-error">{errors.phone}</span>}
-          </div>
-          <div className="ac__field">
-            <label className="ac__field-label">Status</label>
-            <div className="ac__select-pill-wrapper" style={{ width: "100%" }}>
-              <select
-                className="ac__select-pill"
-                style={{ width: "100%" }}
-                value={form.status}
-                onChange={(e) => handleChange("status", e.target.value)}
-              >
-                <option value="Confirmed">Confirmed</option>
-                <option value="Disabled">Disabled</option>
-              </select>
-              <ChevronDown />
-            </div>
-          </div>
+        <div className="ac__field">
+          <label className="ac__field-label">Phone <span className="ac__required">*</span></label>
+          <input
+            className={`ac__field-input${errors.phone ? " ac__field-input--error" : ""}`}
+            placeholder="e.g. +91 98400 11111"
+            value={form.phone}
+            onChange={(e) => handleChange("phone", e.target.value)}
+          />
+          {errors.phone && <span className="ac__field-error">{errors.phone}</span>}
         </div>
       </div>
     </AdminModal>
@@ -386,7 +364,7 @@ const AllCustomers = ({ customers = [], loading, onViewDetail }) => {
     return c.joined?.includes("2026");
   }).length;
 
-  const activeAccounts = allCustomers.filter((c) => (c.status || "Confirmed") === "Confirmed").length;
+  const registeredAccounts = totalCustomers;
 
   const totalOrdersCount = allCustomers.reduce((s, c) => s + (c.orderCount || c.orders || 0), 0);
   const totalSpentSum = allCustomers.reduce((s, c) => s + (Number(c.totalSpent) || 0), 0);
@@ -487,11 +465,11 @@ const AllCustomers = ({ customers = [], loading, onViewDetail }) => {
           <div className="ac__stat-sub">{currentMonthYear}</div>
         </div>
 
-        {/* Card 3: Active Accounts (Pastel Lilac Purple) */}
+        {/* Card 3: Registered Accounts (Pastel Lilac Purple) */}
         <div className="ac__stat-card ac__stat-card--purple">
-          <div className="ac__stat-label">Active Accounts</div>
-          <div className="ac__stat-value">{loading ? "—" : activeAccounts}</div>
-          <div className="ac__stat-sub">Enabled</div>
+          <div className="ac__stat-label">Registered Accounts</div>
+          <div className="ac__stat-value">{loading ? "—" : registeredAccounts}</div>
+          <div className="ac__stat-sub">All customers</div>
         </div>
 
         {/* Card 4: Avg. order value (Pastel Sky Blue) */}

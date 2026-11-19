@@ -318,7 +318,7 @@
 
 .bl__toggle-btn--active {
   background: #ffffff;
-  color: #0A2582;
+  color: #3B71C1;
   font-weight: 600;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
@@ -425,7 +425,7 @@
 }
 
 .bl__hero-dot--active {
-  background: var(--blue-primary, #002277);
+  background: var(--blue-primary, #3B71C1);
   opacity: 1;
 }
 
@@ -452,7 +452,7 @@
 
 .bl__carousel-arrow:hover {
   background: #ffffff;
-  color: var(--blue-primary, #002277);
+  color: var(--blue-primary, #3B71C1);
   transform: translateY(-50%) scale(1.08);
 }
 

@@ -68,8 +68,8 @@
 }
 
 .aa__input:focus {
-  border-color: #0A2582;
-  box-shadow: 0 0 0 2px rgba(10, 37, 130, 0.1);
+  border-color: #3B71C1;
+  box-shadow: 0 0 0 2px rgba(81, 173, 232, 0.1);
 }
 
 
@@ -137,8 +137,8 @@
   font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
-  background: #eff6ff;
-  color: #2563eb;
+  background-color: rgba(81, 173, 232, 0.12);
+  color: #3B71C1;
   padding: 2px 7px;
   border-radius: 999px;
   letter-spacing: 0.5px;

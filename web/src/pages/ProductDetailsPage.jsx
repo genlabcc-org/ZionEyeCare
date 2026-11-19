@@ -1391,20 +1391,21 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
 
           {/* Action Buttons */}
           <div className="dp-action-buttons-group">
+            <div className="dp-purchase-actions">
+              <button type="button" className="dp-lens-select-btn" disabled={!productLensOptions.length} onClick={() => { setLensDrawerOpen(true); setLensStep(1); }}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="7" cy="13" r="4" /><circle cx="17" cy="13" r="4" /><path d="M11 13h2M3 13l1-5h3M21 13l-1-5h-3" /></svg>
+                {productLensOptions.length ? "Select Lens" : "Lens Not Available"}
+              </button>
+            </div>
             <button
               type="button"
               className={`dp-add-cart-btn ${isCurrentProductInCart ? 'in-cart' : ''}`}
               disabled={!canAddToCart || isCurrentProductInCart}
               onClick={handleAddToCart}
             >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="9" cy="20" r="1" /><circle cx="19" cy="20" r="1" /><path d="M2 3h3l2.2 11.2a2 2 0 0 0 2 1.6h8.9a2 2 0 0 0 1.9-1.4L22 7H6" /></svg>
               {canAddToCart ? (isCurrentProductInCart ? "ALREADY IN CART" : "ADD TO CART") : "OUT OF STOCK"}
             </button>
-
-            <div className="dp-purchase-actions">
-              <button type="button" className="dp-lens-select-btn" disabled={!productLensOptions.length} onClick={() => { setLensDrawerOpen(true); setLensStep(1); }}>
-                {productLensOptions.length ? "Select Lens" : "Lens Not Available"}
-              </button>
-            </div>
           </div>
 
           {lensDrawerOpen && (

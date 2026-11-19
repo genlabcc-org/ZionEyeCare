@@ -7,7 +7,7 @@ export default function ProductFilter({
   availableCategories = [],
   selectedCategories = [],
   onCategoryToggle,
-  // backwards compatibility aliases
+  availableGenders = [],
   selectedGenders = [],
   onGenderToggle,
   availableSubcategories = [],
@@ -27,9 +27,8 @@ export default function ProductFilter({
   onMobileClose,
   totalCount,
 }) {
-  // Normalize categories
-  const activeCategories = selectedCategories.length > 0 ? selectedCategories : selectedGenders;
-  const handleCategoryClick = onCategoryToggle || onGenderToggle;
+  const activeCategories = selectedCategories;
+  const handleCategoryClick = onCategoryToggle;
 
   // Normalize category objects: [{ name, count, id }]
   const categoryItems = (availableCategories || []).map((cat) => {
@@ -194,6 +193,21 @@ export default function ProductFilter({
                   </span>
                 </label>
               );
+            })}
+          </div>
+        </div>
+      )}
+
+      {availableGenders.length > 0 && (
+        <div className="filter-group">
+          <h3 className="filter-heading">Gender</h3>
+          <div className="filter-options">
+            {availableGenders.map((gender) => {
+              const value = typeof gender === "string" ? gender : gender.value;
+              const label = typeof gender === "string" ? gender : gender.label;
+              const count = typeof gender === "string" ? null : gender.count;
+              const isChecked = selectedGenders.some((selected) => String(selected).toLowerCase() === String(value).toLowerCase());
+              return <label key={value} className="custom-filter-checkbox"><input type="checkbox" checked={isChecked} onChange={() => onGenderToggle?.(value)} /><span className="checkbox-box"></span><span className="checkbox-text">{label}{count != null && <span className="filter-count"> ({count})</span>}</span></label>;
             })}
           </div>
         </div>

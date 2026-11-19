@@ -215,8 +215,8 @@
 
 .ao__dd-btn--selected {
   border-color: #93c5fd;
-  background-color: #eff6ff;
-  color: #1d4ed8;
+  background-color: rgba(81, 173, 232, 0.12);
+  color: #3B71C1;
   font-weight: 500;
 }
 
@@ -227,7 +227,7 @@
 }
 
 .ao__dd-btn--selected .ao__dd-label {
-  color: #2563eb;
+  color: #3B71C1;
 }
 
 .ao__dd-val {
@@ -242,7 +242,7 @@
 }
 
 .ao__dd-btn--selected .ao__dd-val {
-  color: #1d4ed8;
+  color: #3B71C1;
   font-weight: 600;
 }
 
@@ -280,9 +280,9 @@
 }
 
 .ao__dd-item--active {
-  color: #1d4ed8;
+  color: #3B71C1;
   font-weight: 600;
-  background: #eff6ff;
+  background-color: rgba(81, 173, 232, 0.12);
 }
 
 /* Filter button */
@@ -312,8 +312,8 @@
 }
 
 .ao__filter-btn--active {
-  background-color: #eff6ff;
-  color: #0a2582;
+  background-color: rgba(81, 173, 232, 0.12);
+  color: #3B71C1;
   border-color: #bfdbfe;
 }
 
@@ -352,8 +352,8 @@
 }
 
 .ao__search-box:focus-within {
-  border-color: #2563eb !important;
-  box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1) !important;
+  border-color: #3B71C1 !important;
+  box-shadow: 0 0 0 2px rgba(81, 173, 232, 0.1) !important;
   width: 215px !important;
 }
 
@@ -471,7 +471,7 @@
   width: 18px;
   height: 18px;
   border-radius: 4px;
-  accent-color: #0A2582;
+  accent-color: #3B71C1;
   cursor: pointer;
 }
 
@@ -546,7 +546,7 @@
 }
 
 .ao__view-link:hover {
-  color: #0A2582;
+  color: #3B71C1;
 }
 
 /* ── Footer / Pagination ── */
@@ -571,11 +571,11 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: #0A2582;
+  color: #3B71C1;
   font-size: 13px;
   font-weight: 600;
   padding: 6px 14px;
-  background: #EFF6FF;
+  background-color: rgba(81, 173, 232, 0.12);
   border: 1px solid #BFDBFE;
   border-radius: 20px;
 }
@@ -639,13 +639,13 @@
 }
 
 .ao__pg-num:hover {
-  border-color: #0A2582;
-  color: #0A2582;
+  border-color: #3B71C1;
+  color: #3B71C1;
 }
 
 .ao__pg-num--active {
-  background: #0A2582;
-  border-color: #0A2582;
+  background: #3B71C1;
+  border-color: #3B71C1;
   color: #ffffff;
   font-weight: 600;
 }
@@ -705,8 +705,8 @@
 .ao__mobile-selected-badge {
   font-size: 11.5px;
   font-weight: 600;
-  color: #0A2582;
-  background: #EFF6FF;
+  color: #3B71C1;
+  background-color: rgba(81, 173, 232, 0.12);
   padding: 3px 10px;
   border-radius: 12px;
 }
@@ -862,7 +862,7 @@
 }
 
 .ao__toast--info {
-  border-left: 4px solid #3b82f6;
+  border-left: 4px solid #51ADE8;
 }
 
 .ao__toast-icon {
@@ -980,8 +980,8 @@
 }
 
 .ao__batch-print-btn {
-  background: var(--admin-primary, #002277);
-  border-color: var(--admin-primary, #002277);
+  background: var(--admin-primary, #3B71C1);
+  border-color: var(--admin-primary, #3B71C1);
 }
 
 .ao__btn-badge {
@@ -1226,7 +1226,7 @@
   gap: 6px;
   padding: 8px 18px;
   border-radius: 8px;
-  background: var(--admin-primary, #002277);
+  background: var(--admin-primary, #3B71C1);
   color: #ffffff;
   border: none;
   font-size: 13px;

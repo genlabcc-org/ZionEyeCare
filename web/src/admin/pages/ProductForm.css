@@ -52,7 +52,7 @@
   font-size: 13px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease;
   white-space: nowrap;
 }
 
@@ -63,12 +63,12 @@
 }
 
 .ap-header-clear-btn:active {
-  transform: translateY(1px);
+  background: #fee2e2;
 }
 
 .ap-header-variant-btn {
   white-space: nowrap;
-  background: var(--admin-primary, #0A2582);
+  background-color: var(--admin-primary, #3B71C1);
   color: #ffffff;
   border: none;
   height: 38px;
@@ -81,17 +81,18 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  transition: background 0.15s ease, transform 0.15s ease;
+  box-shadow: none;
+  transition: background-color 0.15s ease;
   outline: none;
 }
 
 .ap-header-variant-btn:hover {
-  background: var(--admin-primary-hover, #071c68);
+  background-color: var(--admin-primary-hover, #2f5ea3);
   color: #ffffff;
 }
 
 .ap-header-variant-btn:active {
-  transform: translateY(1px);
+  background-color: #284f88;
 }
 
 .btn-draft {
@@ -284,7 +285,7 @@
 
 .cmp-add-size-btn {
   white-space: nowrap;
-  background: var(--admin-primary, #0A2582);
+  background: var(--admin-primary, #3B71C1);
   color: #ffffff;
   border: none;
   height: 42px;
@@ -301,7 +302,7 @@
 }
 
 .cmp-add-size-btn:hover {
-  background: var(--admin-primary-hover, #071c68);
+  background: var(--admin-primary-hover, #2f5ea3);
 }
 
 /* ── Quick Size Preset Chips ── */
@@ -339,9 +340,9 @@
 }
 
 .cmp-quick-size-chip.is-added {
-  background: #eff6ff;
+  background-color: rgba(81, 173, 232, 0.12);
   border-color: #bfdbfe;
-  color: #1d4ed8;
+  color: #3B71C1;
   cursor: default;
   opacity: 0.8;
 }
@@ -606,7 +607,7 @@
 }
 
 .cmp-toggle--on {
-  background: var(--admin-primary, #0A2582) !important;
+  background: var(--admin-primary, #3B71C1) !important;
 }
 
 .cmp-toggle-knob {
@@ -1029,9 +1030,9 @@
 }
 
 .cmp-table-upload-btn:hover {
-  border-color: var(--admin-primary, #0A2582);
-  color: var(--admin-primary, #0A2582);
-  background: #eff6ff;
+  border-color: var(--admin-primary, #3B71C1);
+  color: var(--admin-primary, #3B71C1);
+  background-color: rgba(81, 173, 232, 0.12);
 }
 
 .cmp-table-upload-btn.cmp-upload--error {
@@ -1055,7 +1056,7 @@
 }
 
 .cmp-table-input:focus {
-  border-color: var(--admin-primary, #0A2582);
+  border-color: var(--admin-primary, #3B71C1);
 }
 
 .cmp-table-del-btn {

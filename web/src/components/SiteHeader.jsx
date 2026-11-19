@@ -21,14 +21,14 @@ const buildCategoryNavItems = (categories = []) =>
   (categories || [])
     .filter((c) => c && c.is_active !== false)
     .map((c) => {
-      const subs = (c.subcategories || [])
-        .filter((s) => s && s.is_active !== false)
-        .map((s) => ({
-          id: s.subcategory_id ?? s.id,
-          name: s.name,
-          slug: s.slug || (s.name ? s.name.toLowerCase().replace(/\s+/g, "-") : ""),
-          icon: s.image_url || s.image || s.icon || null,
-        }));
+      const genders = [...new Set((c.products || [])
+        .map((product) => String(product?.gender || "universal").toLowerCase())
+        .filter((gender) => ["men", "women", "universal"].includes(gender)))];
+      const subs = genders.map((gender) => ({
+        id: `gender-${gender}`,
+        name: gender === "men" ? "Men" : gender === "women" ? "Women" : "Universal",
+        gender,
+      }));
 
       return {
         id: c.category_id ?? c.id,
@@ -510,6 +510,10 @@ export default function SiteHeader({ activeLink = "", onLinkClick }) {
       } else {
         navigate(item.path);
       }
+      return;
+    }
+    if (sub?.gender) {
+      navigate(`${getNavPath(item.name, categories)}?gender=${encodeURIComponent(sub.gender)}`);
       return;
     }
     const subName = typeof sub === "object" ? (sub.name || sub.slug) : sub;

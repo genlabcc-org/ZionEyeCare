@@ -95,7 +95,7 @@ const HamburgerIcon = ({ open }) =>
 // ── Menu Config ─────────────────────────────────────────────────
 const menuItems = [
   { id: "dashboard", label: "Dashboard", path: "/admin" },
-  { id: "product", label: "Products", path: "/admin/products" },
+  { id: "product", label: "Frames", path: "/admin/products" },
   { id: "category", label: "Category", path: "/admin/categories" },
   { id: "lens", label: "Lenses", path: "/admin/lenses" },
   { id: "order", label: "Orders", path: "/admin/orders" },
@@ -1014,11 +1014,11 @@ const TotalCustomersChart = ({ orders = [], customers = [], loading = false }) =
             strokeLinecap="round"
           />
 
-          {/* Curve 3: Solid Navy Blue Curve (Revenue) */}
+          {/* Curve 3: Solid Theme Blue Curve (Revenue) */}
           <path
             d={chartData.revPath}
             fill="none"
-            stroke="#0A2582"
+            stroke="#3B71C1"
             strokeWidth="3"
             strokeLinecap="round"
           />
@@ -1026,8 +1026,8 @@ const TotalCustomersChart = ({ orders = [], customers = [], loading = false }) =
           {/* Highlight Dots on active/hovered points */}
           {activePoint && (
             <>
-              <circle cx={activePoint.x} cy={activePoint.y} r="8" fill="#0A2582" opacity="0.18" />
-              <circle cx={activePoint.x} cy={activePoint.y} r="4.5" fill="#0A2582" stroke="#ffffff" strokeWidth="2" />
+              <circle cx={activePoint.x} cy={activePoint.y} r="8" fill="#51ADE8" opacity="0.22" />
+              <circle cx={activePoint.x} cy={activePoint.y} r="4.5" fill="#3B71C1" stroke="#ffffff" strokeWidth="2" />
             </>
           )}
 
@@ -1098,7 +1098,7 @@ const SalesByCategoryCard = ({ orders = [], products = [], categories = [], load
   const [expandedCategories, setExpandedCategories] = useState({});
 
   const { categories: categorySales, subcategories: subcategorySales } = useMemo(() => {
-    const palette = ["#0A2582", "#2563EB", "#059669", "#D97706", "#DC2626", "#7C3AED", "#DB2777", "#0891B2"];
+    const palette = ["#3B71C1", "#51ADE8", "#059669", "#D97706", "#DC2626", "#7C3AED", "#DB2777", "#0891B2"];
 
     // 1. Build lookup maps from products & categories
     const prodCatMap = {};
@@ -1406,7 +1406,7 @@ const PopularProductCard = ({ products = [], orders = [], loading = false }) => 
   return (
     <div className="dc__card">
       <div className="dc__card-header" style={{ marginBottom: "14px" }}>
-        <h2 className="dc__card-title">Popular Product</h2>
+        <h2 className="dc__card-title">Popular Frames</h2>
       </div>
 
       <div className="dc__popular-table-wrap">
@@ -1414,7 +1414,7 @@ const PopularProductCard = ({ products = [], orders = [], loading = false }) => 
           <table className="dc__popular-table">
             <thead>
               <tr>
-                <th style={{ width: "55%" }}>Product</th>
+                <th style={{ width: "55%" }}>Frame</th>
                 <th style={{ width: "25%" }}>Price</th>
                 <th style={{ width: "20%", textAlign: "left" }}>Sales</th>
               </tr>
@@ -1448,7 +1448,7 @@ const PopularProductCard = ({ products = [], orders = [], loading = false }) => 
           </table>
         ) : (
           <div style={{ color: "#94a3b8", fontSize: "13px", padding: "20px 0", textAlign: "center" }}>
-            No products found in catalog.
+            No frames found in catalog.
           </div>
         )}
       </div>
@@ -1463,8 +1463,8 @@ const RecentOrdersCard = ({ orders = [], loading = false }) => {
     pending: { bg: "#FEF9C3", color: "#A16207" },
     "pending booking": { bg: "#FEF9C3", color: "#A16207" },
     booked: { bg: "#EDE9FE", color: "#6D28D9" },
-    shipped: { bg: "#DBEAFE", color: "#1D4ED8" },
-    "in transit": { bg: "#DBEAFE", color: "#1D4ED8" },
+    shipped: { bg: "#DBEAFE", color: "#3B71C1" },
+    "in transit": { bg: "#DBEAFE", color: "#3B71C1" },
     delivered: { bg: "#DCFCE7", color: "#15803D" },
     confirmed: { bg: "#E0F2FE", color: "#0284C7" },
     cancelled: { bg: "#F1F5F9", color: "#64748B" },
@@ -1543,64 +1543,6 @@ const RecentOrdersCard = ({ orders = [], loading = false }) => {
   );
 };
 
-const AddNewProductCard = ({ categories = [] }) => {
-  const navigate = useNavigate();
-
-  const defaultCategories = [
-    { name: "Men", image: "/src/assets/pro1.webp" },
-    { name: "Women", image: "/src/assets/pro2.webp" },
-  ];
-
-  const catList = useMemo(() => {
-    if (categories && categories.length >= 2) {
-      return categories.slice(0, 2).map((c, i) => ({
-        name: c.name || (i === 0 ? "Men" : "Women"),
-        image: c.image_url || (i === 0 ? "/src/assets/pro1.webp" : "/src/assets/pro2.webp")
-      }));
-    }
-    return defaultCategories;
-  }, [categories]);
-
-  return (
-    <div className="dc__card">
-      <div className="dc__card-header" style={{ marginBottom: "4px" }}>
-        <h2 className="dc__card-title">Add New Product</h2>
-        <button onClick={() => navigate("/admin/products/add")} className="dc__add-new-btn">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <circle cx="12" cy="12" r="10" />
-            <line x1="12" y1="8" x2="12" y2="16" />
-            <line x1="8" y1="12" x2="16" y2="12" />
-          </svg>
-          <span>Add New</span>
-        </button>
-      </div>
-
-      <div className="dc__card-subtitle">Categories</div>
-
-      <div className="dc__category-nav-list">
-        {catList.map((cat, idx) => (
-          <div
-            key={idx}
-            className="dc__category-nav-item"
-            onClick={() => navigate(`/admin/products`)}
-          >
-            <div className="dc__category-nav-left">
-              <img
-                src={cat.image}
-                alt={cat.name}
-                className="dc__category-nav-img"
-                onError={(e) => { e.currentTarget.src = "/src/assets/cart/bangle1.webp"; }}
-              />
-              <span className="dc__category-nav-title">{cat.name}</span>
-            </div>
-            <span className="dc__category-nav-arrow">›</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-};
-
 const DashboardHome = ({ orders = [], customers = [], products = [], categories = [], loading = false }) => {
   const navigate = useNavigate();
 
@@ -1670,7 +1612,7 @@ const DashboardHome = ({ orders = [], customers = [], products = [], categories 
           onClick={() => navigate("/admin/orders")}
         />
         <StatCard
-          label="Total Products"
+          label="Total Frames"
           value={loading ? "—" : stats.totalProducts.toLocaleString("en-IN")}
           showTrend={false}
           loading={loading}
@@ -1689,7 +1631,6 @@ const DashboardHome = ({ orders = [], customers = [], products = [], categories 
         <PopularProductCard products={products} orders={orders} loading={loading} />
         <div className="dc__bottom-right-col">
           <RecentOrdersCard orders={orders} loading={loading} />
-          <AddNewProductCard categories={categories} />
         </div>
       </div>
     </div>
@@ -2120,9 +2061,9 @@ const Dashboard = () => {
 
     if (currentPath === "/admin/products/add" || currentPath === "/admin/products/add-multiple" || currentPath === "/admin/products/edit-multiple") {
       const hasId = editingProduct || new URLSearchParams(location.search).get("id") || location.state?.editingProductId;
-      return hasId ? "Edit Product" : "Add Product";
+      return hasId ? "Edit Frame" : "Add Frame";
     }
-    if (currentPath.startsWith("/admin/products")) return "All Products";
+    if (currentPath.startsWith("/admin/products")) return "All Frames";
 
     if (currentPath === "/admin/categories/add") return editingCategory ? "Edit Category" : "Add Category";
     if (currentPath === "/admin/subcategories/new") {
@@ -2177,10 +2118,10 @@ const Dashboard = () => {
 
     if (currentPath === "/admin/products/add" || currentPath === "/admin/products/add-multiple" || currentPath === "/admin/products/edit-multiple") {
       const hasId = editingProduct || new URLSearchParams(location.search).get("id") || location.state?.editingProductId;
-      return hasId ? "Update eyewear details, frame specs, variants, inventory, and pricing" : "Add a new eyewear product to your catalog with frame specs, colors, and sizes";
+      return hasId ? "Update frame details, specs, variants, inventory, and pricing" : "Add a new frame to your catalog with specs, colors, and sizes";
     }
     if (currentPath.startsWith("/admin/products")) {
-      return "Manage, search, and organize your store's product catalog";
+      return "Manage, search, and organize your frame catalog";
     }
 
     if (currentPath === "/admin/categories/add") {
@@ -2630,7 +2571,7 @@ const Dashboard = () => {
                   <line x1="12" y1="5" x2="12" y2="19" />
                   <line x1="5" y1="12" x2="19" y2="12" />
                 </svg>
-                Add Product
+                Add Frame
               </button>
             </div>
           )}
@@ -2925,7 +2866,7 @@ const Dashboard = () => {
         {/* Main Content - React Router Routes */}
         <main className="db__main">
           <Routes>
-            <Route path="/" element={<DashboardHome orders={orders} customers={customers} products={products} categories={categories} loading={adminDataLoading} />} />
+            <Route path="/" element={<DashboardHome orders={orders} customers={customers} products={products} loading={adminDataLoading} />} />
             <Route path="/analytics" element={<Analytics orders={orders} customers={customers} products={products} loading={adminDataLoading} />} />
 
             {/* Products */}

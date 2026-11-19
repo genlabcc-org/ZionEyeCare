@@ -949,8 +949,8 @@ const Invoices = ({ orders = [], loading = false }) => {
             label: "All Invoices",
             filterVal: "All Invoices",
             val: localOrders.length,
-            dot: "#0A2582",
-            color: "#0A2582",
+            dot: "#3B71C1",
+            color: "#3B71C1",
             bg: "#EFF6FF",
           },
           {

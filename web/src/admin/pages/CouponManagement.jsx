@@ -498,7 +498,7 @@ export default function CouponManagement() {
                           {coupon.usage_limit ? ` / ${coupon.usage_limit}` : " used"}
                         </span>
                         {coupon.per_user_limit && (
-                          <div style={{ color: "#0A2582", fontSize: "11.5px", marginTop: "2px", fontWeight: 500 }}>
+                          <div style={{ color: "#3B71C1", fontSize: "11.5px", marginTop: "2px", fontWeight: 500 }}>
                             {coupon.per_user_limit}x per user
                           </div>
                         )}

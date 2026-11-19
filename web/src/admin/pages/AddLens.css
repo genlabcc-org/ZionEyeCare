@@ -142,7 +142,7 @@
 
 .al-input:focus {
   outline: none;
-  border-color: var(--admin-primary, #0A2582);
+  border-color: var(--admin-primary, #3B71C1);
 }
 
 .al-input--error {
@@ -221,7 +221,7 @@
   border: none;
   border-radius: 0;
   background: transparent;
-  color: var(--admin-primary, #0A2582);
+  color: var(--admin-primary, #3B71C1);
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -229,7 +229,7 @@
 }
 
 .al-add-another-btn:hover {
-  color: var(--admin-primary-hover, #071c68);
+  color: var(--admin-primary-hover, #2f5ea3);
   text-decoration: underline;
 }
 
@@ -263,7 +263,7 @@
   padding: 0 20px;
   border: none;
   border-radius: 7px;
-  background: var(--admin-primary, #0A2582);
+  background: var(--admin-primary, #3B71C1);
   color: #ffffff;
   font-size: 13px;
   font-weight: 500;
@@ -271,7 +271,7 @@
 }
 
 .al-btn-save:hover {
-  background: var(--admin-primary-hover, #071c68);
+  background: var(--admin-primary-hover, #2f5ea3);
 }
 
 .al-btn-save:disabled,
