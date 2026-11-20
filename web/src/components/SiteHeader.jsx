@@ -770,7 +770,7 @@ export default function SiteHeader({ activeLink = "", onLinkClick }) {
                 className="mobile-sidebar-admin-btn"
               >
                 <div className="mobile-sidebar-admin-btn-left">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <svg width="13.5" height="13.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="3" y="3" width="7" height="7" />
                     <rect x="14" y="3" width="7" height="7" />
                     <rect x="14" y="14" width="7" height="7" />
@@ -778,9 +778,6 @@ export default function SiteHeader({ activeLink = "", onLinkClick }) {
                   </svg>
                   <span>Admin Panel</span>
                 </div>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="admin-arrow-icon">
-                  <path d="M9 18l6-6-6-6" />
-                </svg>
               </Link>
             </div>
           )}

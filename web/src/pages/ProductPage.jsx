@@ -49,6 +49,13 @@ const getProductColors = (product) => {
   return unique;
 };
 
+const cleanNum = (val) => {
+  if (val == null) return null;
+  if (typeof val === 'number') return isNaN(val) ? null : val;
+  const n = Number(String(val).replace(/[^0-9.]/g, ''));
+  return isNaN(n) ? null : n;
+};
+
 // Loading Skeleton
 const ProductSkeleton = () => <SkeletonProductCard />;
 
@@ -217,6 +224,10 @@ export default function ProductPage({ category = "Trending" }) {
     selectedSubcategories.forEach(sub => {
       chips.push({ label: sub, onRemove: () => handleSubcategoryToggle(sub) });
     });
+    selectedGenders.forEach(gender => {
+      const gLabel = gender.charAt(0).toUpperCase() + gender.slice(1);
+      chips.push({ label: gLabel, onRemove: () => handleGenderToggle(gender) });
+    });
     selectedFabrics.forEach(fab => {
       chips.push({ label: fab, onRemove: () => handleFabricToggle(fab) });
     });
@@ -224,7 +235,7 @@ export default function ProductPage({ category = "Trending" }) {
       chips.push({ label: `Size: ${size}`, onRemove: () => handleSizeToggle(size) });
     });
     return chips;
-  }, [sortBy, selectedCategories, selectedSubcategories, selectedFabrics, selectedSizes]);
+  }, [sortBy, selectedCategories, selectedSubcategories, selectedGenders, selectedFabrics, selectedSizes]);
 
   // Dynamically compute real categories from Supabase with live counts
   const availableCategories = useMemo(() => {
@@ -251,6 +262,46 @@ export default function ProductPage({ category = "Trending" }) {
     });
     return Array.from(catMap.entries()).map(([name, count]) => ({ id: name, name, count }));
   }, [allCategories, products]);
+
+  // Lookup maps between category ID and name from allCategories
+  const categoryLookup = useMemo(() => {
+    const idToName = new Map();
+    const nameToIds = new Map();
+    (allCategories || []).forEach(c => {
+      const cId = c.category_id ?? c.id;
+      const cName = (c.name || "").trim();
+      if (cId != null && cName) {
+        idToName.set(String(cId), cName);
+        const low = cName.toLowerCase();
+        if (!nameToIds.has(low)) nameToIds.set(low, []);
+        nameToIds.get(low).push(String(cId));
+      }
+    });
+    return { idToName, nameToIds };
+  }, [allCategories]);
+
+  // Helper to match a product against selected categories
+  const isProductInCategory = useMemo(() => {
+    return (product, cats) => {
+      if (!cats || cats.length === 0) return true;
+      const pCat = String(
+        product.category ||
+        (product.category_id != null ? categoryLookup.idToName.get(String(product.category_id)) : "") ||
+        (product.categories?.name || "")
+      ).trim().toLowerCase();
+      const pCatId = product.category_id != null ? String(product.category_id) : "";
+
+      return cats.some(cat => {
+        const cLow = String(cat || "").trim().toLowerCase();
+        if (!cLow) return false;
+        if (pCat && pCat === cLow) return true;
+        if (pCatId && pCatId === cLow) return true;
+        const matchingIds = categoryLookup.nameToIds.get(cLow) || [];
+        if (pCatId && matchingIds.includes(pCatId)) return true;
+        return false;
+      });
+    };
+  }, [categoryLookup]);
 
   // Lookup maps between subcategory ID and name from allCategories
   const subcategoryLookup = useMemo(() => {
@@ -365,13 +416,61 @@ export default function ProductPage({ category = "Trending" }) {
   }, [products]);
 
   // Dynamically compute real sizes from product catalog with live counts
+  // When category or gender is selected, only show sizes available in those selections
   const availableSizes = useMemo(() => {
+    let targetProducts = products;
+
+    if (selectedCategories.length > 0) {
+      targetProducts = targetProducts.filter(p => isProductInCategory(p, selectedCategories));
+    }
+
+    if (selectedGenders.length > 0) {
+      targetProducts = targetProducts.filter(p => {
+        const pGen = String(p.gender || "universal").toLowerCase();
+        return selectedGenders.some(g => {
+          const gLow = String(g).toLowerCase();
+          return pGen === gLow || (gLow === "men" && pGen === "male") || (gLow === "women" && pGen === "female");
+        });
+      });
+    }
+
     const sizeCounts = new Map();
-    products.forEach(p => {
-      const pSizes = Array.isArray(p.sizes) ? p.sizes : [];
-      pSizes.forEach(s => {
-        const str = String(s).trim();
-        if (str) sizeCounts.set(str, (sizeCounts.get(str) || 0) + 1);
+    targetProducts.forEach(p => {
+      const prodSizes = new Set();
+      if (Array.isArray(p.sizes)) {
+        p.sizes.forEach(s => {
+          const str = String(s || "").trim();
+          if (str) prodSizes.add(str);
+        });
+      } else if (typeof p.sizes === "string" && p.sizes.trim()) {
+        try {
+          const parsed = JSON.parse(p.sizes);
+          if (Array.isArray(parsed)) parsed.forEach(s => {
+            const str = String(s || "").trim();
+            if (str) prodSizes.add(str);
+          });
+          else p.sizes.split(",").forEach(s => {
+            const str = String(s || "").trim();
+            if (str) prodSizes.add(str);
+          });
+        } catch {
+          p.sizes.split(",").forEach(s => {
+            const str = String(s || "").trim();
+            if (str) prodSizes.add(str);
+          });
+        }
+      }
+      if (Array.isArray(p.product_variants)) {
+        p.product_variants.forEach(v => {
+          if (v?.size) {
+            const str = String(v.size || "").trim();
+            if (str) prodSizes.add(str);
+          }
+        });
+      }
+
+      prodSizes.forEach(size => {
+        sizeCounts.set(size, (sizeCounts.get(size) || 0) + 1);
       });
     });
 
@@ -388,7 +487,24 @@ export default function ProductPage({ category = "Trending" }) {
     }
 
     return [];
-  }, [products]);
+  }, [products, selectedCategories, selectedGenders, isProductInCategory]);
+
+  // Auto-deselect sizes that are no longer available when category or gender filter changes
+  useEffect(() => {
+    if (selectedSizes.length > 0) {
+      if (availableSizes.length === 0) {
+        if (selectedCategories.length > 0 || selectedGenders.length > 0) {
+          setSelectedSizes([]);
+        }
+      } else {
+        const validSet = new Set(availableSizes.map(s => String(s.size).toLowerCase()));
+        const validSelected = selectedSizes.filter(s => validSet.has(String(s).toLowerCase()));
+        if (validSelected.length !== selectedSizes.length) {
+          setSelectedSizes(validSelected);
+        }
+      }
+    }
+  }, [availableSizes, selectedCategories, selectedGenders, selectedSizes]);
 
   // Real Filter & Sort Logic
   const filteredProducts = useMemo(() => {
@@ -407,12 +523,7 @@ export default function ProductPage({ category = "Trending" }) {
 
       // Real category filter
       if (selectedCategories.length > 0) {
-        const pCat = String(product.category || "").toLowerCase();
-        const matchesCategory = selectedCategories.some(cat => {
-          const cLow = String(cat).toLowerCase();
-          return pCat === cLow || String(product.category_id) === String(cat);
-        });
-        if (!matchesCategory) return false;
+        if (!isProductInCategory(product, selectedCategories)) return false;
       }
 
       if (selectedGenders.length > 0 && !selectedGenders.some((gender) => String(product.gender || "universal").toLowerCase() === String(gender).toLowerCase())) {
@@ -454,9 +565,25 @@ export default function ProductPage({ category = "Trending" }) {
 
       // Real size filter
       if (selectedSizes.length > 0) {
-        const prodSizes = Array.isArray(product.sizes) ? product.sizes.map(s => String(s).toLowerCase().trim()) : [];
+        const prodSizes = new Set();
+        if (Array.isArray(product.sizes)) {
+          product.sizes.forEach(s => prodSizes.add(String(s).toLowerCase().trim()));
+        } else if (typeof product.sizes === "string" && product.sizes.trim()) {
+          try {
+            const parsed = JSON.parse(product.sizes);
+            if (Array.isArray(parsed)) parsed.forEach(s => prodSizes.add(String(s).toLowerCase().trim()));
+            else product.sizes.split(",").forEach(s => prodSizes.add(String(s).toLowerCase().trim()));
+          } catch {
+            product.sizes.split(",").forEach(s => prodSizes.add(String(s).toLowerCase().trim()));
+          }
+        }
+        if (Array.isArray(product.product_variants)) {
+          product.product_variants.forEach(v => {
+            if (v?.size) prodSizes.add(String(v.size).toLowerCase().trim());
+          });
+        }
         const hasMatchingSize = selectedSizes.some(s =>
-          prodSizes.includes(String(s).toLowerCase().trim())
+          prodSizes.has(String(s).toLowerCase().trim())
         );
         if (!hasMatchingSize) return false;
       }
@@ -514,7 +641,7 @@ export default function ProductPage({ category = "Trending" }) {
     }
 
     return expanded;
-  }, [products, subcategoryParam, searchQueryParam, selectedCategories, selectedGenders, selectedSubcategories, selectedFabrics, selectedSizes, sortBy, subcategoryLookup]);
+  }, [products, subcategoryParam, searchQueryParam, selectedCategories, selectedGenders, selectedSubcategories, selectedFabrics, selectedSizes, sortBy, subcategoryLookup, isProductInCategory]);
 
   const totalPages = Math.max(1, Math.ceil(filteredProducts.length / itemsPerPage));
 
@@ -539,15 +666,17 @@ export default function ProductPage({ category = "Trending" }) {
     }
   };
 
-  const handleProductCardClick = (product, activeColor = null, cardImgUrl = null) => {
+  const handleProductCardClick = (product, activeColor = null, cardImgUrl = null, price = null, comparePrice = null) => {
     const pid = product?.product_id || product?.productId || product?.id;
     const resolvedColor = activeColor ?? product?.cardColor ?? null;
+    const resolvedPrice = price ?? product?.price;
+    const resolvedComparePrice = comparePrice ?? product?.compare_price ?? resolvedPrice;
     const formattedProduct = {
       ...product,
       ...(cardImgUrl ? { img: cardImgUrl, image: cardImgUrl } : {}),
       ...(resolvedColor ? { selectedColor: resolvedColor } : {}),
-      price: `₹${product.price}.00`,
-      original: `₹${product.compare_price || product.price}.00`,
+      price: `₹${resolvedPrice}.00`,
+      original: `₹${resolvedComparePrice}.00`,
       category
     };
     setSelectedProduct(formattedProduct);
@@ -683,10 +812,10 @@ export default function ProductPage({ category = "Trending" }) {
             <div className="trending-title-block">
               <h1 className="trending-headline">
                 {searchQueryParam
-                  ? `SEARCH: "${searchQueryParam.toUpperCase()}"`
+                  ? `Search: "${searchQueryParam}"`
                   : subcategoryParam
-                  ? subcategoryParam.toUpperCase()
-                  : (category ? category.toUpperCase() : "ALL PRODUCTS")}
+                  ? subcategoryParam
+                  : (category || "All Products")}
               </h1>
               <p className="trending-subtitle">
                 {searchQueryParam
@@ -736,6 +865,9 @@ export default function ProductPage({ category = "Trending" }) {
                 </span>
               )}
             </button>
+            <span className="trending-mobile-item-count">
+              {filteredProducts.length} {filteredProducts.length === 1 ? "Product" : "Products"}
+            </span>
           </div>
 
           {/* Active Filter Chips Scrollable Row (Mobile Only) */}
@@ -766,7 +898,7 @@ export default function ProductPage({ category = "Trending" }) {
           {/* Products Grid / Skeletons / Empty */}
           {loading ? (
             <div className="trending-products-grid">
-              {Array.from({ length: 6 }).map((_, i) => (
+              {Array.from({ length: isMobile ? 6 : 9 }).map((_, i) => (
                 <ProductSkeleton key={i} />
               ))}
             </div>
@@ -802,10 +934,31 @@ export default function ProductPage({ category = "Trending" }) {
                     : null;
                   const cardImgUrl = colorVariantImg || product.img || product.image_url;
 
+                  const matchingVariants = activeColor && Array.isArray(product.product_variants)
+                    ? product.product_variants.filter(
+                        (v) => String(v.color || "").trim().toLowerCase() === activeColor.toLowerCase()
+                      )
+                    : [];
+
+                  const validPrices = matchingVariants
+                    .map((v) => cleanNum(v.price))
+                    .filter((n) => n != null && n > 0);
+                  const cardPrice = validPrices.length > 0 ? Math.min(...validPrices) : (cleanNum(product.price) ?? 0);
+
+                  const validCompares = matchingVariants
+                    .map((v) => cleanNum(v.compare_price))
+                    .filter((n) => n != null && n > 0);
+                  const cardComparePrice = validCompares.length > 0 ? Math.max(...validCompares) : cleanNum(product.compare_price);
+
+                  const hasCutMrp = cardComparePrice != null && cardComparePrice > cardPrice;
+                  const discountPercent = hasCutMrp
+                    ? Math.round(((cardComparePrice - cardPrice) / cardComparePrice) * 100)
+                    : 0;
+
                   return (
                     <article
                       key={cardKey}
-                      onClick={() => handleProductCardClick(product, activeColor, cardImgUrl)}
+                      onClick={() => handleProductCardClick(product, activeColor, cardImgUrl, cardPrice, cardComparePrice)}
                       className="trending-card"
                     >
                       <div className="trending-image-box">
@@ -870,10 +1023,7 @@ export default function ProductPage({ category = "Trending" }) {
 
                       <div className="trending-details-box">
                         <div className="trending-details-top-row">
-                          <div className="trending-details-info">
-                            <h4 className="trending-product-name" title={displayTitle}>{displayTitle}</h4>
-                            <div className="trending-product-price">₹{product.price}</div>
-                          </div>
+                          <h4 className="trending-product-name" title={displayTitle}>{displayTitle}</h4>
                           {productColors.length > 0 && (
                             <div className="trending-card-colors" aria-label="Available colors">
                               {productColors.map((color) => {
@@ -905,6 +1055,24 @@ export default function ProductPage({ category = "Trending" }) {
                                 );
                               })}
                             </div>
+                          )}
+                        </div>
+
+                        <div className="trending-product-price-row">
+                          <span className="trending-product-price">
+                            ₹{Number(cardPrice).toLocaleString('en-IN')}
+                          </span>
+                          {hasCutMrp && (
+                            <>
+                              <span className="trending-product-mrp-cut" title="MRP">
+                                ₹{Number(cardComparePrice).toLocaleString('en-IN')}
+                              </span>
+                              {discountPercent > 0 && (
+                                <span className="trending-product-discount-badge">
+                                  {discountPercent}% OFF
+                                </span>
+                              )}
+                            </>
                           )}
                         </div>
                       </div>

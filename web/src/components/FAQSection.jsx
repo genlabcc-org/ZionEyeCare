@@ -78,7 +78,7 @@ export default function FAQSection() {
             questions
           </h2>
 
-          <div className="faq-contact-box">
+          <div className="faq-contact-box faq-contact-box--desktop">
             <p className="faq-contact-prompt">
               Need help?
               <br />
@@ -153,6 +153,26 @@ export default function FAQSection() {
               </article>
             );
           })}
+
+          {/* Contact Box placed after FAQ questions on Mobile */}
+          <div className="faq-contact-box faq-contact-box--mobile">
+            <p className="faq-contact-prompt">
+              Need help?
+              <br />
+              Get in touch with us
+            </p>
+
+            <Link
+              to="/contact"
+              className="faq-get-in-touch-btn"
+              aria-label="Get in touch with us"
+            >
+              <span>Get In Touch</span>
+              <span className="faq-btn-icon-circle">
+                <FiArrowUpRight aria-hidden="true" />
+              </span>
+            </Link>
+          </div>
         </div>
       </div>
     </section>

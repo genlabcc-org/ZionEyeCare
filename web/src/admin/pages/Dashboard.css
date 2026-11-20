@@ -284,9 +284,14 @@
 }
 
 @media (max-width: 1024px) {
+  .db__sidebar-overlay {
+    z-index: 1000010 !important;
+  }
+
   .db__sidebar {
     transform: translateX(-100%);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    z-index: 1000020 !important;
   }
 
   .db__sidebar--open {
@@ -1727,6 +1732,7 @@
 
   .db__sidebar {
     transform: translateX(-100%);
+    z-index: 1000020 !important;
   }
 
   .db__sidebar--open {

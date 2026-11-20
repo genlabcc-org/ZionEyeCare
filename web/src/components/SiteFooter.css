@@ -84,24 +84,25 @@
 
 .fw-social-links a {
   display: inline-flex;
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   align-items: center;
   justify-content: center;
   border-radius: 50%;
-  background-color: rgba(81, 173, 232, 0.18);
-  border: 1px solid rgba(81, 173, 232, 0.32);
+  background-color: rgba(81, 173, 232, 0.16);
+  border: none !important;
   color: #ffffff;
-  font-size: 17px;
+  font-size: 16px;
   text-decoration: none;
-  box-shadow: none;
-  transition: background-color 0.15s ease, border-color 0.15s ease;
+  box-shadow: none !important;
+  transition: background-color 0.15s ease, transform 0.15s ease;
 }
 
 .fw-social-links a:hover {
   background-color: #3B71C1;
-  border-color: #51ADE8;
+  border: none !important;
   color: #ffffff;
+  transform: translateY(-2px);
 }
 
 .fw-link-list {
@@ -177,10 +178,10 @@
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 640px) {
   .zion-footer {
     min-height: 0;
-    padding-top: 52px;
+    padding-top: 48px;
   }
 
   .fw-footer-container {
@@ -189,45 +190,60 @@
 
   .fw-footer-grid {
     grid-template-columns: 1fr 1fr;
-    gap: 32px 18px;
-    padding-bottom: 44px;
+    gap: 28px 18px;
+    padding-bottom: 36px;
   }
 
   .fw-brand-col {
     grid-column: 1 / -1;
+    margin-bottom: 4px;
   }
 
   .fw-brand-desc {
-    font-size: 13.5px;
+    font-size: 14px;
+    max-width: 100%;
   }
 
   .fw-socials {
-    margin-top: 26px;
+    margin-top: 22px;
   }
 
   .fw-col-title {
-    margin-bottom: 14px;
-    font-size: 14px;
+    margin-bottom: 12px;
+    font-size: 15px;
+  }
+
+  .fw-contact-col {
+    grid-column: 1 / -1;
+    margin-top: 4px;
   }
 
   .fw-link-list {
-    gap: 11px;
+    gap: 12px;
   }
 
   .fw-link-list li a {
-    font-size: 13px;
+    font-size: 14px;
+    word-break: break-word;
   }
 
   .fw-footer-bottom {
     min-height: 0;
     flex-direction: column-reverse;
-    align-items: flex-start;
-    gap: 14px;
-    padding: 24px 0 28px;
+    align-items: center;
+    text-align: center;
+    gap: 16px;
+    padding: 22px 0 26px;
+  }
+
+  .fw-copy {
+    text-align: center;
+    font-size: 12.5px;
   }
 
   .fw-legal-links {
+    justify-content: center;
     flex-wrap: wrap;
-    gap: 14px 20px;
+    gap: 12px 20px;
   }
 }

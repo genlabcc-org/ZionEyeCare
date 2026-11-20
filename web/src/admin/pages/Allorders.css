@@ -1244,6 +1244,23 @@
   cursor: not-allowed;
 }
 
+/* ── Status Select Dropdown ── */
+.ao__status-select {
+  transition: opacity 0.15s ease, box-shadow 0.15s ease;
+}
+.ao__status-select:hover:not(:disabled) {
+  filter: brightness(0.96);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+.ao__status-select:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 113, 193, 0.35);
+}
+.ao__status-select:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
 /* ── Hidden Print Area ── */
 .thermal-print-area {
   display: none;

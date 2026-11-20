@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { addProductService } from "../../services/addProductService";
 import { useStore } from "../../hooks/useStore";
 import { getColorName } from "../../utils/colorUtils";
+import { resolveThicknessPrice } from "../../utils/lensUtils";
 import { lensService } from "../../services/lensService";
 import ConfirmDialog from "./dialogs/confirmdialogs";
 import "./ProductForm.css";
@@ -280,7 +281,7 @@ const ProductForm = ({
         index: tier.index || tier.lens_index || "",
         range: tier.range || tier.power_range || "",
         bestSuitedFor: tier.bestSuitedFor || tier.best_suited_for || "",
-        addonPrice: Number(tier.basePrice ?? tier.base_price ?? 0),
+        addonPrice: resolveThicknessPrice(tier),
       }));
       return [
         ...current,
@@ -1032,11 +1033,20 @@ const ProductForm = ({
     );
     // Clear field error
     setErrors((prev) => {
-      const rowErr = prev[colorVariantId];
-      if (!rowErr || !rowErr[field]) return prev;
-      const next = { ...rowErr };
-      delete next[field];
-      return { ...prev, [colorVariantId]: next };
+      let changed = false;
+      const next = { ...prev };
+      if (field === "quantity" && next.globalStock) {
+        delete next.globalStock;
+        changed = true;
+      }
+      const rowErr = next[colorVariantId];
+      if (rowErr && rowErr[field]) {
+        const nextRow = { ...rowErr };
+        delete nextRow[field];
+        next[colorVariantId] = nextRow;
+        changed = true;
+      }
+      return changed ? next : prev;
     });
   };
 
@@ -1138,11 +1148,20 @@ const ProductForm = ({
     );
     // Clear field error
     setErrors((prev) => {
-      const rowErr = prev[defId];
-      if (!rowErr || !rowErr[field]) return prev;
-      const next = { ...rowErr };
-      delete next[field];
-      return { ...prev, [defId]: next };
+      let changed = false;
+      const next = { ...prev };
+      if (field === "quantity" && next.globalStock) {
+        delete next.globalStock;
+        changed = true;
+      }
+      const rowErr = next[defId];
+      if (rowErr && rowErr[field]) {
+        const nextRow = { ...rowErr };
+        delete nextRow[field];
+        next[defId] = nextRow;
+        changed = true;
+      }
+      return changed ? next : prev;
     });
   };
 
@@ -1252,7 +1271,7 @@ const ProductForm = ({
             variant_id: cv.variant_id || undefined,
             sizeDimension: s.size,
             color: cv.color || null,
-            stockQuantity: cv.quantity !== undefined && cv.quantity !== null ? cv.quantity : (globalStock || ""),
+            stockQuantity: cv.quantity !== undefined && cv.quantity !== null && cv.quantity !== "" ? cv.quantity : (globalStock || ""),
             minStockAlert: "0",
             price: cv.originalPrice || globalOriginalPrice || "",
             sellingPrice: cv.offerPrice || globalOfferPrice || "",
@@ -1268,7 +1287,7 @@ const ProductForm = ({
           variant_id: def.variant_id || undefined,
           sizeDimension: s.size,
           color: null,
-          stockQuantity: def.quantity !== undefined && def.quantity !== null ? def.quantity : (globalStock || ""),
+          stockQuantity: def.quantity !== undefined && def.quantity !== null && def.quantity !== "" ? def.quantity : (globalStock || ""),
           minStockAlert: "0",
           price: def.originalPrice || globalOriginalPrice || "",
           sellingPrice: def.offerPrice || globalOfferPrice || "",
@@ -1286,7 +1305,6 @@ const ProductForm = ({
     const topErrors = {};
     if (!title.trim()) topErrors.title = ["Title Cannot Be Empty"];
     if (!description.trim()) topErrors.description = ["Description Cannot Be Empty"];
-    if (!globalStock.trim()) topErrors.globalStock = ["Stock Cannot Be Empty"];
     if (sizeRows.length === 0) {
       topErrors.sizes = ["At least one frame size with a frame image is required"];
     }
@@ -1294,6 +1312,15 @@ const ProductForm = ({
     const rowErrors = {};
     const flatVariants = buildFlatVariants();
     let hasAnyImage = false;
+
+    const allVariantsMissingStock = flatVariants.length === 0 || flatVariants.every((v) => {
+      const q = v.stockQuantity;
+      return q === "" || q === null || q === undefined;
+    });
+
+    if (allVariantsMissingStock && !globalStock.trim()) {
+      topErrors.globalStock = ["Stock Cannot Be Empty"];
+    }
 
     flatVariants.forEach((v) => {
       const fieldErrors = {};
@@ -1382,7 +1409,7 @@ const ProductForm = ({
       has_variants: true,
       lens_options: lensOptions.map((lens) => ({
         ...lens,
-        thicknesses: lens.thicknesses.map((tier) => ({ ...tier, addonPrice: Number(tier.addonPrice) || 0 })),
+        thicknesses: lens.thicknesses.map((tier) => ({ ...tier, addonPrice: resolveThicknessPrice(tier) })),
       })),
     };
 
@@ -1659,7 +1686,7 @@ const ProductForm = ({
           <div className="cmp-row" style={{ paddingTop: "14px", borderTop: "1px dashed #e5e7eb" }}>
             <label className="cmp-field">
               <span className="cmp-label">
-                Common Stock <span style={{ color: "#EF4444" }}>*</span>
+                Common Stock
                 <span className="ap-total-stock-badge" title="Total stock across all variants (non-editable)">
                   Total: {computedTotalStock}
                 </span>

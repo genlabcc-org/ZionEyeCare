@@ -183,7 +183,8 @@ export default function Orders() {
               const totalItemCount = orderItems.reduce((acc, i) => acc + Number(i.quantity || i.qty || 1), 0);
               const itemsSummary = orderItems.map(i => {
                 const q = Number(i.quantity || i.qty || 1);
-                return `${i.product_name}${q > 1 ? ` (×${q})` : ''}`;
+                const lensInfo = i.lensSelection?.lensName || i.lens_selection?.lensName;
+                return `${i.product_name}${lensInfo ? ` [Lens: ${lensInfo}]` : ''}${q > 1 ? ` (×${q})` : ''}`;
               }).join(', ');
 
               const isDelivered =
@@ -289,28 +290,28 @@ export default function Orders() {
                   {/* Bottom Line: Status Badge & Actions */}
                   {(!(isCancelled && order.waybill) ||
                     ((order.status === "Pending" || order.status === "Confirmed") && !isDelivered && !isCancelled)) && (
-                    <div className="ao-order-bottom">
-                      {!(isCancelled && order.waybill) && (
-                        <span className={`ao-status-badge ao-status-badge--${statusClass}`}>
-                          {displayStatus}
-                        </span>
-                      )}
+                      <div className="ao-order-bottom">
+                        {!(isCancelled && order.waybill) && (
+                          <span className={`ao-status-badge ao-status-badge--${statusClass}`}>
+                            {displayStatus}
+                          </span>
+                        )}
 
-                      {(order.status === "Pending" || order.status === "Confirmed") &&
-                        !isDelivered &&
-                        !isCancelled && (
-                        <div className="ao-order-actions" onClick={(e) => e.stopPropagation()}>
-                          <button
-                            className="ao-cancel-btn"
-                            onClick={() => handleCancelOrder(order.id)}
-                            disabled={cancellingOrderId === order.id}
-                          >
-                            {cancellingOrderId === order.id ? 'Cancelling...' : 'Cancel'}
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                        {(order.status === "Pending" || order.status === "Confirmed") &&
+                          !isDelivered &&
+                          !isCancelled && (
+                            <div className="ao-order-actions" onClick={(e) => e.stopPropagation()}>
+                              <button
+                                className="ao-cancel-btn"
+                                onClick={() => handleCancelOrder(order.id)}
+                                disabled={cancellingOrderId === order.id}
+                              >
+                                {cancellingOrderId === order.id ? 'Cancelling...' : 'Cancel'}
+                              </button>
+                            </div>
+                          )}
+                      </div>
+                    )}
                 </div>
               );
             })}

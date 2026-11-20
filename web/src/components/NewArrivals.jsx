@@ -143,6 +143,22 @@ export default function NewArrivals({ onProductClick }) {
             firstVariantImage ||
             (Array.isArray(p.images) && p.images.length > 0 ? p.images[0] : (p.image_url || ''));
 
+          const cleanNum = (val) => {
+            if (val == null || val === '') return null;
+            const n = Number(String(val).replace(/[^0-9.]/g, ''));
+            return !isNaN(n) && n >= 0 ? n : null;
+          };
+
+          const validPrices = variants
+            .map((v) => cleanNum(v.price))
+            .filter((n) => n != null && n > 0);
+          const basePrice = validPrices.length > 0 ? Math.min(...validPrices) : (cleanNum(p.price) ?? 0);
+
+          const validCompares = variants
+            .map((v) => cleanNum(v.compare_price))
+            .filter((n) => n != null && n > 0);
+          const baseComparePrice = validCompares.length > 0 ? Math.max(...validCompares) : cleanNum(p.compare_price);
+
           // Extract colors defined by admin on product or its variants
           const rawColors = [];
           if (Array.isArray(p.colors)) {
@@ -172,10 +188,20 @@ export default function NewArrivals({ onProductClick }) {
               const matchedVar = variants.find(
                 (v) => v.color && v.color.toLowerCase() === val.toLowerCase()
               );
+              const colorVariants = variants.filter(
+                (v) => v.color && v.color.toLowerCase() === val.toLowerCase()
+              );
+              const cPrices = colorVariants.map((v) => cleanNum(v.price)).filter((n) => n != null && n > 0);
+              const cCompares = colorVariants.map((v) => cleanNum(v.compare_price)).filter((n) => n != null && n > 0);
+              const colorPrice = cPrices.length > 0 ? Math.min(...cPrices) : basePrice;
+              const colorComparePrice = cCompares.length > 0 ? Math.max(...cCompares) : baseComparePrice;
+
               extractedColors.push({
                 name: val,
                 bg: matchedVar?.color_code || getColorStyle(val),
                 image: matchedVar?.images?.[0] || null,
+                price: colorPrice,
+                compare_price: colorComparePrice,
               });
             }
           });
@@ -192,6 +218,8 @@ export default function NewArrivals({ onProductClick }) {
             images: p.images || [],
             colors: finalColors,
             has_variants: hasVariants,
+            price: basePrice,
+            compare_price: baseComparePrice,
             rawProduct: p,
           };
         });
@@ -253,6 +281,10 @@ export default function NewArrivals({ onProductClick }) {
                   <Skeleton width="50%" height="18px" borderRadius="4px" />
                   <Skeleton width="32%" height="16px" borderRadius="4px" />
                 </div>
+                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '6px' }}>
+                  <Skeleton width="28%" height="16px" borderRadius="4px" />
+                  <Skeleton width="20%" height="14px" borderRadius="4px" />
+                </div>
               </div>
             ))}
           </div>
@@ -292,11 +324,35 @@ export default function NewArrivals({ onProductClick }) {
               const remainingCount = swatches.length - 3;
               const isWishlisted = !!wishlist[product.id];
 
+              const selectedSwatch = swatches[activeSwatchIdx];
+              const displayPrice =
+                selectedSwatch?.price != null && !isNaN(selectedSwatch.price) && selectedSwatch.price > 0
+                  ? selectedSwatch.price
+                  : (product.price ?? 0);
+              const displayComparePrice =
+                selectedSwatch?.compare_price != null && !isNaN(selectedSwatch.compare_price) && selectedSwatch.compare_price > 0
+                  ? selectedSwatch.compare_price
+                  : (product.compare_price ?? null);
+
+              const hasCutMrp = displayComparePrice != null && displayComparePrice > displayPrice;
+              const discountPercent = hasCutMrp
+                ? Math.round(((displayComparePrice - displayPrice) / displayComparePrice) * 100)
+                : 0;
+
               return (
                 <article
                   key={product.id}
                   className="new-arrival-card"
-                  onClick={() => onProductClick && onProductClick(product.rawProduct || product)}
+                  onClick={() => {
+                    if (onProductClick) {
+                      onProductClick({
+                        ...(product.rawProduct || product),
+                        price: displayPrice,
+                        compare_price: displayComparePrice,
+                        selectedColor: selectedSwatch?.name || undefined,
+                      });
+                    }
+                  }}
                 >
                   <div className="new-arrival-img-box">
                     {/* Top-Left Diagonal Corner Ribbon */}
@@ -320,32 +376,52 @@ export default function NewArrivals({ onProductClick }) {
 
                   </div>
 
-                  {/* Details Bar: Product Name (Left) & Swatches (Right) */}
+                  {/* Details Bar: Product Name (Left) & Swatches (Right), plus Price & Cut MRP */}
                   <div className="new-arrival-info">
-                    <h3 className="new-arrival-name" title={product.name}>
-                      {product.name}
-                    </h3>
+                    <div className="new-arrival-info-top">
+                      <h3 className="new-arrival-name" title={product.name}>
+                        {product.name}
+                      </h3>
 
-                    {swatches.length > 0 && (
-                      <div className="new-arrival-swatches" aria-label="Available frame colors">
-                        {visibleSwatches.map((swatch, sIdx) => (
-                          <button
-                            key={sIdx}
-                            type="button"
-                            className={`new-arrival-swatch-item ${activeSwatchIdx === sIdx ? 'is-selected' : ''}`}
-                            style={{ background: swatch.bg }}
-                            onClick={(e) => handleSwatchClick(e, product.id, sIdx, swatch)}
-                            title={swatch.name}
-                            aria-label={swatch.name}
-                          />
-                        ))}
-                        {remainingCount > 0 && (
-                          <span className="new-arrival-swatch-more">
-                            +{remainingCount}
+                      {swatches.length > 0 && (
+                        <div className="new-arrival-swatches" aria-label="Available frame colors">
+                          {visibleSwatches.map((swatch, sIdx) => (
+                            <button
+                              key={sIdx}
+                              type="button"
+                              className={`new-arrival-swatch-item ${activeSwatchIdx === sIdx ? 'is-selected' : ''}`}
+                              style={{ background: swatch.bg }}
+                              onClick={(e) => handleSwatchClick(e, product.id, sIdx, swatch)}
+                              title={swatch.name}
+                              aria-label={swatch.name}
+                            />
+                          ))}
+                          {remainingCount > 0 && (
+                            <span className="new-arrival-swatch-more">
+                              +{remainingCount}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="new-arrival-price-row">
+                      <span className="new-arrival-price">
+                        ₹{Number(displayPrice).toLocaleString('en-IN')}
+                      </span>
+                      {hasCutMrp && (
+                        <>
+                          <span className="new-arrival-mrp-cut" title="MRP">
+                            ₹{Number(displayComparePrice).toLocaleString('en-IN')}
                           </span>
-                        )}
-                      </div>
-                    )}
+                          {discountPercent > 0 && (
+                            <span className="new-arrival-discount-badge">
+                              {discountPercent}% OFF
+                            </span>
+                          )}
+                        </>
+                      )}
+                    </div>
                   </div>
                 </article>
               );

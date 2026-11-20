@@ -34,16 +34,18 @@ export default function ServiceSection() {
   return (
     <section className="service-section" aria-labelledby="service-section-title">
       <div className="service-intro">
-        <span className="service-eyebrow">
-          <FiEye aria-hidden="true" />
-          Our Services
-        </span>
+        <div className="service-eyebrow">
+          <span className="service-eyebrow-icon-wrap">
+            <FiEye aria-hidden="true" />
+          </span>
+          <span className="service-eyebrow-text">Our Services</span>
+        </div>
         <h2 id="service-section-title">Clear vision starts with expert care</h2>
         <p>
           From your first eye check to the right pair of glasses, we make
           looking after your vision feel personal.
         </p>
-        <Link className="service-appointment-link" to="/contact">
+        <Link className="service-appointment-link service-appointment-desktop" to="/contact">
           Book an appointment
           <span className="service-appointment-icon">
             <FiArrowUpRight aria-hidden="true" />
@@ -65,6 +67,13 @@ export default function ServiceSection() {
           </article>
         ))}
       </div>
+
+      <Link className="service-appointment-link service-appointment-mobile" to="/contact">
+        Book an appointment
+        <span className="service-appointment-icon">
+          <FiArrowUpRight aria-hidden="true" />
+        </span>
+      </Link>
     </section>
   );
 }

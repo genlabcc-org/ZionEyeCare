@@ -7,6 +7,8 @@ import Navbar from "../components/SiteHeader";
 import Footer from "../components/SiteFooter";
 import SEO from "../components/SEO";
 import { getColorName } from "../utils/colorUtils";
+import { resolveThicknessPrice } from "../utils/lensUtils";
+import { getOriginalImageUrl } from "../utils/imageUtils";
 import "./OrderTracking.css";
 
 export default function OrderTracking() {
@@ -24,6 +26,7 @@ export default function OrderTracking() {
     location.state?.order?.shipping_address || location.state?.order?.address || null
   );
   const [addressLoading, setAddressLoading] = useState(false);
+  const [previewImage, setPreviewImage] = useState(null);
 
   useEffect(() => {
     if (!orderId) return;
@@ -171,23 +174,56 @@ export default function OrderTracking() {
     (order?.status || "").toLowerCase() === "refund completed";
   const isRefundCompleted = (order?.status || "").toLowerCase() === "refund completed";
 
+  const jsonOrderItems = Array.isArray(order?.items) ? order.items : [];
   const rawItems = (order?.order_items && order.order_items.length > 0)
     ? order.order_items
-    : [{
+    : (jsonOrderItems.length > 0 ? jsonOrderItems : [{
       product_id: order?.product_id || null,
-      product_name: order?.item_name || order?.item || "Jewelry Item",
+      product_name: order?.item_name || order?.item || "Eyewear Frame",
       quantity: order?.quantity || order?.qty || 1,
       price: order?.total_price || order?.price || 0,
       image_url: order?.image_url || location.state?.item?.image_url || location.state?.item?.img || null,
       size: order?.size || null,
       color: order?.color || null
-    }];
+    }]);
 
-  const orderItems = rawItems.map((item) => ({
-    ...item,
-    image_url: item.image_url || item.img || null,
-    product_name: item.product_name || "Jewelry Item",
-  }));
+  const orderItems = rawItems.map((item, idx) => {
+    const matchedJson = jsonOrderItems.find((ji) => String(ji.product_id || ji.productId) === String(item.product_id)) || jsonOrderItems[idx] || {};
+    const lensSelection = item.lensSelection || item.lens_selection || matchedJson.lensSelection || matchedJson.lens_selection || null;
+
+    let rawPrice = item.price;
+    let unitPrice = 0;
+    if (typeof rawPrice === "number") {
+      unitPrice = rawPrice;
+    } else if (typeof rawPrice === "string") {
+      unitPrice = parseFloat(rawPrice.replace(/[^0-9.]/g, "")) || 0;
+    }
+
+    let lensAddonPrice = Number(item.lensAddonPrice ?? item.lens_addon_price ?? matchedJson.lensAddonPrice ?? matchedJson.lens_addon_price ?? lensSelection?.addonPrice ?? 0);
+    // If lens was selected but addon price was recorded as 0 or not saved, resolve standard optical pricing
+    if (lensAddonPrice <= 0 && lensSelection) {
+      lensAddonPrice = resolveThicknessPrice(lensSelection);
+      if (unitPrice > 0 && lensAddonPrice >= unitPrice) {
+        lensAddonPrice = Math.round(unitPrice * 0.35);
+      }
+    }
+
+    const framePrice = Number(item.framePrice ?? item.frame_price ?? matchedJson.framePrice ?? matchedJson.frame_price ?? Math.max(0, unitPrice - lensAddonPrice));
+    const qty = Number(item.quantity || item.qty || 1);
+
+    return {
+      ...matchedJson,
+      ...item,
+      quantity: qty,
+      qty,
+      product_name: item.product_name || item.name || matchedJson.product_name || matchedJson.name || "Eyewear Frame",
+      image_url: item.image_url || item.img || matchedJson.image_url || matchedJson.img || null,
+      lensSelection,
+      lensAddonPrice,
+      framePrice,
+      unitPrice,
+    };
+  });
 
   const orderDate = order?.order_date || order?.date
     ? new Date(order?.order_date || order?.date).toLocaleDateString("en-IN", {
@@ -223,9 +259,29 @@ export default function OrderTracking() {
     paymentMethodStr.includes("DELIVERY") ||
     (!order?.payment_id && !order?.razorpay_payment_id && paymentMethodStr !== "PAID" && paymentMethodStr !== "PREPAID" && paymentMethodStr !== "ONLINE");
 
-  const grandTotal = Number(order?.total_price) || 0;
+  const grandTotal = Number(order?.total_price || order?.total_amount) || 0;
   const shippingFee = Number(order?.shipping_fee) || 0;
-  const productTotal = Math.max(0, grandTotal - shippingFee);
+  const discountAmount = Number(order?.discount_amount) || 0;
+
+  const totalLensPrice = orderItems.reduce(
+    (sum, item) => sum + (Number(item.lensAddonPrice) || 0) * (Number(item.quantity) || 1),
+    0
+  );
+
+  const totalFramePrice = orderItems.reduce(
+    (sum, item) => sum + (Number(item.framePrice) || 0) * (Number(item.quantity) || 1),
+    0
+  );
+
+  const productSubtotal = totalFramePrice + totalLensPrice > 0
+    ? (totalFramePrice + totalLensPrice)
+    : Math.max(0, grandTotal - shippingFee + discountAmount);
+
+  const displayFramePrice = totalFramePrice > 0
+    ? totalFramePrice
+    : (totalLensPrice > 0 ? Math.max(0, productSubtotal - totalLensPrice) : productSubtotal);
+
+  const hasAnyLens = orderItems.some((item) => Boolean(item.lensSelection) || item.lensAddonPrice > 0);
   const fmtINR = (n) => `₹${n.toLocaleString("en-IN")}`;
 
 
@@ -540,7 +596,7 @@ export default function OrderTracking() {
                       className="track-cancelled-box"
                       style={{
                         marginBottom: "20px",
-                        borderColor: isRefundCompleted ? "#bbf7d0" : "#ffd2d2",
+                        border: "none",
                         background: isRefundCompleted ? "#f0fdf4" : "#fff8f8"
                       }}
                     >
@@ -615,86 +671,158 @@ export default function OrderTracking() {
 
                 {/* Products in this order */}
                 <div className="track-card track-items-card">
-                  <h2 className="track-section-title">Package Items ({orderItems.length})</h2>
+                  <div className="track-card-head" style={{ marginBottom: "18px" }}>
+                    <span className="track-card-icon">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+                        <line x1="3" y1="6" x2="21" y2="6" />
+                        <path d="M16 10a4 4 0 0 1-8 0" />
+                      </svg>
+                    </span>
+                    <h2 className="track-section-title" style={{ margin: 0 }}>
+                      Package Items ({orderItems.length})
+                    </h2>
+                  </div>
+
                   <div className="track-items-list">
                     {orderItems.map((item, i) => {
                       const qty = Number(item.quantity || item.qty || 1);
-                      const rawPrice = item.price;
-                      let unitPrice = 0;
-                      if (typeof rawPrice === "number") {
-                        unitPrice = rawPrice;
-                      } else if (typeof rawPrice === "string") {
-                        unitPrice = parseFloat(rawPrice.replace(/[^0-9.]/g, "")) || 0;
-                      }
+                      const unitPrice = item.unitPrice || 0;
+                      const framePrice = item.framePrice || 0;
+                      const lensPrice = item.lensAddonPrice || 0;
                       const lineTotal = unitPrice * qty;
+                      const hasLens = Boolean(item.lensSelection) || lensPrice > 0;
+
+                      const rawImgUrl = item.image_url ? getOriginalImageUrl(item.image_url) : null;
 
                       return (
-                        <div key={i} className="track-product-row">
-                          <div className="track-product-img">
-                            {item.image_url ? (
-                              <img
-                                src={item.image_url}
-                                alt={item.product_name}
-                                onError={(e) => {
-                                  e.currentTarget.style.display = "none";
-                                  const placeholder = e.currentTarget.parentElement?.querySelector(".track-img-placeholder");
-                                  if (placeholder) placeholder.style.display = "flex";
-                                }}
-                              />
-                            ) : null}
+                        <div key={i} className="track-product-card">
+                          <div className="track-product-top">
                             <div
-                              className="track-img-placeholder"
-                              style={{ display: item.image_url ? "none" : "flex" }}
+                              className="track-product-img"
+                              onClick={() => rawImgUrl && setPreviewImage({ url: rawImgUrl, title: item.product_name })}
+                              title={rawImgUrl ? "Click to view full image" : ""}
+                              role={rawImgUrl ? "button" : undefined}
+                              tabIndex={rawImgUrl ? 0 : undefined}
                             >
-                              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--blue-primary, #002277)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M6 3h12l4 6-10 13L2 9z" />
-                                <path d="M11 3 8 9l4 13 4-13-3-6" />
-                                <path d="M2 9h20" />
-                              </svg>
-                            </div>
-                          </div>
-                          <div className="track-product-details">
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
-                              <div className="track-product-name">{item.product_name}</div>
-                              <div className="track-product-price">
-                                {qty > 1
-                                  ? `${qty} × ₹${unitPrice.toLocaleString("en-IN")}`
-                                  : `₹${unitPrice.toLocaleString("en-IN")}`}
+                              {rawImgUrl ? (
+                                <img
+                                  src={rawImgUrl}
+                                  alt={item.product_name}
+                                  onError={(e) => {
+                                    e.currentTarget.style.display = "none";
+                                    const placeholder = e.currentTarget.parentElement?.querySelector(".track-img-placeholder");
+                                    if (placeholder) placeholder.style.display = "flex";
+                                  }}
+                                />
+                              ) : null}
+                              <div
+                                className="track-img-placeholder"
+                                style={{ display: rawImgUrl ? "none" : "flex" }}
+                              >
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--blue-primary, #002277)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                                  <circle cx="6" cy="12" r="4" />
+                                  <circle cx="18" cy="12" r="4" />
+                                  <line x1="10" y1="12" x2="14" y2="12" />
+                                </svg>
                               </div>
                             </div>
-                            <div className="track-product-meta">
-                              <span>Qty: {qty}</span>
-                              {(item.size || item.color) && (
-                                <span>
-                                  {item.size && ` · Size: ${item.size}`}
-                                  {item.color && (
+
+                            <div className="track-product-details">
+                              <div className="track-product-title-row">
+                                <h3 className="track-product-name">{item.product_name}</h3>
+                                <div className="track-product-total-badge">
+                                  {qty > 1 ? (
                                     <>
-                                      {' · Color: '}
-                                      <span
-                                        style={{
-                                          display: 'inline-flex',
-                                          alignItems: 'center',
-                                          gap: '5px',
-                                          verticalAlign: 'middle',
-                                        }}
-                                      >
-                                        <span
-                                          style={{
-                                            display: 'inline-block',
-                                            width: '10px',
-                                            height: '10px',
-                                            borderRadius: '50%',
-                                            backgroundColor: item.color,
-                                            border: '1px solid rgba(0,0,0,0.15)',
-                                            flexShrink: 0,
-                                          }}
-                                        />
-                                        <span>{getColorName(item.color)}</span>
-                                      </span>
+                                      <span className="track-qty-multiplier">{qty} × ₹{unitPrice.toLocaleString("en-IN")}</span>
+                                      <span className="track-item-grand-price">₹{lineTotal.toLocaleString("en-IN")}</span>
                                     </>
+                                  ) : (
+                                    <span className="track-item-grand-price">₹{unitPrice.toLocaleString("en-IN")}</span>
                                   )}
-                                </span>
+                                </div>
+                              </div>
+
+                              <div className="track-product-meta-tags">
+                                <span className="track-meta-chip">Qty: <strong>{qty}</strong></span>
+                                {item.size && (
+                                  <span className="track-meta-chip">Size: <strong>{item.size}</strong></span>
+                                )}
+                                {item.color && (
+                                  <span className="track-meta-chip">
+                                    Color:
+                                    <span
+                                      className="track-color-swatch"
+                                      style={{ backgroundColor: item.color }}
+                                    />
+                                    <strong>{getColorName(item.color)}</strong>
+                                  </span>
+                                )}
+                              </div>
+
+                              {/* Lens Details Block */}
+                              {hasLens && (
+                                <div className="track-lens-card">
+                                  <div className="track-lens-header">
+                                    <div className="track-lens-tag-left">
+                                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                        <circle cx="6" cy="12" r="4" />
+                                        <circle cx="18" cy="12" r="4" />
+                                        <line x1="10" y1="12" x2="14" y2="12" />
+                                      </svg>
+                                      <span className="track-lens-heading">Selected Lens</span>
+                                    </div>
+                                    <span className={`track-lens-cost-tag ${lensPrice > 0 ? "is-addon" : "is-free"}`}>
+                                      {lensPrice > 0 ? `+ ₹${lensPrice.toLocaleString("en-IN")}` : "Included (₹0)"}
+                                    </span>
+                                  </div>
+
+                                  <div className="track-lens-body">
+                                    <div className="track-lens-name">
+                                      {item.lensSelection?.lensName || "Prescription Lens"}
+                                      {item.lensSelection?.thicknessName ? (
+                                        <span className="track-lens-thickness"> · {item.lensSelection.thicknessName}</span>
+                                      ) : null}
+                                    </div>
+                                    {item.lensSelection?.visionType && (
+                                      <div className="track-lens-vision-type">
+                                        {item.lensSelection.visionType}
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
                               )}
+
+                              {/* Price Separation Breakdown Table */}
+                              <div className="track-price-breakdown-card">
+                                <div className="track-breakdown-title">Price Breakdown</div>
+                                <div className="track-breakdown-lines">
+                                  <div className="track-breakdown-line">
+                                    <span className="track-bk-label">Frame Price</span>
+                                    <span className="track-bk-value">₹{framePrice.toLocaleString("en-IN")}</span>
+                                  </div>
+                                  <div className="track-breakdown-line">
+                                    <span className="track-bk-label">Lens Price</span>
+                                    <span className="track-bk-value">
+                                      {lensPrice > 0 ? `+ ₹${lensPrice.toLocaleString("en-IN")}` : "₹0 (Included)"}
+                                    </span>
+                                  </div>
+                                  {qty > 1 && (
+                                    <div className="track-breakdown-line">
+                                      <span className="track-bk-label">Unit Price</span>
+                                      <span className="track-bk-value">₹{unitPrice.toLocaleString("en-IN")}</span>
+                                    </div>
+                                  )}
+                                  <div className="track-breakdown-line track-breakdown-line--total">
+                                    <span className="track-bk-label">
+                                      {qty > 1 ? `Total (${qty} items)` : "Item Total"}
+                                    </span>
+                                    <span className="track-bk-value track-bk-value--highlight">
+                                      ₹{lineTotal.toLocaleString("en-IN")}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -766,10 +894,28 @@ export default function OrderTracking() {
                         {isCod ? "Cash on Delivery (COD)" : "Paid Online"}
                       </span>
                     </div>
+
                     <div className="track-sum-row">
-                      <span>Product Price</span>
-                      <span>{fmtINR(productTotal)}</span>
+                      <span>Frame Price</span>
+                      <span style={{ fontWeight: "500", color: "#111827" }}>{fmtINR(displayFramePrice)}</span>
                     </div>
+
+                    <div className="track-sum-row">
+                      <span>Lens Price</span>
+                      {totalLensPrice > 0 ? (
+                        <span style={{ fontWeight: "600", color: "#002277" }}>+{fmtINR(totalLensPrice)}</span>
+                      ) : (
+                        <span className="track-free-text">{hasAnyLens ? "₹0 (Included)" : "₹0"}</span>
+                      )}
+                    </div>
+
+                    {discountAmount > 0 && (
+                      <div className="track-sum-row" style={{ color: "#16a34a" }}>
+                        <span>Discount ({order?.coupon_code || "Coupon"})</span>
+                        <span>-{fmtINR(discountAmount)}</span>
+                      </div>
+                    )}
+
                     <div className="track-sum-row">
                       <span>Shipping / Delivery</span>
                       {shippingFee > 0 ? (
@@ -778,6 +924,7 @@ export default function OrderTracking() {
                         <span className="track-free-text">Free</span>
                       )}
                     </div>
+
                     <div className="track-sum-divider"></div>
                     <div className="track-sum-row track-sum-total">
                       <span>Grand Total</span>
@@ -824,6 +971,41 @@ export default function OrderTracking() {
           )}
         </div>
       </div>
+
+      {/* Fullscreen Image Lightbox Preview */}
+      {previewImage && (
+        <div
+          className="track-image-modal-overlay"
+          onClick={() => setPreviewImage(null)}
+        >
+          <div
+            className="track-image-modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="track-image-modal-close"
+              onClick={() => setPreviewImage(null)}
+              aria-label="Close image preview"
+            >
+              ✕
+            </button>
+            <div className="track-image-modal-img-wrap">
+              <img
+                src={previewImage.url}
+                alt={previewImage.title || "Product"}
+                className="track-image-modal-img"
+              />
+            </div>
+            {previewImage.title && (
+              <div className="track-image-modal-caption">
+                {previewImage.title}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       <Footer />
     </>
   );

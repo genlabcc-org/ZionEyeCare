@@ -1,6 +1,4 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import { FiArrowUpRight } from 'react-icons/fi';
 import visionDiagnosticsImg from '../assets/home/dept-vision-diagnostics.jpg';
 import retinaGlaucomaImg from '../assets/home/dept-retina-glaucoma.jpg';
 import pediatricCorneaImg from '../assets/home/dept-pediatric-cornea.jpg';
@@ -223,13 +221,6 @@ export default function EyeCareDepartments() {
               for complete eye care
             </h2>
           </div>
-
-          <Link to="/contact" className="eye-dept-more-btn">
-            <span>More Departments</span>
-            <span className="eye-dept-more-icon">
-              <FiArrowUpRight aria-hidden="true" />
-            </span>
-          </Link>
         </div>
 
         {/* ── 2x2 Department Pairs Grid ── */}
@@ -257,14 +248,6 @@ export default function EyeCareDepartments() {
                   <h3 className="eye-dept-card-title">{dept.title}</h3>
                   <p className="eye-dept-card-desc">{dept.description}</p>
                 </div>
-
-                <Link to={dept.href} className="eye-dept-details-link">
-                  <span>View Details</span>
-                  <FiArrowUpRight
-                    className="eye-dept-details-arrow"
-                    aria-hidden="true"
-                  />
-                </Link>
               </div>
             </div>
           ))}

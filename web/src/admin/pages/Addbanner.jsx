@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
 import "./Addbanner.css";
-import { bannerService } from "../../services/bannerService";
+import { bannerService, isVideoMedia } from "../../services/bannerService";
 
 const LinkIcon = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -96,7 +96,7 @@ const AddBanner = ({ onBack, onPublish, initialData }) => {
   const mobileFileInputRef = useRef(null);
 
   const handleFileSelect = (file) => {
-    if (file && file.type.startsWith("image/")) {
+    if (file && (file.type.startsWith("image/") || file.type.startsWith("video/"))) {
       setImageFile(file);
       const url = URL.createObjectURL(file);
       setPreviewImage(url);
@@ -123,7 +123,7 @@ const AddBanner = ({ onBack, onPublish, initialData }) => {
 
   // Mobile File Handlers
   const handleMobileFileSelect = (file) => {
-    if (file && file.type.startsWith("image/")) {
+    if (file && (file.type.startsWith("image/") || file.type.startsWith("video/"))) {
       setMobileImageFile(file);
       const url = URL.createObjectURL(file);
       setPreviewMobileImage(url);
@@ -157,7 +157,7 @@ const AddBanner = ({ onBack, onPublish, initialData }) => {
   const handlePublish = async () => {
     if (isSubmitting) return;
     if (!previewImage && !imageFile) {
-      setErrorMsg("Please select or drop a desktop banner image");
+      setErrorMsg("Please select or drop a desktop banner image or video");
       return;
     }
 
@@ -217,14 +217,14 @@ const AddBanner = ({ onBack, onPublish, initialData }) => {
       <input
         ref={fileInputRef}
         type="file"
-        accept="image/*"
+        accept="image/*,video/mp4,video/webm,video/quicktime,video/*"
         style={{ display: "none" }}
         onChange={handleFileChange}
       />
       <input
         ref={mobileFileInputRef}
         type="file"
-        accept="image/*"
+        accept="image/*,video/mp4,video/webm,video/quicktime,video/*"
         style={{ display: "none" }}
         onChange={handleMobileFileChange}
       />
@@ -240,9 +240,9 @@ const AddBanner = ({ onBack, onPublish, initialData }) => {
 
         {/* Banner Images Row (Desktop + Mobile) */}
         <div className="ab__row">
-          {/* Desktop Banner Image */}
+          {/* Desktop Banner Image / Video */}
           <div className="ab__col">
-            <label className="ab__label">Desktop Banner Image <span style={{ color: "#ef4444" }}>*</span></label>
+            <label className="ab__label">Desktop Banner Media (Image or Video) <span style={{ color: "#ef4444" }}>*</span></label>
             <div
               className={`ab__upload-zone${isDragging ? " ab__upload-zone--dragging" : ""}${previewImage ? " ab__upload-zone--has-image" : ""}`}
               onClick={() => {
@@ -254,7 +254,19 @@ const AddBanner = ({ onBack, onPublish, initialData }) => {
             >
               {previewImage ? (
                 <div className="ab__image-container">
-                  <img src={previewImage} alt="Desktop Banner preview" className="ab__upload-preview" />
+                  {isVideoMedia(previewImage) ? (
+                    <video
+                      src={previewImage}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      className="ab__upload-preview"
+                      style={{ objectFit: "cover" }}
+                    />
+                  ) : (
+                    <img src={previewImage} alt="Desktop Banner preview" className="ab__upload-preview" />
+                  )}
                   <div className="ab__image-overlay">
                     <button
                       type="button"
@@ -264,7 +276,7 @@ const AddBanner = ({ onBack, onPublish, initialData }) => {
                         fileInputRef.current?.click();
                       }}
                     >
-                      <EditIcon /> Change Image
+                      <EditIcon /> Change Media
                     </button>
                     <button
                       type="button"
@@ -284,16 +296,16 @@ const AddBanner = ({ onBack, onPublish, initialData }) => {
                   <div className="ab__upload-icon-wrap">
                     <UploadIcon />
                   </div>
-                  <span className="ab__upload-text">Click or drop desktop image</span>
-                  <span className="ab__upload-hint">1920×600px recommended · Stored in Cloudflare</span>
+                  <span className="ab__upload-text">Click or drop desktop image or video</span>
+                  <span className="ab__upload-hint">1920×1080 video (.mp4, .webm) or 1920×600 image · Stored in Cloudflare R2</span>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Mobile Banner Image (Optional) */}
+          {/* Mobile Banner Image / Video (Optional) */}
           <div className="ab__col">
-            <label className="ab__label">Mobile Banner Image <span style={{ color: "#9ca3af", fontWeight: "normal" }}>(Optional)</span></label>
+            <label className="ab__label">Mobile Banner Media <span style={{ color: "#9ca3af", fontWeight: "normal" }}>(Optional)</span></label>
             <div
               className={`ab__upload-zone${isDraggingMobile ? " ab__upload-zone--dragging" : ""}${previewMobileImage ? " ab__upload-zone--has-image" : ""}`}
               onClick={() => {
@@ -305,7 +317,19 @@ const AddBanner = ({ onBack, onPublish, initialData }) => {
             >
               {previewMobileImage ? (
                 <div className="ab__image-container">
-                  <img src={previewMobileImage} alt="Mobile Banner preview" className="ab__upload-preview" />
+                  {isVideoMedia(previewMobileImage) ? (
+                    <video
+                      src={previewMobileImage}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      className="ab__upload-preview"
+                      style={{ objectFit: "cover" }}
+                    />
+                  ) : (
+                    <img src={previewMobileImage} alt="Mobile Banner preview" className="ab__upload-preview" />
+                  )}
                   <div className="ab__image-overlay">
                     <button
                       type="button"
@@ -315,7 +339,7 @@ const AddBanner = ({ onBack, onPublish, initialData }) => {
                         mobileFileInputRef.current?.click();
                       }}
                     >
-                      <EditIcon /> Change Mobile Image
+                      <EditIcon /> Change Mobile Media
                     </button>
                     <button
                       type="button"
@@ -335,8 +359,8 @@ const AddBanner = ({ onBack, onPublish, initialData }) => {
                   <div className="ab__upload-icon-wrap">
                     <UploadIcon />
                   </div>
-                  <span className="ab__upload-text">Click or drop mobile image</span>
-                  <span className="ab__upload-hint">800×1000px portrait · Saved in mobile_url</span>
+                  <span className="ab__upload-text">Click or drop mobile image or video</span>
+                  <span className="ab__upload-hint">800×1000px portrait · Saved in Cloudflare R2</span>
                 </div>
               )}
             </div>
@@ -427,30 +451,49 @@ const AddBanner = ({ onBack, onPublish, initialData }) => {
 
           <div className={`ab__preview-stage ab__preview-stage--${previewMode}`}>
             <div className={`ab__hero-preview ab__hero-preview--${previewMode}`}>
-              {((previewMode === 'mobile' ? previewMobileImage || previewImage : previewImage)) ? (
-                <div className="ab__hero-img-wrap">
-                  <img
-                    src={previewMode === 'mobile' ? previewMobileImage || previewImage : previewImage}
-                    alt="Hero preview"
-                    className="ab__hero-img"
-                  />
-                  {/* Storefront pagination dots */}
-                  <div className="ab__hero-dots">
-                    <span className="ab__hero-dot ab__hero-dot--active" />
-                    <span className="ab__hero-dot" />
-                    <span className="ab__hero-dot" />
+              {(() => {
+                const activeMedia = previewMode === 'mobile' ? previewMobileImage || previewImage : previewImage;
+                if (!activeMedia) {
+                  return (
+                    <div className="ab__preview-placeholder">
+                      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" />
+                        <circle cx="8.5" cy="8.5" r="1.5" />
+                        <polyline points="21 15 16 10 5 21" />
+                      </svg>
+                      <span>Upload an image or video to see Hero preview</span>
+                    </div>
+                  );
+                }
+
+                return (
+                  <div className="ab__hero-img-wrap">
+                    {isVideoMedia(activeMedia) ? (
+                      <video
+                        src={activeMedia}
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="ab__hero-img"
+                        style={{ objectFit: "cover" }}
+                      />
+                    ) : (
+                      <img
+                        src={activeMedia}
+                        alt="Hero preview"
+                        className="ab__hero-img"
+                      />
+                    )}
+                    {/* Storefront pagination dots */}
+                    <div className="ab__hero-dots">
+                      <span className="ab__hero-dot ab__hero-dot--active" />
+                      <span className="ab__hero-dot" />
+                      <span className="ab__hero-dot" />
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <div className="ab__preview-placeholder">
-                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                    <rect x="3" y="3" width="18" height="18" rx="2" />
-                    <circle cx="8.5" cy="8.5" r="1.5" />
-                    <polyline points="21 15 16 10 5 21" />
-                  </svg>
-                  <span>Upload an image to see Hero preview</span>
-                </div>
-              )}
+                );
+              })()}
             </div>
           </div>
         </div>

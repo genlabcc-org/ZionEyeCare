@@ -70,9 +70,20 @@
 }
 
 @keyframes livePulse {
-  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 34, 119, 0.4); }
-  70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(0, 34, 119, 0); }
-  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 34, 119, 0); }
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(0, 34, 119, 0.4);
+  }
+
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 6px rgba(0, 34, 119, 0);
+  }
+
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(0, 34, 119, 0);
+  }
 }
 
 /* ── Loading / Not Found ── */
@@ -100,7 +111,9 @@
 }
 
 @keyframes trackSpin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .track-not-found-card h2 {
@@ -533,32 +546,35 @@
   color: #ffffff;
 }
 
-/* ── Items List ── */
+/* ── Items List & Product Cards ── */
 .track-items-list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 16px;
 }
 
-.track-product-row {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 12px 14px;
-  border-radius: 12px;
+.track-product-card {
   background: #f8f9fa;
-  border: none;
+  border-radius: 14px;
+  padding: 18px;
   transition: background-color 0.15s ease;
+  border: none;
 }
 
-.track-product-row:hover {
-  background-color: #f1f3f5;
+.track-product-card:hover {
+  background-color: #f5f6f8;
+}
+
+.track-product-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
 }
 
 .track-product-img {
-  width: 52px;
-  height: 52px;
-  border-radius: 8px;
+  width: 96px;
+  height: 96px;
+  border-radius: 12px;
   background: #ffffff;
   border: none;
   overflow: hidden;
@@ -566,44 +582,230 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  padding: 6px;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: transform 0.15s ease, background-color 0.15s ease;
+}
+
+.track-product-img:hover {
+  background-color: #f1f5f9;
 }
 
 .track-product-img img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  transition: transform 0.18s ease;
+}
+
+.track-product-img:hover img {
+  transform: scale(1.06);
 }
 
 .track-img-placeholder {
   font-size: 20px;
+  color: var(--blue-primary, #002277);
 }
 
 .track-product-details {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.track-product-title-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
 }
 
 .track-product-name {
-  font-size: 14px;
-  font-weight: 600;
-  color: #111827;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.track-product-meta {
-  font-size: 12px;
-  color: #6b7280;
-  margin-top: 3px;
-}
-
-.track-product-price {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 700;
-  color: var(--blue-primary, #002277);
+  color: #111827;
+  margin: 0;
+  line-height: 1.35;
+}
+
+.track-product-total-badge {
   text-align: right;
   flex-shrink: 0;
+}
+
+.track-qty-multiplier {
+  font-size: 12px;
+  color: #6b7280;
+  display: block;
+}
+
+.track-item-grand-price {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--blue-primary, #002277);
+}
+
+.track-product-meta-tags {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.track-meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: #ffffff;
+  border: none;
+  padding: 3px 9px;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #4b5563;
+}
+
+.track-meta-chip strong {
+  color: #111827;
+}
+
+.track-color-swatch {
+  display: inline-block;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  border: none;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+  flex-shrink: 0;
+}
+
+/* ── Lens Details Card ── */
+.track-lens-card {
+  background: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.track-lens-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.track-lens-tag-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--blue-primary, #002277);
+}
+
+.track-lens-heading {
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--blue-primary, #002277);
+}
+
+.track-lens-cost-tag {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+.track-lens-cost-tag.is-addon {
+  background: #eff6ff;
+  color: var(--blue-primary, #002277);
+}
+
+.track-lens-cost-tag.is-free {
+  background: #ecfdf5;
+  color: #059669;
+}
+
+.track-lens-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.track-lens-name {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.track-lens-thickness {
+  font-weight: 400;
+  color: #4b5563;
+}
+
+.track-lens-vision-type {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+/* ── Price Breakdown Card (Separated Frame & Lens Prices) ── */
+.track-price-breakdown-card {
+  background: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-top: 2px;
+}
+
+.track-breakdown-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #9ca3af;
+  margin-bottom: 6px;
+}
+
+.track-breakdown-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.track-breakdown-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+  color: #4b5563;
+}
+
+.track-breakdown-line--total {
+  border-top: none;
+  padding-top: 6px;
+  margin-top: 3px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.track-bk-label {
+  font-weight: 500;
+}
+
+.track-bk-value {
+  font-weight: 600;
+  color: #111827;
+}
+
+.track-bk-value--highlight {
+  color: var(--blue-primary, #002277);
+  font-weight: 700;
 }
 
 /* ── Sidebar Cards ── */
@@ -673,9 +875,7 @@
 }
 
 .track-sum-divider {
-  height: 1px;
-  background: #f3f4f6;
-  margin: 4px 0;
+  display: none;
 }
 
 .track-sum-total {
@@ -863,33 +1063,41 @@
   }
 
   /* Product Items */
-  .track-product-row {
-    padding: 10px 12px;
-    gap: 10px;
+  .track-product-card {
+    padding: 14px 12px;
+  }
+
+  .track-product-top {
+    gap: 12px;
   }
 
   .track-product-img {
-    width: 44px;
-    height: 44px;
+    width: 72px;
+    height: 72px;
+    padding: 4px;
+  }
+
+  .track-product-title-row {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .track-product-total-badge {
+    text-align: left;
   }
 
   .track-product-name {
-    font-size: 13px;
-    white-space: normal;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
+    font-size: 14px;
     line-height: 1.35;
   }
 
-  .track-product-meta {
-    font-size: 11.5px;
+  .track-lens-card,
+  .track-price-breakdown-card {
+    padding: 8px 10px;
   }
 
-  .track-product-price {
-    font-size: 13px;
+  .track-breakdown-line {
+    font-size: 12.5px;
   }
 
   .track-help-btn {
@@ -910,4 +1118,87 @@
   .track-order-id-val {
     font-size: 19px;
   }
+}
+
+/* ── Fullscreen Image Preview Lightbox ── */
+.track-image-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: trackImgFadeIn 0.18s ease;
+}
+
+@keyframes trackImgFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.track-image-modal-content {
+  position: relative;
+  background: #ffffff;
+  border-radius: 16px;
+  max-width: 640px;
+  width: 100%;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+}
+
+.track-image-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.08);
+  border: none;
+  font-size: 16px;
+  font-weight: 700;
+  color: #374151;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 10;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.track-image-modal-close:hover {
+  background: rgba(0, 0, 0, 0.18);
+  color: #111827;
+}
+
+.track-image-modal-img-wrap {
+  width: 100%;
+  height: 420px;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.track-image-modal-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.track-image-modal-caption {
+  padding: 14px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+  background: #ffffff;
+  border-top: 1px solid #f1f5f9;
 }

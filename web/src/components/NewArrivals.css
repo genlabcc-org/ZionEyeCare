@@ -246,16 +246,63 @@
   z-index: 3 !important;
 }
 
-/* ── Product Info Below Image (Product Name on Left, Swatches on Right) ── */
+/* ── Product Info Below Image (Product Name on Left, Swatches on Right, Price Row Below) ── */
 .new-arrival-info {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  width: 100% !important;
+  padding: 12px 2px 0 2px !important;
+  gap: 5px !important;
+  box-sizing: border-box !important;
+}
+
+.new-arrival-info-top {
   display: flex !important;
   flex-direction: row !important;
   align-items: center !important;
   justify-content: space-between !important;
   width: 100% !important;
-  padding: 12px 2px 0 2px !important;
-  gap: 12px !important;
-  box-sizing: border-box !important;
+  gap: 10px !important;
+}
+
+.new-arrival-price-row {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-wrap: wrap !important;
+  width: 100% !important;
+}
+
+.new-arrival-price {
+  font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: #111827 !important;
+  line-height: 1.2 !important;
+  letter-spacing: -0.2px !important;
+}
+
+.new-arrival-mrp-cut {
+  font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  color: #9ca3af !important;
+  text-decoration: line-through !important;
+  line-height: 1.2 !important;
+}
+
+.new-arrival-discount-badge {
+  font-family: 'Outfit', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  color: #15803d !important;
+  background: #dcfce7 !important;
+  padding: 1.5px 6px !important;
+  border-radius: 4px !important;
+  line-height: 1.2 !important;
+  letter-spacing: 0.2px !important;
 }
 
 .new-arrival-name {
@@ -347,6 +394,14 @@
 
   .new-arrival-name {
     font-size: 13px !important;
+  }
+
+  .new-arrival-price {
+    font-size: 14.5px !important;
+  }
+
+  .new-arrival-mrp-cut {
+    font-size: 12.5px !important;
   }
 
   .new-arrival-swatch-item {
@@ -454,11 +509,28 @@
 
   .new-arrival-info {
     padding: 8px 1px 0 1px !important;
-    gap: 8px !important;
+    gap: 4px !important;
   }
 
   .new-arrival-name {
     font-size: 12px !important;
+  }
+
+  .new-arrival-price-row {
+    gap: 6px !important;
+  }
+
+  .new-arrival-price {
+    font-size: 13.5px !important;
+  }
+
+  .new-arrival-mrp-cut {
+    font-size: 11.5px !important;
+  }
+
+  .new-arrival-discount-badge {
+    font-size: 10px !important;
+    padding: 1px 5px !important;
   }
 
   .new-arrival-swatch-item {
@@ -503,6 +575,19 @@
     font-size: 11px !important;
   }
 
+  .new-arrival-price {
+    font-size: 12.5px !important;
+  }
+
+  .new-arrival-mrp-cut {
+    font-size: 11px !important;
+  }
+
+  .new-arrival-discount-badge {
+    font-size: 9.5px !important;
+    padding: 1px 4px !important;
+  }
+
   .new-arrival-swatch-item {
     width: 11px !important;
     height: 11px !important;
@@ -526,5 +611,18 @@
 
   .new-arrival-name {
     font-size: 10px !important;
+  }
+
+  .new-arrival-price {
+    font-size: 11.5px !important;
+  }
+
+  .new-arrival-mrp-cut {
+    font-size: 10px !important;
+  }
+
+  .new-arrival-discount-badge {
+    font-size: 9px !important;
+    padding: 1px 3px !important;
   }
 }

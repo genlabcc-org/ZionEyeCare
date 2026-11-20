@@ -5,6 +5,7 @@ import { addProductService } from '../services/addProductService';
 import { cartService } from '../services/cartService';
 import { authService } from '../services/authService';
 import { orderService } from '../services/orderService';
+import { resolveThicknessPrice } from '../utils/lensUtils';
 
 /** Strip currency symbols & commas so */
 const parsePrice = (v) => {
@@ -553,7 +554,11 @@ export const useStore = create((set, get) => ({
           await cartService.updateCartItemQty(existingItem.id, newQty);
         } else {
           const initialQty = itemStock != null && itemStock > 0 ? Math.min(qty, itemStock) : qty;
-          await cartService.addCartItem(user.id, product.productId || product.id, initialQty, normSize, normColor, product.lensSelection || null);
+          const cleanLensSelection = product.lensSelection ? {
+            ...product.lensSelection,
+            addonPrice: Number(product.lensSelection.addonPrice) || resolveThicknessPrice(product.lensSelection)
+          } : null;
+          await cartService.addCartItem(user.id, product.productId || product.id, initialQty, normSize, normColor, cleanLensSelection);
         }
 
         const updatedItems = await cartService.getCartItems(user.id);
@@ -578,11 +583,19 @@ export const useStore = create((set, get) => ({
         localCart[existingIdx].qty = maxStock != null && maxStock > 0 ? Math.min(desiredQty, maxStock) : desiredQty;
       } else {
         const initialQty = itemStock != null && itemStock > 0 ? Math.min(qty, itemStock) : qty;
+        const resolvedLensPrice = product.lensSelection
+          ? (Number(product.lensSelection.addonPrice) || resolveThicknessPrice(product.lensSelection))
+          : 0;
+        const cleanLensSelection = product.lensSelection ? {
+          ...product.lensSelection,
+          addonPrice: resolvedLensPrice
+        } : null;
+
         localCart.push({
           id: `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
           productId: product.productId || product.id,
           name: product.name,
-          price: parsePrice(product.price),
+          price: parsePrice(product.price) + (resolvedLensPrice > 0 && !product.framePrice ? resolvedLensPrice : 0),
           framePrice: parsePrice(product.framePrice ?? product.price),
           originalPrice: parsePrice(product.originalPrice || product.original || product.compare_price || Math.round(parsePrice(product.price) * 1.3)),
           category: product.category,
@@ -593,8 +606,8 @@ export const useStore = create((set, get) => ({
           stock: itemStock,
           size: normSize,
           color: normColor,
-          lensSelection: product.lensSelection || null,
-          lensAddonPrice: Number(product.lensSelection?.addonPrice || 0),
+          lensSelection: cleanLensSelection,
+          lensAddonPrice: resolvedLensPrice,
           image: product.img || product.image || (product.images && product.images[0]) || '/src/assets/cart/bangle1.webp',
           deliveryDate: 'Sep 12, 2025'
         });

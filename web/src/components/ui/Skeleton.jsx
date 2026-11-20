@@ -21,16 +21,24 @@ export function Skeleton({ className = '', style = {}, width, height, borderRadi
 
 export function SkeletonProductCard() {
   return (
-    <div className="skeleton-product-card">
+    <div className="skeleton-product-card" aria-hidden="true">
       <div className="skeleton-image-box">
-        <Skeleton width="100%" height="100%" borderRadius="4px" />
-        <div className="skeleton-cart-pill">
-          <Skeleton width="92px" height="28px" borderRadius="6px" />
-        </div>
+        <Skeleton width="100%" height="100%" borderRadius="16px" />
       </div>
       <div className="skeleton-details-box">
-        <Skeleton height="16px" width="78%" borderRadius="4px" />
-        <Skeleton height="16px" width="36%" borderRadius="4px" />
+        <div className="skeleton-top-row">
+          <Skeleton height="14px" width="58%" borderRadius="4px" />
+          <div className="skeleton-swatches">
+            <Skeleton width="15px" height="15px" borderRadius="3.5px" />
+            <Skeleton width="15px" height="15px" borderRadius="3.5px" />
+            <Skeleton width="15px" height="15px" borderRadius="3.5px" />
+          </div>
+        </div>
+        <div className="skeleton-price-row">
+          <Skeleton height="16px" width="60px" borderRadius="4px" />
+          <Skeleton height="13px" width="44px" borderRadius="4px" />
+          <Skeleton height="14px" width="48px" borderRadius="4px" />
+        </div>
       </div>
     </div>
   );

@@ -113,13 +113,24 @@
 
 @media (max-width: 768px) {
   .hero-video-section {
-    height: 100vh;
-    height: 100dvh;
-    min-height: 100vh;
-    min-height: 100dvh;
+    height: 65vh;
+    height: 65dvh;
+    min-height: 65vh;
+    min-height: 65dvh;
   }
 
   .hero-scroll-indicator {
-    bottom: 20px;
+    bottom: 16px;
+    gap: 4px;
+  }
+
+  .hero-scroll-text {
+    font-size: 10px;
+    letter-spacing: 2px;
+  }
+
+  .hero-scroll-arrow {
+    width: 18px;
+    height: 18px;
   }
 }

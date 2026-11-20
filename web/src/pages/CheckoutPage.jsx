@@ -22,6 +22,7 @@ import { getOriginalImageUrl } from '../utils/imageUtils';
 const clientPincodeCache = new Map();
 import { getNavPath } from "../services/categoryRoute";
 import { getColorName, getColorStyle } from "../utils/colorUtils";
+import { resolveThicknessPrice } from "../utils/lensUtils";
 
 let razorpayScriptPromise = null;
 const loadRazorpayScript = () => {
@@ -115,7 +116,7 @@ export default function CheckoutPage() {
   const [userId, setUserId] = useState(null);
 
   // Layout states
-  const [paymentMethod, setPaymentMethod] = useState('RAZORPAY');
+  const [paymentMethod, setPaymentMethod] = useState('COD');
   const [isAddingNewAddress, setIsAddingNewAddress] = useState(false);
   const [discountInput, setDiscountInput] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState(null);
@@ -302,7 +303,7 @@ export default function CheckoutPage() {
       .catch((err) => console.error("Failed to load shipping rates:", err));
 
     // Preload Razorpay SDK script on page mount so it is ready instantaneously
-    loadRazorpayScript().catch((err) => console.warn("Preloading Razorpay script failed:", err));
+    // loadRazorpayScript().catch((err) => console.warn("Preloading Razorpay script failed:", err));
   }, []);
 
   // Look up which state the pincode belongs to
@@ -520,8 +521,26 @@ export default function CheckoutPage() {
     (sum, item) => sum + (parsePrice(item.price) || 0) * (Number(item.qty) || 0),
     0
   );
-  const frameTotal = checkoutItems.reduce((sum, item) => sum + parsePrice(item.framePrice ?? (parsePrice(item.price) - parsePrice(item.lensAddonPrice ?? item.lensSelection?.addonPrice))) * (Number(item.qty) || 0), 0);
-  const lensTotal = checkoutItems.reduce((sum, item) => sum + parsePrice(item.lensAddonPrice ?? item.lensSelection?.addonPrice) * (Number(item.qty) || 0), 0);
+  const frameTotal = checkoutItems.reduce((sum, item) => {
+    const itemPrice = parsePrice(item.price) || 0;
+    let lensAddon = parsePrice(item.lensAddonPrice ?? item.lensSelection?.addonPrice) || 0;
+    if (lensAddon <= 0 && item.lensSelection) {
+      lensAddon = resolveThicknessPrice(item.lensSelection);
+      if (itemPrice > 0 && lensAddon >= itemPrice) lensAddon = Math.round(itemPrice * 0.35);
+    }
+    const frameP = parsePrice(item.framePrice ?? (itemPrice - lensAddon));
+    return sum + frameP * (Number(item.qty) || 0);
+  }, 0);
+
+  const lensTotal = checkoutItems.reduce((sum, item) => {
+    const itemPrice = parsePrice(item.price) || 0;
+    let lensAddon = parsePrice(item.lensAddonPrice ?? item.lensSelection?.addonPrice) || 0;
+    if (lensAddon <= 0 && item.lensSelection) {
+      lensAddon = resolveThicknessPrice(item.lensSelection);
+      if (itemPrice > 0 && lensAddon >= itemPrice) lensAddon = Math.round(itemPrice * 0.35);
+    }
+    return sum + lensAddon * (Number(item.qty) || 0);
+  }, 0);
 
   // Fetch active coupons based on initialized subtotal and userId
   useEffect(() => {
@@ -703,6 +722,39 @@ export default function CheckoutPage() {
       if (paymentMethod === "COD") {
         const mainItem = checkoutItems[0];
 
+        const richItems = checkoutItems.map(item => {
+          const itemPrice = parsePrice(item.price);
+          let lensAddon = parsePrice(item.lensAddonPrice ?? item.lensSelection?.addonPrice) || 0;
+          if (lensAddon <= 0 && item.lensSelection) {
+            lensAddon = resolveThicknessPrice(item.lensSelection);
+            if (itemPrice > 0 && lensAddon >= itemPrice) lensAddon = Math.round(itemPrice * 0.35);
+          }
+          const frameP = parsePrice(item.framePrice ?? (itemPrice - lensAddon));
+          const finalLensSelection = item.lensSelection ? {
+            ...item.lensSelection,
+            addonPrice: lensAddon,
+          } : null;
+          return {
+            product_id: item.productId || item.product_id || item.id || null,
+            product_name: item.name,
+            name: item.name,
+            quantity: item.qty || 1,
+            qty: item.qty || 1,
+            price: itemPrice,
+            frame_price: frameP,
+            framePrice: frameP,
+            lens_addon_price: lensAddon,
+            lensAddonPrice: lensAddon,
+            lens_selection: finalLensSelection,
+            lensSelection: finalLensSelection,
+            size: item.size || null,
+            color: item.color || null,
+            image_url: item.img || item.image || (item.images && item.images[0]) || null,
+            sku: item.sku || item.sku_id || 'N/A',
+            category: item.category || item.category_name || item.categories?.name || 'N/A',
+          };
+        });
+
         const { data, error } = await supabase
           .from("orders")
           .insert({
@@ -713,10 +765,14 @@ export default function CheckoutPage() {
               : mainItem.name,
             quantity: checkoutItems.reduce((sum, item) => sum + (item.qty || 1), 0),
             total_price: grandTotal,
+            total_amount: grandTotal,
+            subtotal: subtotal,
             shipping_fee: shippingFee || 0,
             discount_amount: discountAmount || 0,
             coupon_code: appliedDiscount?.code || null,
+            items: richItems,
             payment: "COD",
+            payment_method: "COD",
             type: "Regular",
             status: "Order Placed",
             delivery_status: "Pending",
@@ -1240,8 +1296,8 @@ export default function CheckoutPage() {
                   <p className="checkout-block-subtitle">All transactions are secure and encrypted.</p>
 
                   <div className="checkout-payment-box-group">
-                    {/* Option 1: Razorpay */}
-                    <div className={`checkout-payment-option-row ${paymentMethod === 'RAZORPAY' ? 'is-active' : ''}`}>
+                    {/* Option 1: Razorpay — HIDDEN (will unhide later) */}
+                    {/* <div className={`checkout-payment-option-row ${paymentMethod === 'RAZORPAY' ? 'is-active' : ''}`}>
                       <label className="checkout-payment-option-header" onClick={() => setPaymentMethod('RAZORPAY')}>
                         <div className="checkout-radio-label-left">
                           <input
@@ -1276,7 +1332,7 @@ export default function CheckoutPage() {
                           </p>
                         </div>
                       )}
-                    </div>
+                    </div> */}
 
                     {/* Option 2: Cash on Delivery */}
                     <div className={`checkout-payment-option-row ${paymentMethod === 'COD' ? 'is-active' : ''}`}>

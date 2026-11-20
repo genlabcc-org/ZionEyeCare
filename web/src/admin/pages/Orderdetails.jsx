@@ -9,6 +9,8 @@ import { useStore } from "../../hooks/useStore";
 import Toast from "../../components/Toast";
 import ThermalInvoice from "../components/ThermalInvoice";
 import { getColorName } from "../../utils/colorUtils";
+import { resolveThicknessPrice } from "../../utils/lensUtils";
+import { getOriginalImageUrl } from "../../utils/imageUtils";
 import "./Orderdetails.css";
 
 const STATUS_CONFIG = {
@@ -124,23 +126,66 @@ const IconPackage = ({ size = 20, className = "" }) => (
   </svg>
 );
 
-const StatusBadge = ({ status }) => {
+const ORDER_STATUS_OPTIONS = [
+  "Order Placed",
+  "Confirmed",
+  "Shipped",
+  "Out for Delivery",
+  "Delivered",
+  "Cancelled",
+  "Returned",
+];
+
+const StatusBadge = ({ status, onChange, disabled }) => {
   const normStatus = Object.keys(STATUS_CONFIG).find(
     k => k.toLowerCase() === (status || "").toLowerCase()
   );
   const cfg = STATUS_CONFIG[normStatus] || STATUS_CONFIG[status] || STATUS_CONFIG.Pending;
+  const currentVal = normStatus || status || "Order Placed";
+
+  if (!onChange) {
+    return (
+      <span
+        className="od__status-badge"
+        style={{
+          backgroundColor: cfg.bg,
+          color: cfg.color,
+          border: 'none'
+        }}
+      >
+        <span className="od__status-dot" style={{ backgroundColor: cfg.dot }} />
+        {status}
+      </span>
+    );
+  }
+
   return (
-    <span
-      className="od__status-badge"
+    <select
+      className="od__status-select"
+      value={currentVal}
+      disabled={disabled}
+      onChange={(e) => onChange(e.target.value)}
       style={{
         backgroundColor: cfg.bg,
         color: cfg.color,
-        border: 'none'
+        border: `1.5px solid ${cfg.border || cfg.bg}`,
+        borderRadius: 20,
+        padding: "4px 10px 4px 12px",
+        fontSize: 13,
+        fontWeight: 600,
+        cursor: "pointer",
+        outline: "none",
+        fontFamily: "inherit",
+        minWidth: 130,
       }}
     >
-      <span className="od__status-dot" style={{ backgroundColor: cfg.dot }} />
-      {status}
-    </span>
+      {!ORDER_STATUS_OPTIONS.includes(currentVal) && (
+        <option value={currentVal}>{currentVal}</option>
+      )}
+      {ORDER_STATUS_OPTIONS.map((opt) => (
+        <option key={opt} value={opt}>{opt}</option>
+      ))}
+    </select>
   );
 };
 
@@ -614,7 +659,31 @@ const OrderDetails = ({ order, onBack, onInvoicePrinted }) => {
     }
   };
 
-  const orderItems = (o.order_items && o.order_items.length > 0) ? o.order_items : [{
+  const [updatingStatus, setUpdatingStatus] = useState(false);
+  const handleUpdateStatus = async (newStatus) => {
+    if (!o?.id || !newStatus || updatingStatus) return;
+    const currentVal = (o.status || o.delivery_status || "").toLowerCase();
+    if (currentVal === newStatus.toLowerCase()) return;
+
+    setUpdatingStatus(true);
+    try {
+      await orderService.updateOrderStatus(o.id, newStatus);
+      setCurrentOrder((prev) => ({
+        ...prev,
+        status: newStatus,
+        delivery_status: newStatus,
+      }));
+      showToast(`Order status updated to "${newStatus}"`, "success");
+    } catch (err) {
+      console.error("Failed to update status:", err);
+      showToast(`Failed to update status: ${err.message}`, "error");
+    } finally {
+      setUpdatingStatus(false);
+    }
+  };
+
+  const jsonOrderItems = Array.isArray(o.items) ? o.items : [];
+  const rawOrderItems = (o.order_items && o.order_items.length > 0) ? o.order_items : (jsonOrderItems.length > 0 ? jsonOrderItems : [{
     product_name: o.item_name || "Product",
     quantity: o.quantity || 1,
     price: o.total_price || 0,
@@ -623,10 +692,48 @@ const OrderDetails = ({ order, onBack, onInvoicePrinted }) => {
     image_url: o.image_url || o.image || o.img || null,
     sku: o.sku || null,
     product_id: o.product_id || null
-  }];
+  }]);
+
+  const orderItems = rawOrderItems.map((item, idx) => {
+    const matchedJson = jsonOrderItems.find((ji) => String(ji.product_id || ji.productId) === String(item.product_id)) || jsonOrderItems[idx] || {};
+    const lensSelection = item.lensSelection || item.lens_selection || matchedJson.lensSelection || matchedJson.lens_selection || null;
+    const unitPrice = Number(item.price || matchedJson.price || 0);
+
+    let lensAddonPrice = Number(item.lensAddonPrice ?? item.lens_addon_price ?? matchedJson.lensAddonPrice ?? matchedJson.lens_addon_price ?? lensSelection?.addonPrice ?? 0);
+    // If a lens was selected but addon price was recorded as 0 or not saved, resolve standard optical price
+    if (lensAddonPrice <= 0 && lensSelection) {
+      lensAddonPrice = resolveThicknessPrice(lensSelection);
+      if (unitPrice > 0 && lensAddonPrice >= unitPrice) {
+        lensAddonPrice = Math.round(unitPrice * 0.35);
+      }
+    }
+
+    const framePrice = Number(item.framePrice ?? item.frame_price ?? matchedJson.framePrice ?? matchedJson.frame_price ?? Math.max(0, unitPrice - lensAddonPrice));
+    const qty = Number(item.quantity || item.qty || 1);
+
+    return {
+      ...matchedJson,
+      ...item,
+      quantity: qty,
+      price: unitPrice,
+      lensSelection,
+      lensAddonPrice,
+      framePrice,
+    };
+  });
 
   const uniqueProducts = orderItems.length;
   const totalCount = orderItems.reduce((sum, item) => sum + (Number(item.quantity || item.qty || 1)), 0);
+
+  // Frame and Lens Subtotals
+  const totalFrameSubtotal = orderItems.reduce(
+    (sum, item) => sum + (Number(item.framePrice || 0) * Number(item.quantity || 1)),
+    0
+  );
+  const totalLensSubtotal = orderItems.reduce(
+    (sum, item) => sum + (Number(item.lensAddonPrice || 0) * Number(item.quantity || 1)),
+    0
+  );
 
   // Real items subtotal calculated from individual line items
   const calculatedItemsSubtotal = orderItems.reduce(
@@ -955,7 +1062,11 @@ const OrderDetails = ({ order, onBack, onInvoicePrinted }) => {
         <div className="od__header-main">
           <div className="od__title-block">
             <div className="od__title">Order #{orderShortId}</div>
-            <StatusBadge status={isOrderCancelled ? "Cancelled" : (o.delivery_status || o.status)} />
+            <StatusBadge
+              status={isOrderCancelled ? "Cancelled" : (o.delivery_status || o.status)}
+              onChange={handleUpdateStatus}
+              disabled={updatingStatus}
+            />
           </div>
 
           <div className="od__header-actions">
@@ -1092,14 +1203,14 @@ const OrderDetails = ({ order, onBack, onInvoicePrinted }) => {
                 <div className="od__item-img">
                   {image ? (
                     <img
-                      src={image}
+                      src={getOriginalImageUrl(image)}
                       alt={item.product_name || "Product"}
                       onError={(e) => {
                         e.currentTarget.style.display = 'none';
                         const fallback = e.currentTarget.parentElement?.querySelector('.od__item-fallback-icon');
                         if (fallback) fallback.style.display = 'flex';
                       }}
-                      style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '8px' }}
+                      style={{ width: '100%', height: '100%', objectFit: 'contain', padding: '2px', boxSizing: 'border-box' }}
                     />
                   ) : null}
                   <div
@@ -1170,10 +1281,29 @@ const OrderDetails = ({ order, onBack, onInvoicePrinted }) => {
                         </span>
                       </>
                     )}
+                    {item.lensSelection && (
+                      <>
+                        <span>·</span>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#eff6ff', color: '#002277', padding: '2px 8px', borderRadius: '4px', fontSize: '11.5px', fontWeight: '600' }}>
+                          👓 Lens: {item.lensSelection.lensName || "Prescription Lens"}
+                          {item.lensSelection.thicknessName ? ` · ${item.lensSelection.thicknessName}` : ''}
+                          {item.lensAddonPrice > 0 ? ` (+₹${item.lensAddonPrice.toLocaleString('en-IN')})` : ' (Included)'}
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
-                <div className="od__item-price" style={{ fontWeight: '600' }}>
-                  ₹{Number(item.price || 0).toLocaleString('en-IN')}
+                <div style={{ textAlign: 'right', flexShrink: 0 }}>
+                  <div className="od__item-price" style={{ fontWeight: '700', fontSize: '14.5px', color: '#002277' }}>
+                    {(item.quantity || 1) > 1
+                      ? `${item.quantity || 1} × ₹${Number(item.price || 0).toLocaleString('en-IN')}`
+                      : `₹${Number(item.price || 0).toLocaleString('en-IN')}`}
+                  </div>
+                  {item.lensSelection && (
+                    <div style={{ fontSize: '11.5px', color: '#64748b', marginTop: '2px' }}>
+                      Frame: ₹{Number(item.framePrice || 0).toLocaleString('en-IN')} | Lens: {item.lensAddonPrice > 0 ? `+₹${Number(item.lensAddonPrice).toLocaleString('en-IN')}` : 'Included'}
+                    </div>
+                  )}
                 </div>
               </div>
             );
@@ -1183,11 +1313,27 @@ const OrderDetails = ({ order, onBack, onInvoicePrinted }) => {
         {/* Order Summary */}
         <div className="od__summary-card">
           <div className="od__summary-row">
-            <span>Items Subtotal ({totalCount} {totalCount === 1 ? 'item' : 'items'})</span>
+            <span>Frame Subtotal</span>
             <span style={{ fontWeight: '600', color: '#0f172a' }}>
-              ₹{itemsSubtotal.toLocaleString('en-IN')}
+              ₹{totalFrameSubtotal > 0 ? totalFrameSubtotal.toLocaleString('en-IN') : itemsSubtotal.toLocaleString('en-IN')}
             </span>
           </div>
+          {totalLensSubtotal > 0 && (
+            <div className="od__summary-row">
+              <span>Lens Subtotal</span>
+              <span style={{ fontWeight: '600', color: '#002277' }}>
+                +₹{totalLensSubtotal.toLocaleString('en-IN')}
+              </span>
+            </div>
+          )}
+          {totalLensSubtotal <= 0 && (
+            <div className="od__summary-row">
+              <span>Items Subtotal ({totalCount} {totalCount === 1 ? 'item' : 'items'})</span>
+              <span style={{ fontWeight: '600', color: '#0f172a' }}>
+                ₹{itemsSubtotal.toLocaleString('en-IN')}
+              </span>
+            </div>
+          )}
           <div className="od__summary-row">
             <span>Shipping & Delivery</span>
             {deliveryFee > 0 ? (

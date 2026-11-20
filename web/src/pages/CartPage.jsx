@@ -8,6 +8,7 @@ import { useStore } from "../hooks/useStore";
 import { getOriginalImageUrl } from '../utils/imageUtils';
 import { getNavPath } from "../services/categoryRoute";
 import { getColorName } from '../utils/colorUtils';
+import { resolveThicknessPrice } from '../utils/lensUtils';
 import { shippingService } from "../services/shippingService";
 
 /** Strip currency symbols & commas so "₹1,299" → 1299 */
@@ -79,8 +80,26 @@ export default function CartPage() {
     (sum, i) => sum + parsePrice(i.price) * (Number(i.qty) || 1),
     0
   );
-  const frameTotal = cartItems.reduce((sum, i) => sum + parsePrice(i.framePrice ?? (parsePrice(i.price) - parsePrice(i.lensAddonPrice ?? i.lensSelection?.addonPrice))) * (Number(i.qty) || 1), 0);
-  const lensTotal = cartItems.reduce((sum, i) => sum + parsePrice(i.lensAddonPrice ?? i.lensSelection?.addonPrice) * (Number(i.qty) || 1), 0);
+  const frameTotal = cartItems.reduce((sum, i) => {
+    const itemPrice = parsePrice(i.price);
+    let lensAddon = parsePrice(i.lensAddonPrice ?? i.lensSelection?.addonPrice) || 0;
+    if (lensAddon <= 0 && i.lensSelection) {
+      lensAddon = resolveThicknessPrice(i.lensSelection);
+      if (itemPrice > 0 && lensAddon >= itemPrice) lensAddon = Math.round(itemPrice * 0.35);
+    }
+    const frameP = parsePrice(i.framePrice ?? (itemPrice - lensAddon));
+    return sum + frameP * (Number(i.qty) || 1);
+  }, 0);
+
+  const lensTotal = cartItems.reduce((sum, i) => {
+    const itemPrice = parsePrice(i.price);
+    let lensAddon = parsePrice(i.lensAddonPrice ?? i.lensSelection?.addonPrice) || 0;
+    if (lensAddon <= 0 && i.lensSelection) {
+      lensAddon = resolveThicknessPrice(i.lensSelection);
+      if (itemPrice > 0 && lensAddon >= itemPrice) lensAddon = Math.round(itemPrice * 0.35);
+    }
+    return sum + lensAddon * (Number(i.qty) || 1);
+  }, 0);
 
   // Delivery Fee calculation based on active shipping rates in DB
   const deliveryFee = cartItems.length > 0
@@ -141,7 +160,11 @@ export default function CartPage() {
                   {cartItems.map((item) => {
                     const priceNum = parsePrice(item.price);
                     const origNum = parsePrice(item.originalPrice);
-                    const lensPrice = parsePrice(item.lensAddonPrice ?? item.lensSelection?.addonPrice);
+                    let lensPrice = parsePrice(item.lensAddonPrice ?? item.lensSelection?.addonPrice) || 0;
+                    if (lensPrice <= 0 && item.lensSelection) {
+                      lensPrice = resolveThicknessPrice(item.lensSelection);
+                      if (priceNum > 0 && lensPrice >= priceNum) lensPrice = Math.round(priceNum * 0.35);
+                    }
                     const framePrice = parsePrice(item.framePrice ?? priceNum - lensPrice);
                     const hasStock = item.stock != null && !isNaN(parseInt(item.stock, 10));
                     const stockCount = hasStock ? Math.max(0, parseInt(item.stock, 10)) : null;
@@ -214,7 +237,7 @@ export default function CartPage() {
                                 Color: <span className="cart-color-dot" style={{ backgroundColor: item.color }} /> <strong>{getColorName(item.color)}</strong>
                               </span>
                             )}
-                            {item.lensSelection && <><span className="cart-item-meta-dot">•</span><span className="cart-item-lens">Lens: <strong>{item.lensSelection.lensName}{item.lensSelection.thicknessName ? ` · ${item.lensSelection.thicknessName}` : ""}</strong>{Number(item.lensSelection.addonPrice || 0) > 0 ? ` (+₹${Number(item.lensSelection.addonPrice).toLocaleString("en-IN")})` : ""}</span></>}
+                            {item.lensSelection && <><span className="cart-item-meta-dot">•</span><span className="cart-item-lens">Lens: <strong>{item.lensSelection.lensName}{item.lensSelection.thicknessName ? ` · ${item.lensSelection.thicknessName}` : ""}</strong>{lensPrice > 0 ? ` (+₹${lensPrice.toLocaleString("en-IN")})` : ""}</span></>}
                           </div>
                         </div>
 

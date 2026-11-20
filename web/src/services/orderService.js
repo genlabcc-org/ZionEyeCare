@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { resolveThicknessPrice } from '../utils/lensUtils';
 
 export const orderService = {
   /**
@@ -33,8 +34,43 @@ export const orderService = {
             itemsByOrderId[item.order_id].push(item);
           });
           data.forEach((o) => {
+            const jsonItems = Array.isArray(o.items) ? o.items : [];
             if (itemsByOrderId[o.id]) {
-              o.order_items = itemsByOrderId[o.id];
+              o.order_items = itemsByOrderId[o.id].map((it, idx) => {
+                const matchedJson = jsonItems.find((ji) => String(ji.product_id || ji.productId) === String(it.product_id)) || jsonItems[idx] || {};
+                const lensSelection = it.lens_selection || it.lensSelection || matchedJson.lens_selection || matchedJson.lensSelection || null;
+                let lensAddonPrice = Number(it.lens_addon_price ?? it.lensAddonPrice ?? matchedJson.lens_addon_price ?? matchedJson.lensAddonPrice ?? lensSelection?.addonPrice ?? 0);
+                if (lensAddonPrice <= 0 && lensSelection) {
+                  lensAddonPrice = resolveThicknessPrice(lensSelection);
+                }
+                const unitPrice = Number(it.price || 0);
+                let framePrice = Number(it.frame_price ?? it.framePrice ?? matchedJson.frame_price ?? matchedJson.framePrice ?? 0);
+                if (framePrice <= 0 && unitPrice > 0) {
+                  framePrice = Math.max(0, unitPrice - lensAddonPrice);
+                }
+                const finalLensSelection = lensSelection ? {
+                  ...lensSelection,
+                  addonPrice: lensAddonPrice
+                } : null;
+                return {
+                  ...matchedJson,
+                  ...it,
+                  lensSelection: finalLensSelection,
+                  lens_selection: finalLensSelection,
+                  lensAddonPrice,
+                  lens_addon_price: lensAddonPrice,
+                  framePrice,
+                  frame_price: framePrice,
+                };
+              });
+            } else if (jsonItems.length > 0) {
+              o.order_items = jsonItems;
+            }
+          });
+        } else {
+          data.forEach((o) => {
+            if (Array.isArray(o.items) && o.items.length > 0) {
+              o.order_items = o.items;
             }
           });
         }
@@ -200,8 +236,43 @@ export const orderService = {
             itemsByOrderId[item.order_id].push(item);
           });
           data.forEach((o) => {
+            const jsonItems = Array.isArray(o.items) ? o.items : [];
             if (itemsByOrderId[o.id]) {
-              o.order_items = itemsByOrderId[o.id];
+              o.order_items = itemsByOrderId[o.id].map((it, idx) => {
+                const matchedJson = jsonItems.find((ji) => String(ji.product_id || ji.productId) === String(it.product_id)) || jsonItems[idx] || {};
+                const lensSelection = it.lens_selection || it.lensSelection || matchedJson.lens_selection || matchedJson.lensSelection || null;
+                let lensAddonPrice = Number(it.lens_addon_price ?? it.lensAddonPrice ?? matchedJson.lens_addon_price ?? matchedJson.lensAddonPrice ?? lensSelection?.addonPrice ?? 0);
+                if (lensAddonPrice <= 0 && lensSelection) {
+                  lensAddonPrice = resolveThicknessPrice(lensSelection);
+                }
+                const unitPrice = Number(it.price || 0);
+                let framePrice = Number(it.frame_price ?? it.framePrice ?? matchedJson.frame_price ?? matchedJson.framePrice ?? 0);
+                if (framePrice <= 0 && unitPrice > 0) {
+                  framePrice = Math.max(0, unitPrice - lensAddonPrice);
+                }
+                const finalLensSelection = lensSelection ? {
+                  ...lensSelection,
+                  addonPrice: lensAddonPrice
+                } : null;
+                return {
+                  ...matchedJson,
+                  ...it,
+                  lensSelection: finalLensSelection,
+                  lens_selection: finalLensSelection,
+                  lensAddonPrice,
+                  lens_addon_price: lensAddonPrice,
+                  framePrice,
+                  frame_price: framePrice,
+                };
+              });
+            } else if (jsonItems.length > 0) {
+              o.order_items = jsonItems;
+            }
+          });
+        } else {
+          data.forEach((o) => {
+            if (Array.isArray(o.items) && o.items.length > 0) {
+              o.order_items = o.items;
             }
           });
         }
@@ -259,7 +330,7 @@ export const orderService = {
   async updateOrderStatus(orderId, status) {
     const { data, error } = await supabase
       .from('orders')
-      .update({ status })
+      .update({ status, delivery_status: status })
       .eq('id', orderId)
       .select();
     if (error) throw error;
@@ -360,10 +431,45 @@ export const orderService = {
       try {
         const { data: items } = await supabase
           .from('order_items')
-          .select('*')
+          .select('*, products(product_id, name, image_url, images, sku)')
           .eq('order_id', orderId);
+        const jsonItems = Array.isArray(data.items) ? data.items : [];
         if (items && items.length > 0) {
-          data.order_items = items;
+          data.order_items = items.map((it, idx) => {
+            if (!it.image_url && it.products) {
+              it.image_url = it.products.image_url || it.products.images?.[0] || null;
+            }
+            if ((!it.sku || it.sku === 'N/A') && it.products?.sku) {
+              it.sku = it.products.sku;
+            }
+            const matchedJson = jsonItems.find((ji) => String(ji.product_id || ji.productId) === String(it.product_id)) || jsonItems[idx] || {};
+            const lensSelection = it.lens_selection || it.lensSelection || matchedJson.lens_selection || matchedJson.lensSelection || null;
+            let lensAddonPrice = Number(it.lens_addon_price ?? it.lensAddonPrice ?? matchedJson.lens_addon_price ?? matchedJson.lensAddonPrice ?? lensSelection?.addonPrice ?? 0);
+            if (lensAddonPrice <= 0 && lensSelection) {
+              lensAddonPrice = resolveThicknessPrice(lensSelection);
+            }
+            const unitPrice = Number(it.price || 0);
+            let framePrice = Number(it.frame_price ?? it.framePrice ?? matchedJson.frame_price ?? matchedJson.framePrice ?? 0);
+            if (framePrice <= 0 && unitPrice > 0) {
+              framePrice = Math.max(0, unitPrice - lensAddonPrice);
+            }
+            const finalLensSelection = lensSelection ? {
+              ...lensSelection,
+              addonPrice: lensAddonPrice
+            } : null;
+            return {
+              ...matchedJson,
+              ...it,
+              lensSelection: finalLensSelection,
+              lens_selection: finalLensSelection,
+              lensAddonPrice,
+              lens_addon_price: lensAddonPrice,
+              framePrice,
+              frame_price: framePrice,
+            };
+          });
+        } else if (jsonItems.length > 0) {
+          data.order_items = jsonItems;
         }
       } catch (err) {
         console.warn('Error fetching order_items for getOrderById:', err);

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./Bannerlist.css";
 import blankIcon from "../../assets/admin/blank.svg";
-import { bannerService } from "../../services/bannerService";
+import { bannerService, isVideoMedia } from "../../services/bannerService";
 import AdminModal from "../components/AdminModal";
 
 const PlusIcon = () => (
@@ -113,11 +113,22 @@ const BannerList = ({ banners: initialBanners = [], onAddBanner, onEditBanner, o
             const imgSrc = banner.image_url || banner.image;
             const mobileSrc = banner.mobile_url || banner.mobile_image_url;
 
+            const isVideo = isVideoMedia(imgSrc) || isVideoMedia(mobileSrc);
+
             return (
               <div key={banner.id} className="bl__card">
                 <div className="bl__card-image">
                   {imgSrc ? (
-                    <img src={imgSrc} alt={banner.title || "Banner"} />
+                    isVideo ? (
+                      <video
+                        src={imgSrc}
+                        muted
+                        playsInline
+                        style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                      />
+                    ) : (
+                      <img src={imgSrc} alt={banner.title || "Banner"} />
+                    )
                   ) : (
                     <div className="bl__card-image-placeholder">
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
@@ -132,6 +143,9 @@ const BannerList = ({ banners: initialBanners = [], onAddBanner, onEditBanner, o
                   <div className="bl__card-top">
                     <span className="bl__card-title">Banner #{banner.id ?? banner.banner_id}</span>
                     <span className="bl__badge bl__badge--active">Active</span>
+                    {isVideo && (
+                      <span className="bl__badge" style={{ background: "#ede9fe", color: "#6d28d9" }}>Video</span>
+                    )}
                     {mobileSrc && (
                       <span className="bl__badge bl__badge--mobile">Mobile Ready</span>
                     )}
@@ -273,11 +287,23 @@ const CarouselPreview = ({ banners, previewMode = "desktop" }) => {
       <div className={`bl__hero-preview bl__hero-preview--${previewMode}`}>
         {imgSrc ? (
           <div className="bl__hero-img-wrap">
-            <img
-              src={imgSrc}
-              alt={banner?.title || "Storefront banner"}
-              className="bl__hero-img"
-            />
+            {isVideoMedia(imgSrc) ? (
+              <video
+                src={imgSrc}
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="bl__hero-img"
+                style={{ objectFit: "cover" }}
+              />
+            ) : (
+              <img
+                src={imgSrc}
+                alt={banner?.title || "Storefront banner"}
+                className="bl__hero-img"
+              />
+            )}
           </div>
         ) : (
           <div className="bl__carousel-placeholder">No image</div>

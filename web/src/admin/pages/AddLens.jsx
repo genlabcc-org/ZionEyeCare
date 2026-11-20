@@ -4,10 +4,10 @@ import { lensService } from "../../services/lensService";
 import "./AddLens.css";
 
 export const LENS_THICKNESS_PRESETS = [
-  { name: "Standard", index: "1.56", range: "(from +2.00 to -2.00)", bestSuitedFor: "Low Powers" },
-  { name: "Thin", index: "1.60", range: "(from +4.00 to -4.00)", bestSuitedFor: "Moderate Powers" },
-  { name: "Super Thin", index: "1.67", range: "(from +6.00 to -6.00)", bestSuitedFor: "High Powers" },
-  { name: "Ultra Thin", index: "1.74", range: "(for above +6.00 and below -6.00)", bestSuitedFor: "Very High Powers" },
+  { name: "Standard", index: "1.56", range: "(from +2.00 to -2.00)", basePrice: 0, bestSuitedFor: "Low Powers" },
+  { name: "Thin", index: "1.60", range: "(from +4.00 to -4.00)", basePrice: 500, bestSuitedFor: "Moderate Powers" },
+  { name: "Super Thin", index: "1.67", range: "(from +6.00 to -6.00)", basePrice: 1200, bestSuitedFor: "High Powers" },
+  { name: "Ultra Thin", index: "1.74", range: "(for above +6.00 and below -6.00)", basePrice: 2000, bestSuitedFor: "Very High Powers" },
 ];
 
 const createEmptyThickness = () => ({
@@ -301,6 +301,7 @@ export default function AddLens({ initialData = null, onBack, onSave }) {
                                           name: p.name,
                                           index: p.index,
                                           range: p.range,
+                                          basePrice: p.basePrice !== undefined ? String(p.basePrice) : t.basePrice,
                                           bestSuitedFor: p.bestSuitedFor,
                                         }
                                       : t

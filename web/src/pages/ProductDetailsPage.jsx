@@ -7,6 +7,7 @@ import { lensService } from "../services/lensService";
 import { getOriginalImageUrl } from '../utils/imageUtils';
 import { getNavPath } from "../services/categoryRoute";
 import { getColorName } from '../utils/colorUtils';
+import { resolveThicknessPrice } from '../utils/lensUtils';
 
 import './ProductDetailsPage.css';
 import SiteHeader from '../components/SiteHeader';
@@ -52,7 +53,7 @@ const ProductGallery = memo(({ activeThumb, setActiveThumb, displayImage, displa
               onClick={() => setActiveThumb(idx)}
               aria-label={`Thumbnail ${idx + 1}`}
             >
-              <img src={item.img} alt={item.alt || displayName} className="dp-thumb-img" />
+              <img src={getOriginalImageUrl(item.img || item.rawImg)} alt={item.alt || displayName} className="dp-thumb-img" />
             </button>
           ))}
         </div>
@@ -133,6 +134,13 @@ const getRelatedProductColors = (product) => {
   return unique;
 };
 
+const cleanNum = (val) => {
+  if (val == null) return null;
+  if (typeof val === 'number') return isNaN(val) ? null : val;
+  const n = Number(String(val).replace(/[^0-9.]/g, ''));
+  return isNaN(n) ? null : n;
+};
+
 // ── Related Products Component ──
 const RelatedProducts = memo(({ relatedItems, onProductClick }) => {
   const [selectedRelColors, setSelectedRelColors] = useState({});
@@ -155,22 +163,38 @@ const RelatedProducts = memo(({ relatedItems, onProductClick }) => {
               ? `${activeColorName} - ${p.name}`
               : p.name;
 
-          const colorVariantImg =
-            activeColor && Array.isArray(p.product_variants)
-              ? p.product_variants.find(
-                  (v) =>
-                    String(v.color || "").trim().toLowerCase() === String(activeColor).trim().toLowerCase() &&
-                    Array.isArray(v.images) &&
-                    v.images.length > 0
-                )?.images?.[0]
-              : null;
+          const matchingVariants = activeColor && Array.isArray(p.product_variants)
+            ? p.product_variants.filter(
+                (v) =>
+                  String(v.color || "").trim().toLowerCase() === String(activeColor).trim().toLowerCase()
+              )
+            : [];
+
+          const colorVariantImg = matchingVariants.find(
+            (v) => Array.isArray(v.images) && v.images.length > 0
+          )?.images?.[0];
           const cardImgUrl = colorVariantImg || p.img || p.image_url;
+
+          const validPrices = matchingVariants
+            .map((v) => cleanNum(v.price))
+            .filter((n) => n != null && n > 0);
+          const cardPrice = validPrices.length > 0 ? Math.min(...validPrices) : (cleanNum(p.price) ?? 0);
+
+          const validCompares = matchingVariants
+            .map((v) => cleanNum(v.compare_price))
+            .filter((n) => n != null && n > 0);
+          const cardComparePrice = validCompares.length > 0 ? Math.max(...validCompares) : cleanNum(p.compare_price);
+
+          const hasCutMrp = cardComparePrice != null && cardComparePrice > cardPrice;
+          const discountPercent = hasCutMrp
+            ? Math.round(((cardComparePrice - cardPrice) / cardComparePrice) * 100)
+            : 0;
 
           return (
             <div
               key={cardKey}
               className="dp-rel-card"
-              onClick={() => onProductClick && onProductClick(p, activeColor, cardImgUrl)}
+              onClick={() => onProductClick && onProductClick(p, activeColor, cardImgUrl, cardPrice, cardComparePrice)}
             >
               <div className="dp-rel-img-wrapper">
                 <img
@@ -182,10 +206,7 @@ const RelatedProducts = memo(({ relatedItems, onProductClick }) => {
               </div>
               <div className="dp-rel-details">
                 <div className="dp-rel-details-top-row">
-                  <div className="dp-rel-details-info">
-                    <h4 className="dp-rel-name" title={displayTitle}>{displayTitle}</h4>
-                    <div className="dp-rel-price">₹{p.price}</div>
-                  </div>
+                  <h4 className="dp-rel-name" title={displayTitle}>{displayTitle}</h4>
                   {productColors.length > 0 && (
                     <div className="dp-rel-card-colors" aria-label="Available colors">
                       {productColors.map((color) => {
@@ -223,6 +244,24 @@ const RelatedProducts = memo(({ relatedItems, onProductClick }) => {
                         );
                       })}
                     </div>
+                  )}
+                </div>
+
+                <div className="dp-rel-price-row">
+                  <span className="dp-rel-price">
+                    ₹{Number(cardPrice).toLocaleString('en-IN')}
+                  </span>
+                  {hasCutMrp && (
+                    <>
+                      <span className="dp-rel-mrp-cut" title="MRP">
+                        ₹{Number(cardComparePrice).toLocaleString('en-IN')}
+                      </span>
+                      {discountPercent > 0 && (
+                        <span className="dp-rel-discount-badge">
+                          {discountPercent}% OFF
+                        </span>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
@@ -730,9 +769,20 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
             addonPrice: Number(t.basePrice ?? t.base_price ?? 0),
             bestSuitedFor: t.bestSuitedFor || t.best_suited_for || "",
           }));
+      const flatPrice = Number(
+        option.addonPrice ??
+        option.price ??
+        option.basePrice ??
+        catalogLens?.addonPrice ??
+        catalogLens?.price ??
+        catalogLens?.basePrice ??
+        catalogLens?.base_price ??
+        0
+      );
       return {
         ...option,
         lensName: option.lensName || catalogLens?.name || "Lens",
+        flatPrice,
         thicknesses: rawTiers.map((tier) => {
           const catalogTier = catalogLens?.thicknesses?.find((catalogItem) => String(catalogItem.id) === String(tier.thicknessId || tier.id));
           return {
@@ -740,14 +790,14 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
             name: tier.name || catalogTier?.name || "Standard",
             index: tier.index || catalogTier?.index || catalogTier?.lens_index || "",
             range: tier.range || catalogTier?.range || catalogTier?.power_range || "",
-            addonPrice: Number(tier.addonPrice ?? catalogTier?.basePrice ?? catalogTier?.base_price ?? 0),
+            addonPrice: resolveThicknessPrice(tier, catalogTier),
             bestSuitedFor: tier.bestSuitedFor || tier.best_suited_for || catalogTier?.bestSuitedFor || catalogTier?.best_suited_for || "",
           };
         }),
       };
     });
   }, [productPrices, selectedProduct, lensCatalog]);
-  const lensAddonPrice = Number(selectedLensTier?.addonPrice || 0);
+  const lensAddonPrice = resolveThicknessPrice(selectedLensTier);
   const lensTotal = payPrice + lensAddonPrice;
   const strikePrice = cleanNum(rawCompare);
   const discountPercent =
@@ -879,7 +929,7 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
 
     return imgs.map((img, i) => ({
       id: i + 1,
-      img: productService.getResizedImageUrl(img, 'detail'),
+      img: getOriginalImageUrl(img),
       rawImg: getOriginalImageUrl(img),
       alt: `${displayName} view ${i + 1}`
     }));
@@ -943,12 +993,14 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
   };
 
   const handleRelatedProductClick = useCallback(
-    (product, color = null, customImg = null) => {
+    (product, color = null, customImg = null, price = null, comparePrice = null) => {
       setSelectedProduct({
         ...product,
         category: product.category || cat,
         ...(color ? { selectedColor: color } : {}),
         ...(customImg ? { img: customImg, image: customImg } : {}),
+        ...(price != null ? { price } : {}),
+        ...(comparePrice != null ? { compare_price: comparePrice } : {}),
       });
       if (color) {
         setSelectedColor(color);
@@ -1124,6 +1176,11 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
     }
     if (!canAddToCart) return false;
 
+    // Distinguish between passing a lens tier object vs passing a React Click Event
+    const activeLensTier = (lensTier && lensTier.lensName) ? lensTier : selectedLensTier;
+    const finalAddonPrice = activeLensTier ? resolveThicknessPrice(activeLensTier) : 0;
+    const finalItemPrice = payPrice + finalAddonPrice;
+
     if (selectedProduct) {
       const sizeParam = selectedSize || null;
       const colorParam = selectedColor || availableColors[0] || null;
@@ -1132,8 +1189,9 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
         productId: selectedProduct?.productId || selectedProduct?.id || selectedProduct?.product_id,
         id: selectedProduct?.productId || selectedProduct?.id || selectedProduct?.product_id,
         name: displayName,
-        price: lensTier ? lensTotal : payPrice,
+        price: finalItemPrice,
         framePrice: payPrice,
+        lensAddonPrice: finalAddonPrice,
         originalPrice: strikePrice,
         compare_price: strikePrice,
         image: dynamicThumbs[0]?.img || selectedVariant?.images?.[0] || displayImage,
@@ -1144,15 +1202,15 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
         subcategory_id: selectedProduct?.subcategory_id || selectedProduct?.subcategoryId,
         stock: stockCount,
         stockCount: stockCount,
-        lensSelection: lensTier ? {
-          lensName: lensTier.lensName,
-          thicknessName: lensTier.name,
-          thicknessId: lensTier.thicknessId,
-          addonPrice: lensAddonPrice,
+        lensSelection: activeLensTier ? {
+          lensName: activeLensTier.lensName,
+          thicknessName: activeLensTier.name,
+          thicknessId: activeLensTier.thicknessId,
+          addonPrice: finalAddonPrice,
         } : null,
       };
       await addToCart(cartProductPayload, qty, sizeParam, colorParam);
-      showToast(lensTier ? `Added "${displayName}" with ${lensTier.lensName} to cart!` : `Added "${displayName}" to cart!`);
+      showToast(activeLensTier ? `Added "${displayName}" with ${activeLensTier.lensName} to cart!` : `Added "${displayName}" to cart!`);
       return true;
     }
     return false;
@@ -1171,12 +1229,17 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
 
     const sizeParam = selectedSize || null;
     const colorParam = selectedColor || availableColors[0] || null;
+    const activeLensTier = selectedLensTier;
+    const finalAddonPrice = activeLensTier ? resolveThicknessPrice(activeLensTier) : 0;
+    const finalItemPrice = payPrice + finalAddonPrice;
 
     const checkoutPayload = {
       productId: selectedProduct?.productId || selectedProduct?.id || selectedProduct?.product_id,
       id: selectedProduct?.productId || selectedProduct?.id || selectedProduct?.product_id,
       name: displayName,
-      price: payPrice,
+      price: finalItemPrice,
+      framePrice: payPrice,
+      lensAddonPrice: finalAddonPrice,
       originalPrice: strikePrice,
       qty: qty,
       stock: stockCount,
@@ -1189,6 +1252,12 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
       sku: displaySku || selectedProduct?.sku || selectedVariant?.sku || '',
       size: sizeParam,
       color: colorParam,
+      lensSelection: activeLensTier ? {
+        lensName: activeLensTier.lensName,
+        thicknessName: activeLensTier.name,
+        thicknessId: activeLensTier.thicknessId,
+        addonPrice: finalAddonPrice,
+      } : null,
     };
 
     try {
@@ -1205,7 +1274,7 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
         product: checkoutPayload
       }
     });
-  }, [validateOptionsSelection, displayName, payPrice, strikePrice, qty, dynamicThumbs, selectedVariant, displayImage, cat, displaySku, selectedProduct, selectedSize, selectedColor, canAddToCart, navigate]);
+  }, [validateOptionsSelection, displayName, payPrice, strikePrice, qty, dynamicThumbs, selectedVariant, displayImage, cat, displaySku, selectedProduct, selectedSize, selectedColor, selectedLensTier, canAddToCart, navigate]);
 
   return (
     <div className="dp-page-root">
@@ -1409,7 +1478,7 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
             <div className="dp-purchase-actions">
               <button type="button" className="dp-lens-select-btn" disabled={!productLensOptions.length} onClick={() => { setLensDrawerOpen(true); setLensStep(1); }}>
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="7" cy="13" r="4" /><circle cx="17" cy="13" r="4" /><path d="M11 13h2M3 13l1-5h3M21 13l-1-5h-3" /></svg>
-                {productLensOptions.length ? "Select Lens" : "Frame Only (Without Lenses)"}
+                {productLensOptions.length ? "SELECT LENS" : "FRAME ONLY (WITHOUT LENSES)"}
               </button>
             </div>
             <button
@@ -1433,14 +1502,101 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
             <div className="dp-lens-overlay" onClick={() => setLensDrawerOpen(false)}>
               <aside className="dp-lens-drawer" onClick={(event) => event.stopPropagation()}>
                 <div className="dp-lens-drawer-header">{lensStep === 2 && <button className="dp-lens-back" type="button" onClick={() => setLensStep(1)} aria-label="Back"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5" /><path d="m12 19-7-7 7-7" /></svg></button>}<h3>{lensStep === 1 ? "Select Lens Type" : "Adjust Your Lens"}</h3><button type="button" onClick={() => setLensDrawerOpen(false)} aria-label="Close lens selection">×</button></div>
+                {/* Selected Frame Preview */}
+                <div className="dp-lens-frame-preview">
+                  <div className="dp-lens-frame-img-wrap">
+                    <img src={getOriginalImageUrl(dynamicThumbs[activeThumb === -1 ? 0 : activeThumb]?.rawImg || displayImage)} alt={displayName} className="dp-lens-frame-img" />
+                  </div>
+                  <div className="dp-lens-frame-info">
+                    <span className="dp-lens-frame-name">{displayName}</span>
+                    <span className="dp-lens-frame-price">Frame: ₹{payPrice.toLocaleString('en-IN')}</span>
+                    {selectedSize && <span className="dp-lens-frame-meta">Size: {selectedSize}</span>}
+                    {selectedColor && <span className="dp-lens-frame-meta">Color: {getColorName(selectedColor) || selectedColor}</span>}
+                  </div>
+                </div>
                 <div className="dp-lens-options">
-                  {lensStep === 1 ? productLensOptions.map((lens) => <button type="button" key={lens.lensId} className={`dp-lens-type-card${String(selectedLensId) === String(lens.lensId) ? " selected" : ""}`} onClick={() => { if (String(selectedLensId) !== String(lens.lensId)) setSelectedLensTier(null); setSelectedLensId(lens.lensId); setLensStep(2); }}><span className="dp-lens-icon"><LensTypeIcon /></span><span><strong>{lens.lensName}</strong><small>Choose the best lens option for your vision.</small></span></button>) : <><h4 className="dp-lens-thickness-title">Choose Thickness</h4><p className="dp-lens-note">All lenses are blue-violet light protected for digital screens</p>{(productLensOptions.find((lens) => String(lens.lensId) === String(selectedLensId))?.thicknesses || []).map((tier) => {
-                    const lens = productLensOptions.find((option) => String(option.lensId) === String(selectedLensId));
-                    const key = `${lens.lensId}-${tier.thicknessId}`;
-                    const selected = selectedLensTier?.key === key;
-                    const suitability = tier.bestSuitedFor || tier.best_suited_for || "";
-                    return <button type="button" key={key} className={`dp-lens-option${selected ? " selected" : ""}`} onClick={() => setSelectedLensTier({ ...tier, lensName: lens.lensName, key })}><span className="dp-thickness-icon"><ThicknessIcon name={tier.name} /></span><span className="dp-lens-option-copy"><strong>{tier.name}</strong><small>{tier.index} · {tier.range}</small>{suitability && <small className="dp-lens-suitability">Best suited for: {suitability}</small>}</span><b>+ ₹{Number(tier.addonPrice || 0).toLocaleString("en-IN")}</b></button>;
-                  })}</>}
+                  {lensStep === 1 ? (
+                    <>
+                      <h4 className="dp-lens-thickness-title">Choose Lens</h4>
+                      {productLensOptions.map((lens) => {
+                        const hasThicknesses = Array.isArray(lens.thicknesses) && lens.thicknesses.length > 0;
+                        const isSelected = String(selectedLensId) === String(lens.lensId);
+                        const resolvedPrice = resolveThicknessPrice({
+                          lensName: lens.lensName,
+                          addonPrice: lens.flatPrice,
+                        });
+
+                        return (
+                          <button
+                            type="button"
+                            key={lens.lensId}
+                            className={`dp-lens-type-card${isSelected ? " selected" : ""}`}
+                            onClick={() => {
+                              if (hasThicknesses) {
+                                if (!isSelected) setSelectedLensTier(null);
+                                setSelectedLensId(lens.lensId);
+                                setLensStep(2);
+                              } else {
+                                setSelectedLensId(lens.lensId);
+                                setLensStep(1);
+                                setSelectedLensTier({
+                                  lensId: lens.lensId,
+                                  lensName: lens.lensName,
+                                  name: "Standard",
+                                  thicknessName: "Standard",
+                                  thicknessId: "default",
+                                  addonPrice: resolvedPrice,
+                                  key: `${lens.lensId}-default`,
+                                });
+                              }
+                            }}
+                          >
+                            <span className="dp-lens-icon"><LensTypeIcon /></span>
+                            <span className="dp-lens-type-card-copy">
+                              <strong>{lens.lensName}</strong>
+                              <small>
+                                {hasThicknesses
+                                  ? "Choose the best lens option for your vision."
+                                  : "Standard optical lens protection"}
+                              </small>
+                            </span>
+                            {!hasThicknesses && (
+                              <b className="dp-lens-card-price">
+                                + ₹{Number(resolvedPrice || 0).toLocaleString("en-IN")}
+                              </b>
+                            )}
+                          </button>
+                        );
+                      })}
+                    </>
+                  ) : (
+                    <>
+                      <h4 className="dp-lens-thickness-title">Choose Thickness</h4>
+                      <p className="dp-lens-note">All lenses are blue-violet light protected for digital screens</p>
+                      {(productLensOptions.find((lens) => String(lens.lensId) === String(selectedLensId))?.thicknesses || []).map((tier) => {
+                        const lens = productLensOptions.find((option) => String(option.lensId) === String(selectedLensId));
+                        const key = `${lens.lensId}-${tier.thicknessId}`;
+                        const selected = selectedLensTier?.key === key;
+                        const suitability = tier.bestSuitedFor || tier.best_suited_for || "";
+                        return (
+                          <button
+                            type="button"
+                            key={key}
+                            className={`dp-lens-option${selected ? " selected" : ""}`}
+                            onClick={() => setSelectedLensTier({ ...tier, lensName: lens.lensName, key })}
+                          >
+                            <span className="dp-thickness-icon"><ThicknessIcon name={tier.name} /></span>
+                            <span className="dp-lens-option-copy">
+                              <strong>{tier.name}</strong>
+                              <small>{tier.index} · {tier.range}</small>
+                              {suitability && <small className="dp-lens-suitability">Best suited for: {suitability}</small>}
+                            </span>
+                            <b>+ ₹{Number(tier.addonPrice || 0).toLocaleString("en-IN")}</b>
+                          </button>
+                        );
+                      })}
+                    </>
+                  )}
                 </div>
                 {selectedLensTier && <div className="dp-lens-summary"><span>Frame + {selectedLensTier.lensName}</span><b>₹{lensTotal.toLocaleString("en-IN")}</b><button type="button" disabled={!canAddToCart || isCurrentProductInCart} onClick={async () => { const added = await handleAddToCart(selectedLensTier); if (added) setLensDrawerOpen(false); }}>{isCurrentProductInCart ? "Already in Cart" : "Add to Cart"}</button></div>}
               </aside>

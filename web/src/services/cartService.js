@@ -1,4 +1,5 @@
 import { supabase } from '../lib/supabase';
+import { resolveThicknessPrice } from '../utils/lensUtils';
 
 /** Strip currency symbols & commas so "₹1,299" → 1299 */
 const parsePrice = (v) => {
@@ -109,7 +110,10 @@ export const cartService = {
       const storedColor = item.color || '';
       const realColor = getRealColors(product, variants).includes(normalizeColor(storedColor)) ? storedColor : '';
 
-      const lensAddonPrice = parsePrice(item.lens_addon_price);
+      let lensAddonPrice = parsePrice(item.lens_addon_price);
+      if (lensAddonPrice <= 0 && item.lens_selection) {
+        lensAddonPrice = resolveThicknessPrice(item.lens_selection);
+      }
       return {
         id: item.id,
         productId: item.product_id,
@@ -130,7 +134,10 @@ export const cartService = {
         storedColor,
         image: getOriginalImageUrl(image),
         deliveryDate: "2 - 3 days",
-        lensSelection: item.lens_selection || null,
+        lensSelection: item.lens_selection ? {
+          ...item.lens_selection,
+          addonPrice: Number(item.lens_selection.addonPrice) || lensAddonPrice
+        } : null,
         lensAddonPrice,
       };
     });
@@ -147,6 +154,13 @@ export const cartService = {
   async addCartItem(userId, productId, qty = 1, size = null, color = null, lensSelection = null) {
     const normSize = size || '';
     const normColor = color || '';
+    const resolvedAddonPrice = lensSelection
+      ? (parsePrice(lensSelection.addonPrice) || resolveThicknessPrice(lensSelection))
+      : 0;
+    const finalLensSelection = lensSelection ? {
+      ...lensSelection,
+      addonPrice: resolvedAddonPrice
+    } : null;
     const { data, error } = await supabase
       .from('cart_items')
       .upsert({
@@ -155,8 +169,8 @@ export const cartService = {
         quantity: qty,
         size: normSize,
         color: normColor,
-        lens_selection: lensSelection,
-        lens_addon_price: parsePrice(lensSelection?.addonPrice)
+        lens_selection: finalLensSelection,
+        lens_addon_price: resolvedAddonPrice
       }, { onConflict: 'user_id,product_id,size,color' })
       .select();
 

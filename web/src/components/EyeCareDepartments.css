@@ -38,8 +38,8 @@
   align-items: center;
   gap: 7px;
   padding: 6px 12px;
-  background-color: #ffffff;
-  border: 1px solid #e2e8f0;
+  background-color: rgba(59, 113, 193, 0.08);
+  border: none;
   border-radius: 6px;
   margin-bottom: 18px;
   box-shadow: none;
@@ -237,6 +237,17 @@
   .eye-dept-image-card,
   .eye-dept-info-card {
     min-height: 270px;
+  }
+}
+
+@media (max-width: 800px) {
+  .eye-dept-header-left {
+    width: 100%;
+  }
+
+  .eye-dept-badge {
+    align-self: center;
+    margin: 0 auto 16px;
   }
 }
 

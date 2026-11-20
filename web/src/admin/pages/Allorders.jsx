@@ -227,6 +227,15 @@ const STATUSES = [
   "Returned",
 ];
 const PAYMENT_OPTIONS = ["All Payment", "Razorpay", "COD"];
+const ORDER_STATUS_OPTIONS = [
+  "Order Placed",
+  "Confirmed",
+  "Shipped",
+  "Out for Delivery",
+  "Delivered",
+  "Cancelled",
+  "Returned",
+];
 const PAGE_SIZE = 10;
 
 /* ── Icons ── */
@@ -666,6 +675,38 @@ const AllOrders = ({ orders = [], products = [], categories: categoriesProp = []
     } catch (e) {
       console.error("Failed to update printed status:", e);
       showToast("Error updating printed status: " + e.message, "error");
+    }
+  };
+
+  // ── Manual Order Status Change ──
+  const [statusUpdating, setStatusUpdating] = useState(null); // order id being updated
+  const handleStatusChange = async (order, newStatus) => {
+    if (!order || !newStatus || statusUpdating) return;
+    const currentStatus = (order.status || order.delivery_status || "").toLowerCase();
+    if (currentStatus === newStatus.toLowerCase()) return;
+
+    const orderShortId = String(order.id).slice(-6).toUpperCase();
+    setStatusUpdating(order.id);
+    try {
+      await orderService.updateOrderStatus(order.id, newStatus);
+      setLocalOrders((prev) =>
+        prev.map((o) =>
+          o.id === order.id
+            ? { ...o, status: newStatus, delivery_status: newStatus }
+            : o
+        )
+      );
+      setPreviewOrder((prev) =>
+        prev && prev.id === order.id
+          ? { ...prev, status: newStatus, delivery_status: newStatus }
+          : prev
+      );
+      showToast(`✅ Order #${orderShortId} → ${newStatus}`, "success");
+    } catch (e) {
+      console.error("Failed to update order status:", e);
+      showToast(`Error updating status: ${e.message}`, "error");
+    } finally {
+      setStatusUpdating(null);
     }
   };
 
@@ -1299,72 +1340,38 @@ const AllOrders = ({ orders = [], products = [], categories: categoriesProp = []
           <td>
             {(() => {
               const dt = getDeliveryStatusTag(order);
-              const courier = order.courier_name;
-              const awb = order.waybill;
-              const trackingUrl = order.tracking_url;
+              const currentVal = order.status || order.delivery_status || dt.label;
 
               return (
                 <div style={{ display: "inline-flex", flexDirection: "column", gap: 3, alignItems: "flex-start" }}>
-                  <span
-                    className="ao__badge"
+                  <select
+                    className="ao__status-select"
+                    value={currentVal}
+                    disabled={statusUpdating === order.id}
+                    onChange={(e) => handleStatusChange(order, e.target.value)}
                     style={{
                       backgroundColor: dt.bg,
                       color: dt.color,
-                      border: `1px solid ${dt.border}`,
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: 6,
+                      border: `1.5px solid ${dt.border}`,
+                      borderRadius: 20,
+                      padding: "3px 8px 3px 10px",
+                      fontSize: 12,
+                      fontWeight: 600,
+                      cursor: "pointer",
+                      outline: "none",
+                      appearance: "auto",
+                      fontFamily: "inherit",
+                      minWidth: 110,
                     }}
-                    title={`Delivery Status: ${dt.label}`}
                   >
-                    <span
-                      style={{
-                        width: 6,
-                        height: 6,
-                        borderRadius: "50%",
-                        backgroundColor: dt.dot,
-                        display: "inline-block",
-                        flexShrink: 0,
-                      }}
-                    />
-                    {dt.label}
-                  </span>
-
-                  {awb && (
-                    <div
-                      style={{
-                        fontSize: 11,
-                        color: "#64748B",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 4,
-                        paddingLeft: 2,
-                      }}
-                    >
-                      <span style={{ fontWeight: 600, color: "#475569" }}>
-                        {courier || "Courier"}:
-                      </span>
-                      {trackingUrl ? (
-                        <a
-                          href={trackingUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                          style={{
-                            color: "#3B71C1",
-                            textDecoration: "underline",
-                            fontFamily: "monospace",
-                            fontWeight: 500,
-                          }}
-                          title="Track on courier portal"
-                        >
-                          {awb} ↗
-                        </a>
-                      ) : (
-                        <span style={{ fontFamily: "monospace" }}>{awb}</span>
-                      )}
-                    </div>
-                  )}
+                    {/* Show current value even if not in standard list */}
+                    {!ORDER_STATUS_OPTIONS.includes(currentVal) && (
+                      <option value={currentVal}>{currentVal}</option>
+                    )}
+                    {ORDER_STATUS_OPTIONS.map((opt) => (
+                      <option key={opt} value={opt}>{opt}</option>
+                    ))}
+                  </select>
                 </div>
               );
             })()}
@@ -1470,30 +1477,34 @@ const AllOrders = ({ orders = [], products = [], categories: categoriesProp = []
                   </button>
                   {(() => {
                     const dt = getDeliveryStatusTag(order);
+                    const currentVal = order.status || order.delivery_status || dt.label;
                     return (
-                      <span
-                        className="ao__badge"
+                      <select
+                        className="ao__status-select"
+                        value={currentVal}
+                        disabled={statusUpdating === order.id}
+                        onChange={(e) => handleStatusChange(order, e.target.value)}
                         style={{
                           backgroundColor: dt.bg,
                           color: dt.color,
-                          border: `1px solid ${dt.border}`,
-                          display: "inline-flex",
-                          alignItems: "center",
-                          gap: 5,
+                          border: `1.5px solid ${dt.border}`,
+                          borderRadius: 20,
+                          padding: "3px 6px 3px 8px",
+                          fontSize: 11,
+                          fontWeight: 600,
+                          cursor: "pointer",
+                          outline: "none",
+                          appearance: "auto",
+                          fontFamily: "inherit",
                         }}
                       >
-                        <span
-                          style={{
-                            width: 6,
-                            height: 6,
-                            borderRadius: "50%",
-                            backgroundColor: dt.dot,
-                            display: "inline-block",
-                            flexShrink: 0,
-                          }}
-                        />
-                        {dt.label}
-                      </span>
+                        {!ORDER_STATUS_OPTIONS.includes(currentVal) && (
+                          <option value={currentVal}>{currentVal}</option>
+                        )}
+                        {ORDER_STATUS_OPTIONS.map((opt) => (
+                          <option key={opt} value={opt}>{opt}</option>
+                        ))}
+                      </select>
                     );
                   })()}
                 </div>

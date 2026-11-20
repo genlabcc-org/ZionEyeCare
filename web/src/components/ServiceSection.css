@@ -1,5 +1,5 @@
 .service-section {
-  align-items: center;
+  align-items: flex-start;
   box-sizing: border-box;
   display: grid;
   gap: clamp(36px, 7vw, 104px);
@@ -12,43 +12,69 @@
 
 .service-intro {
   align-items: flex-start;
+  align-self: flex-start;
   display: flex;
   flex-direction: column;
 }
 
 .service-eyebrow {
   align-items: center;
-  border: 1px solid #e4e8ec;
-  border-radius: 999px;
+  background-color: rgba(59, 113, 193, 0.08);
+  border: none;
+  border-radius: 6px;
+  box-shadow: none;
   color: #172433;
   display: inline-flex;
+  font-family: var(--font-body, 'Outfit', sans-serif);
   font-size: 13px;
   font-weight: 500;
   gap: 7px;
   line-height: 1;
-  padding: 8px 12px;
+  margin-bottom: 18px;
+  padding: 6px 12px;
 }
 
-.service-eyebrow svg {
-  color: var(--blue-primary, #002277);
-  height: 15px;
-  width: 15px;
+.service-eyebrow-icon-wrap {
+  align-items: center;
+  background: #3B71C1;
+  border-radius: 50%;
+  color: #ffffff;
+  display: inline-flex;
+  flex-shrink: 0;
+  height: 20px;
+  justify-content: center;
+  width: 20px;
+}
+
+.service-eyebrow-icon-wrap svg {
+  color: #ffffff !important;
+  height: 12px;
+  width: 12px;
+}
+
+.service-eyebrow-text {
+  color: #172433;
+  font-family: var(--font-body, 'Outfit', sans-serif);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1;
 }
 
 .service-intro h2 {
   color: #17202f;
-  font-family: var(--font-body);
-  font-size: clamp(36px, 4vw, 54px);
-  font-weight: 600;
-  letter-spacing: -0.045em;
-  line-height: 1.08;
+  font-family: var(--font-title, 'Niquitta Mirzani Sans', 'Outfit', sans-serif);
+  font-size: clamp(34px, 4vw, 52px);
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.1;
   margin: 18px 0 14px;
-  max-width: 460px;
-  text-transform: none;
+  max-width: 480px;
+  text-transform: capitalize;
 }
 
 .service-intro > p {
   color: #66717e;
+  font-family: var(--font-body, 'Outfit', sans-serif);
   font-size: 16px;
   line-height: 1.65;
   margin: 0;
@@ -158,21 +184,63 @@
 .service-appointment-icon { background: #3B71C1; }
 .service-eyebrow svg { color: #3B71C1; }
 
+/* Desktop vs Mobile button placement */
+.service-appointment-desktop {
+  display: inline-flex;
+}
+
+.service-appointment-mobile {
+  display: none !important;
+}
+
 @media (max-width: 800px) {
   .service-section {
-    gap: 30px;
-    grid-template-columns: 1fr;
+    align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
     margin: 24px auto 48px;
     padding: 24px 20px;
   }
 
+  .service-intro {
+    align-items: flex-start;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    width: 100%;
+  }
+
+  .service-eyebrow {
+    align-self: center;
+    margin: 0 auto 16px;
+  }
+
   .service-intro h2 {
-    font-size: clamp(34px, 8vw, 46px);
+    font-size: clamp(32px, 8vw, 44px);
+    margin: 14px 0 12px;
     max-width: 520px;
+    text-align: left;
   }
 
   .service-intro > p {
+    margin: 0;
     max-width: 520px;
+    text-align: left;
+  }
+
+  .service-list {
+    width: 100%;
+  }
+
+  .service-appointment-desktop {
+    display: none !important;
+  }
+
+  .service-appointment-mobile {
+    align-self: flex-start;
+    display: inline-flex !important;
+    margin-top: 14px;
   }
 
   .service-card img {

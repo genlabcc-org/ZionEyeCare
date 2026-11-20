@@ -11,15 +11,16 @@
   z-index: 99999 !important;
   background: #ffffff !important;
   color: #111827;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
-  box-shadow: none !important;
+  border-bottom: none !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+  transition: box-shadow 0.2s ease;
   width: 100%;
   overflow: visible !important;
 }
 
 .header.header--scrolled {
-  box-shadow: none !important;
-  border-bottom-color: rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.07) !important;
+  border-bottom: none !important;
 }
 
 .header.header--menu-open {
@@ -643,8 +644,8 @@ body.menu-open {
 .mobile-menu-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  z-index: 99990 !important;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 1000010 !important;
   backdrop-filter: blur(2px);
   -webkit-backdrop-filter: blur(2px);
   animation: navPopupFade 0.2s ease-out;
@@ -666,10 +667,10 @@ body.menu-open {
   touch-action: pan-y;
   padding: 0;
   box-sizing: border-box;
-  z-index: 99998 !important;
+  z-index: 1000020 !important;
   overscroll-behavior: contain;
   border-left: 1px solid #e5e7eb;
-  box-shadow: none;
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.15);
   transform: translateX(100%);
   transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
   display: flex !important;
@@ -865,27 +866,29 @@ body.menu-open {
 
 /* ─── Minimal Mobile Sidebar Admin Button (In Sidebar Only) ─── */
 .mobile-sidebar-admin-box {
-  margin-top: 10px;
-  padding-top: 10px;
-  border-top: 1px solid #f1f5f9;
+  margin: 14px 22px 8px;
+  padding-top: 0;
+  border-top: none;
+  display: flex;
+  align-items: center;
 }
 
 .mobile-sidebar-admin-btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 7px;
   background-color: #3B71C1;
   border: none;
   color: #ffffff !important;
-  padding: 10px 16px;
-  border-radius: 8px;
+  padding: 7px 15px;
+  border-radius: 7px;
   text-decoration: none;
-  font-size: 13.5px;
+  font-size: 12.5px;
   font-weight: 600;
   letter-spacing: 0.2px;
   box-shadow: none;
   cursor: pointer;
-  transition: background-color 0.15s ease;
+  transition: background-color 0.15s ease, opacity 0.15s ease;
 }
 
 .mobile-sidebar-admin-btn:hover {
@@ -898,21 +901,18 @@ body.menu-open {
 }
 
 .mobile-sidebar-admin-btn-left {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   color: inherit;
 }
 
 .mobile-sidebar-admin-btn svg {
+  width: 13.5px;
+  height: 13.5px;
   color: #ffffff;
   stroke: #ffffff;
   flex-shrink: 0;
-  transition: opacity 0.15s;
-}
-
-.admin-arrow-icon {
-  opacity: 0.8;
 }
 
 /* ─── Desktop vs Mobile Visibility Helpers ─── */

@@ -1,6 +1,19 @@
 import { supabase } from '../lib/supabase';
 import { compressImage } from '../utils/imageCompression';
 
+/**
+ * Check if a URL or File represents a video
+ * @param {string|File} url 
+ * @returns {boolean}
+ */
+export const isVideoMedia = (url) => {
+  if (!url) return false;
+  if (typeof url === 'object' && url.type) {
+    return url.type.startsWith('video/');
+  }
+  return /\.(mp4|webm|mov|m4v|ogg)(\?.*)?$/i.test(String(url)) || String(url).includes('video');
+};
+
 export const bannerService = {
   /**
    * Fetch all banners from Supabase banners table
@@ -28,19 +41,79 @@ export const bannerService = {
   },
 
   /**
-   * Upload image file to Cloudflare R2 under banners/ folder with compression
+   * Fetch the active hero video or media for the homepage
+   * Queries Supabase banners and returns the active video (from Cloudflare R2)
+   * @returns {Promise<{ url: string, mobileUrl?: string, linkUrl?: string, isVideo: boolean, banner?: any } | null>}
+   */
+  async getHeroVideo() {
+    try {
+      const banners = await this.getBanners();
+      if (!banners || banners.length === 0) return null;
+
+      // 1. Look for active video banner
+      const videoBanner = banners.find(
+        (b) =>
+          b.is_active !== false &&
+          (isVideoMedia(b.video_url) || isVideoMedia(b.image_url) || isVideoMedia(b.mobile_url))
+      );
+
+      if (videoBanner) {
+        const url = videoBanner.video_url || videoBanner.image_url;
+        return {
+          id: videoBanner.id,
+          url,
+          mobileUrl: videoBanner.mobile_url,
+          linkUrl: videoBanner.link_url,
+          isVideo: true,
+          banner: videoBanner,
+        };
+      }
+
+      // 2. Otherwise return the latest active banner
+      const activeBanner = banners.find((b) => b.is_active !== false) || banners[0];
+      if (activeBanner) {
+        const url = activeBanner.video_url || activeBanner.image_url;
+        return {
+          id: activeBanner.id,
+          url,
+          mobileUrl: activeBanner.mobile_url,
+          linkUrl: activeBanner.link_url,
+          isVideo: isVideoMedia(url),
+          banner: activeBanner,
+        };
+      }
+
+      return null;
+    } catch (err) {
+      console.error('Error in getHeroVideo:', err);
+      return null;
+    }
+  },
+
+  /**
+   * Upload media file (image or video) to Cloudflare R2 under banners/ folder
+   * Images are compressed; video files are uploaded directly
    * @param {File} file 
    * @returns {Promise<{ filePath: string, publicUrl: string }>}
    */
   async uploadBannerImage(file) {
-    // 1. Compress image before upload (like products)
-    const compressedFile = await compressImage(file, 'banner');
+    let uploadFile = file;
 
-    const cleanName = (compressedFile.name || file.name || 'banner').replace(/[^a-zA-Z0-9.-]/g, '_');
+    // 1. Compress image before upload only if it is an image
+    if (file?.type && file.type.startsWith('image/')) {
+      try {
+        uploadFile = await compressImage(file, 'banner');
+      } catch (e) {
+        console.warn('Image compression fallback to original:', e);
+        uploadFile = file;
+      }
+    }
+
+    const cleanName = (uploadFile?.name || file?.name || 'banner').replace(/[^a-zA-Z0-9.-]/g, '_');
     const filePath = `banners/${Date.now()}-${cleanName}`;
 
     const formData = new FormData();
-    formData.append('file', compressedFile);
+    formData.append('file', uploadFile);
     formData.append('filePath', filePath);
     formData.append('cacheControl', '31536000');
 
@@ -49,12 +122,17 @@ export const bannerService = {
     });
 
     if (error) {
-      console.error('Cloudflare image upload error:', error);
+      console.error('Cloudflare media upload error:', error);
       throw error;
     }
 
     const publicUrl = `${import.meta.env.VITE_R2_PUBLIC_URL}/${filePath}`;
     return { filePath, publicUrl, data };
+  },
+
+  // Alias for uploadBannerImage to support both names
+  async uploadBannerMedia(file) {
+    return this.uploadBannerImage(file);
   },
 
   /**
