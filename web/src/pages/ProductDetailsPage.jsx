@@ -700,9 +700,13 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
   const selectedVariant = useMemo(() => {
     if (matchedSizeVariant) return matchedSizeVariant;
     if (!variants || variants.length === 0) return null;
+    const normColor = String(selectedColor || "").trim().toLowerCase();
     return (
       variants.find(
-        (v) => (v.color || "") === (selectedColor || "") && v.images?.length > 0
+        (v) => String(v.color || "").trim().toLowerCase() === normColor && v.images?.length > 0
+      ) ||
+      variants.find(
+        (v) => String(v.color || "").trim().toLowerCase() === normColor
       ) ||
       variants[0] ||
       null
@@ -721,7 +725,16 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
   const displayImage = selectedProduct?.img || selectedProduct?.image || selectedProduct?.image_url || '';
   const displayName = selectedProduct?.name || '';
 
-  const displaySku = matchedSizeVariant?.sku || selectedVariant?.sku || productPrices?.sku || selectedProduct?.sku || '';
+  const displaySku =
+    matchedSizeVariant?.sku ||
+    selectedVariant?.sku ||
+    productPrices?.sku ||
+    selectedProduct?.sku ||
+    (selectedProduct?.product_id
+      ? (String(selectedProduct.product_id).length > 8
+          ? `ZEC-${String(selectedProduct.product_id).slice(-6).toUpperCase()}`
+          : String(selectedProduct.product_id))
+      : '');
 
   const stockCount = useMemo(() => {
     // If product has size variants and a size is selected, strictly return that size's stock
@@ -1216,7 +1229,7 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
     return false;
   };
 
-  const handleBuyNow = useCallback(async () => {
+  const handleBuyNow = useCallback(async (lensTier = null) => {
     if (!validateOptionsSelection()) {
       return;
     }
@@ -1229,7 +1242,7 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
 
     const sizeParam = selectedSize || null;
     const colorParam = selectedColor || availableColors[0] || null;
-    const activeLensTier = selectedLensTier;
+    const activeLensTier = (lensTier && lensTier.lensName) ? lensTier : selectedLensTier;
     const finalAddonPrice = activeLensTier ? resolveThicknessPrice(activeLensTier) : 0;
     const finalItemPrice = payPrice + finalAddonPrice;
 
@@ -1254,8 +1267,8 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
       color: colorParam,
       lensSelection: activeLensTier ? {
         lensName: activeLensTier.lensName,
-        thicknessName: activeLensTier.name,
-        thicknessId: activeLensTier.thicknessId,
+        thicknessName: activeLensTier.name || activeLensTier.thicknessName || "Standard",
+        thicknessId: activeLensTier.thicknessId || "default",
         addonPrice: finalAddonPrice,
       } : null,
     };
@@ -1347,6 +1360,14 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
               </button>
             </div>
 
+            {/* Product SKU ID */}
+            {displaySku && (
+              <div className="dp-sku-badge-row">
+                <span className="dp-sku-label">SKU:</span>
+                <span className="dp-sku-code">{displaySku}</span>
+              </div>
+            )}
+
             {/* Price & Stock Status */}
             <div className="dp-price-row">
               <span className="dp-price-text">Rs. {payPrice.toLocaleString('en-IN')}</span>
@@ -1395,13 +1416,20 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
               <div className="dp-color-swatches-row">
                 {availableColors.map((c) => {
                   const bg = getColorStyle(c);
-                  const isWhite = bg.toUpperCase() === '#FFFFFF' || String(c).toLowerCase() === 'white';
-                  const colorLabel = getColorName(c);
+                  const isWhite =
+                    bg.toUpperCase() === '#FFFFFF' ||
+                    bg.toLowerCase() === 'white' ||
+                    String(c).trim().toLowerCase() === 'white' ||
+                    String(c).trim().toUpperCase() === '#FFFFFF';
+                  const colorLabel = getColorName(c) || c;
+                  const isActive =
+                    selectedColor &&
+                    String(selectedColor).trim().toLowerCase() === String(c).trim().toLowerCase();
                   return (
                     <button
                       key={c}
                       type="button"
-                      className={`dp-swatch-ring-btn ${selectedColor === c ? 'active' : ''}`}
+                      className={`dp-swatch-ring-btn ${isActive ? 'active' : ''}`}
                       onClick={() => setSelectedColor(c)}
                       aria-label={`Select color ${colorLabel}`}
                       title={colorLabel}
@@ -1598,7 +1626,38 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
                     </>
                   )}
                 </div>
-                {selectedLensTier && <div className="dp-lens-summary"><span>Frame + {selectedLensTier.lensName}</span><b>₹{lensTotal.toLocaleString("en-IN")}</b><button type="button" disabled={!canAddToCart || isCurrentProductInCart} onClick={async () => { const added = await handleAddToCart(selectedLensTier); if (added) setLensDrawerOpen(false); }}>{isCurrentProductInCart ? "Already in Cart" : "Add to Cart"}</button></div>}
+                {selectedLensTier && (
+                  <div className="dp-lens-summary">
+                    <div className="dp-lens-summary-info">
+                      <span>Frame + {selectedLensTier.lensName}</span>
+                      <b>₹{lensTotal.toLocaleString("en-IN")}</b>
+                    </div>
+                    <div className="dp-lens-summary-actions">
+                      <button
+                        type="button"
+                        className="dp-lens-add-cart-btn"
+                        disabled={!canAddToCart || isCurrentProductInCart}
+                        onClick={async () => {
+                          const added = await handleAddToCart(selectedLensTier);
+                          if (added) setLensDrawerOpen(false);
+                        }}
+                      >
+                        {isCurrentProductInCart ? "Already in Cart" : "Add to Cart"}
+                      </button>
+                      <button
+                        type="button"
+                        className="dp-lens-buy-now-btn"
+                        disabled={!canAddToCart}
+                        onClick={async () => {
+                          await handleBuyNow(selectedLensTier);
+                          setLensDrawerOpen(false);
+                        }}
+                      >
+                        Buy Now
+                      </button>
+                    </div>
+                  </div>
+                )}
               </aside>
             </div>
           )}
@@ -1649,6 +1708,12 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
               {specsOpen && (
                 <div className="dp-sizeguide-body dp-info-dropdown-body">
                   <div className="dp-specs-table">
+                    {displaySku && (
+                      <div className="dp-specs-row">
+                        <span className="dp-specs-label">SKU / Model ID :</span>
+                        <span className="dp-specs-value">{displaySku}</span>
+                      </div>
+                    )}
                     <div className="dp-specs-row">
                       <span className="dp-specs-label">Category :</span>
                       <span className="dp-specs-value">{selectedProduct?.category || cat || "Eyewear"}</span>

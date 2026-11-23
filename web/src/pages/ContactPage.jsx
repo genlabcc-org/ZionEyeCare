@@ -14,7 +14,7 @@ export default function ContactPage() {
       '@type': 'Organization',
       name: 'Zion Eye Care Clinic',
       telephone: 'NA',
-      email: 'zionretina@gmail.com',
+      email: 'zion.retina@gmail.com',
       address: {
         '@type': 'PostalAddress',
         streetAddress: '5/3/1, Abel Multispeciality Clinic, Opposite to Muthalakurichy Bus Stop, Eraniel - Thuckala Rd, Kollemvillai, Muthalakurichi',

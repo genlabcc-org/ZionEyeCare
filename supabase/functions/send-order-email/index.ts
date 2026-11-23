@@ -1,6 +1,6 @@
 import { handleCorsPreflight, corsHeaders } from "../_shared/cors.ts";
 
-const ADMIN_EMAIL = Deno.env.get("ADMIN_EMAIL") || "support@zioneyecare.com";
+const ADMIN_EMAIL = Deno.env.get("ADMIN_EMAIL") || "zion.retina@gmail.com";
 
 function buildHtmlTemplate(data: {
   orderId: string;

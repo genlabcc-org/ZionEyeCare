@@ -348,8 +348,8 @@ export default function Terms() {
               </a>
               <br />
               Email:{' '}
-              <a href="mailto:zionretina@gmail.com" className="policy-link">
-                zionretina@gmail.com
+              <a href="mailto:zion.retina@gmail.com" className="policy-link">
+                zion.retina@gmail.com
               </a>
               <br />
               Phone: NA

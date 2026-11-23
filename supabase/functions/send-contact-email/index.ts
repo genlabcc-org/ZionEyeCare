@@ -1,7 +1,7 @@
 import { handleCorsPreflight, corsHeaders } from "../_shared/cors.ts";
 
-const DEFAULT_RECIPIENT_EMAIL = Deno.env.get("ADMIN_EMAIL") || "support@zioneyecare.com";
-const SENDER_EMAIL = Deno.env.get("SENDER_EMAIL") || "support@zioneyecare.com";
+const DEFAULT_RECIPIENT_EMAIL = Deno.env.get("ADMIN_EMAIL") || "zion.retina@gmail.com";
+const SENDER_EMAIL = Deno.env.get("SENDER_EMAIL") || "zion.retina@gmail.com";
 
 function buildContactHtmlTemplate(data: {
   fullName: string;

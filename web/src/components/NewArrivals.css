@@ -51,31 +51,22 @@
   letter-spacing: normal !important;
 }
 
-/* ── Slider Wrapper (Enables left/right navigation controls) ── */
-.new-arrivals-slider-wrap {
+/* ── Grid Wrapper ── */
+.new-arrivals-slider-wrap,
+.new-arrivals-grid-wrap {
   position: relative !important;
   width: 100% !important;
   box-sizing: border-box !important;
 }
 
-/* ── 1-Line Horizontal Slider Rail ── */
+/* ── 4 Products Per Line Grid (Next products wrap to next line) ── */
 .new-arrivals-grid {
-  display: flex !important;
-  flex-direction: row !important;
-  flex-wrap: nowrap !important;
-  justify-content: center !important;
-  justify-content: safe center !important;
-  align-items: stretch !important;
-  gap: 22px !important;
+  display: grid !important;
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: 28px 22px !important;
   width: 100% !important;
-  overflow-x: auto !important;
-  overflow-y: hidden !important;
-  scroll-behavior: smooth !important;
-  scroll-snap-type: x mandatory !important;
-  -webkit-overflow-scrolling: touch !important;
-  scrollbar-width: none !important;
-  -ms-overflow-style: none !important;
-  padding: 6px 4px 16px !important;
+  overflow: visible !important;
+  padding: 6px 0 16px !important;
   box-sizing: border-box !important;
 }
 
@@ -83,41 +74,9 @@
   display: none !important;
 }
 
-/* ── Navigation Arrows ── */
+/* ── Navigation Arrows (Disabled for static grid) ── */
 .new-arrivals-nav-btn {
-  position: absolute !important;
-  top: 44% !important;
-  transform: translateY(-50%) !important;
-  width: 44px !important;
-  height: 44px !important;
-  border-radius: 50% !important;
-  background: rgba(255, 255, 255, 0.96) !important;
-  backdrop-filter: blur(8px) !important;
-  border: 1px solid rgba(0, 0, 0, 0.08) !important;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  color: #111827 !important;
-  cursor: pointer !important;
-  z-index: 10 !important;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
-  padding: 0 !important;
-}
-
-.new-arrivals-nav-btn:hover {
-  background: #ffffff !important;
-  color: var(--blue-primary, #002277) !important;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.18) !important;
-  transform: translateY(-50%) !important;
-}
-
-.new-arrivals-nav-prev {
-  left: -14px !important;
-}
-
-.new-arrivals-nav-next {
-  right: -14px !important;
+  display: none !important;
 }
 
 /* ── Product Card ── */
@@ -130,10 +89,9 @@
   box-shadow: none !important;
   cursor: pointer !important;
   position: relative !important;
-  flex: 0 0 320px !important;
-  width: 320px !important;
-  max-width: 320px !important;
-  scroll-snap-align: start !important;
+  flex: none !important;
+  width: 100% !important;
+  max-width: 100% !important;
   margin: 0 !important;
   padding: 0 !important;
   user-select: none !important;
@@ -141,10 +99,11 @@
 }
 
 .new-arrival-skeleton-item {
-  flex: 0 0 320px !important;
-  width: 320px !important;
-  max-width: 320px !important;
-  scroll-snap-align: start !important;
+  display: flex !important;
+  flex-direction: column !important;
+  flex: none !important;
+  width: 100% !important;
+  max-width: 100% !important;
 }
 
 /* ── Eyewear Frame Box (Rounded Soft Grey Background) ── */
@@ -382,14 +341,16 @@
   }
 
   .new-arrivals-grid {
-    gap: 18px !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 20px 16px !important;
+    overflow: visible !important;
   }
 
   .new-arrival-card,
   .new-arrival-skeleton-item {
-    flex: 0 0 290px !important;
-    width: 290px !important;
-    max-width: 290px !important;
+    flex: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
   }
 
   .new-arrival-name {
@@ -407,6 +368,13 @@
   .new-arrival-swatch-item {
     width: 14px !important;
     height: 14px !important;
+  }
+}
+
+@media (max-width: 880px) and (min-width: 769px) {
+  .new-arrivals-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+    gap: 18px 14px !important;
   }
 }
 

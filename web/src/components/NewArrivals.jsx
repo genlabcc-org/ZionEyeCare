@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { productService } from '../services/productService';
 import { getColorStyle } from '../utils/colorUtils';
@@ -35,68 +35,6 @@ export default function NewArrivals({ onProductClick }) {
   const [wishlist, setWishlist] = useState({});
   const [activeColors, setActiveColors] = useState({});
   const [activeImages, setActiveImages] = useState({});
-  const sliderRef = useRef(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
-  const [hasOverflow, setHasOverflow] = useState(false);
-  const [isPaused, setIsPaused] = useState(false);
-
-  const checkScroll = () => {
-    const el = sliderRef.current;
-    if (!el) return;
-    const { scrollWidth, clientWidth } = el;
-    const overflow = scrollWidth > clientWidth + 4;
-    setHasOverflow(overflow);
-    setCanScrollLeft(overflow);
-    setCanScrollRight(overflow);
-  };
-
-  useEffect(() => {
-    checkScroll();
-    const el = sliderRef.current;
-    if (!el) return;
-    el.addEventListener('scroll', checkScroll, { passive: true });
-    window.addEventListener('resize', checkScroll);
-    const timer = setTimeout(checkScroll, 250);
-    return () => {
-      el.removeEventListener('scroll', checkScroll);
-      window.removeEventListener('resize', checkScroll);
-      clearTimeout(timer);
-    };
-  }, [products, loading]);
-
-  const handleSlide = (direction) => {
-    const el = sliderRef.current;
-    if (!el) return;
-    const card = el.querySelector('.new-arrival-card') || el.firstElementChild;
-    const scrollAmount = card ? card.offsetWidth + 20 : el.clientWidth * 0.75;
-
-    if (direction === 'right') {
-      if (el.scrollLeft + el.clientWidth >= el.scrollWidth - 10) {
-        el.scrollTo({ left: 0, behavior: 'smooth' });
-      } else {
-        el.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-      }
-    } else {
-      if (el.scrollLeft <= 10) {
-        el.scrollTo({ left: el.scrollWidth, behavior: 'smooth' });
-      } else {
-        el.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-      }
-    }
-  };
-
-  // Auto-slide on desktop (width > 768px)
-  useEffect(() => {
-    if (loading || !hasOverflow || isPaused) return;
-
-    const interval = setInterval(() => {
-      if (typeof window !== 'undefined' && window.innerWidth <= 768) return;
-      handleSlide('right');
-    }, 4000);
-
-    return () => clearInterval(interval);
-  }, [loading, hasOverflow, isPaused]);
 
   useEffect(() => {
     let isMounted = true;
@@ -272,11 +210,11 @@ export default function NewArrivals({ onProductClick }) {
       </div>
 
       {loading ? (
-        <div className="new-arrivals-slider-wrap">
-          <div className="new-arrivals-grid new-arrivals-slider" ref={sliderRef}>
-            {Array.from({ length: 4 }).map((_, i) => (
+        <div className="new-arrivals-grid-wrap">
+          <div className="new-arrivals-grid">
+            {Array.from({ length: 8 }).map((_, i) => (
               <div key={i} className="new-arrival-skeleton-item">
-                <Skeleton width="100%" height="310px" borderRadius="16px" />
+                <Skeleton width="100%" height="280px" borderRadius="16px" />
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '14px' }}>
                   <Skeleton width="50%" height="18px" borderRadius="4px" />
                   <Skeleton width="32%" height="16px" borderRadius="4px" />
@@ -294,28 +232,8 @@ export default function NewArrivals({ onProductClick }) {
           <p>No new products found. Check back soon!</p>
         </div>
       ) : (
-        <div
-          className="new-arrivals-slider-wrap"
-          onMouseEnter={() => setIsPaused(true)}
-          onMouseLeave={() => setIsPaused(false)}
-        >
-          {canScrollLeft && hasOverflow && (
-            <button
-              type="button"
-              className="new-arrivals-nav-btn new-arrivals-nav-prev"
-              onClick={() => handleSlide('left')}
-              aria-label="Previous products"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="15 18 9 12 15 6" />
-              </svg>
-            </button>
-          )}
-
-          <div
-            className={`new-arrivals-grid new-arrivals-slider ${hasOverflow ? 'has-overflow' : 'is-centered'} ${products.length === 1 ? 'single-item' : ''}`}
-            ref={sliderRef}
-          >
+        <div className="new-arrivals-grid-wrap">
+          <div className={`new-arrivals-grid ${products.length === 1 ? 'single-item' : ''}`}>
             {products.map((product) => {
               const currentImage = activeImages[product.id] || product.img;
               const activeSwatchIdx = activeColors[product.id] ?? 0;
@@ -427,19 +345,6 @@ export default function NewArrivals({ onProductClick }) {
               );
             })}
           </div>
-
-          {canScrollRight && hasOverflow && (
-            <button
-              type="button"
-              className="new-arrivals-nav-btn new-arrivals-nav-next"
-              onClick={() => handleSlide('right')}
-              aria-label="Next products"
-            >
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="9 18 15 12 9 6" />
-              </svg>
-            </button>
-          )}
         </div>
       )}
     </section>

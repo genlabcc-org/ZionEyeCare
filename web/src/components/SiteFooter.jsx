@@ -50,7 +50,7 @@ const SiteFooter = () => (
         <div className="fw-col fw-nav-col fw-contact-col">
           <h4 className="fw-col-title">Contacts</h4>
           <ul className="fw-link-list">
-            <li><a href="mailto:zionretina@gmail.com">zionretina@gmail.com</a></li>
+            <li><a href="mailto:zion.retina@gmail.com">zion.retina@gmail.com</a></li>
             <li><a href="tel:+916379838682">+91 63798 38682</a></li>
           </ul>
         </div>

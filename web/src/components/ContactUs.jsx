@@ -205,7 +205,7 @@ const ContactUs = () => {
           <div className="contactus-info-block">
             <h4 className="contactus-info-label">E-Mail</h4>
             <p className="contactus-info-value">
-              <a href="mailto:zionretina@gmail.com">zionretina@gmail.com</a>
+              <a href="mailto:zion.retina@gmail.com">zion.retina@gmail.com</a>
             </p>
           </div>
 

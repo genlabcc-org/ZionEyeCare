@@ -373,8 +373,8 @@ export default function Privacy() {
             <strong>Grievance Officer:</strong> Grievance Officer, Zion EyeCare
             <br />
             <strong>Email:</strong>{' '}
-            <a href="mailto:zionretina@gmail.com" className="policy-link">
-              zionretina@gmail.com
+            <a href="mailto:zion.retina@gmail.com" className="policy-link">
+              zion.retina@gmail.com
             </a>
           </p>
 
@@ -393,8 +393,8 @@ export default function Privacy() {
               </a>
               <br />
               Email:{' '}
-              <a href="mailto:zionretina@gmail.com" className="policy-link">
-                zionretina@gmail.com
+              <a href="mailto:zion.retina@gmail.com" className="policy-link">
+                zion.retina@gmail.com
               </a>
               <br />
               Phone: NA
