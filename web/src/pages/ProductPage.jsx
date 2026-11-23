@@ -749,14 +749,24 @@ export default function ProductPage({ category = "Trending" }) {
   }, [searchQueryParam, subcategoryParam, category]);
 
   const pageBreadcrumbs = useMemo(() => {
+    const isAll = !category || category.toLowerCase() === 'all products' || category.toLowerCase() === 'all';
     const list = [
-      { name: 'Home', path: '/' },
-      { name: category, path: `/category/${category.toLowerCase().replace(/\s+/g, '-')}` },
+      { name: 'Home', label: 'Home', path: '/' },
     ];
+    if (isAll) {
+      list.push({ name: 'All Products', label: 'All Products', path: '/all-products' });
+    } else {
+      list.push({ name: 'All Products', label: 'All Products', path: '/all-products' });
+      list.push({
+        name: category,
+        label: category,
+        path: subcategoryParam ? `/category/${category.toLowerCase().replace(/\s+/g, '-')}` : undefined,
+      });
+    }
     if (subcategoryParam) {
       list.push({
         name: subcategoryParam,
-        path: `/category/${category.toLowerCase().replace(/\s+/g, '-')}?sub=${encodeURIComponent(subcategoryParam)}`,
+        label: subcategoryParam,
       });
     }
     return list;
@@ -777,7 +787,7 @@ export default function ProductPage({ category = "Trending" }) {
           'eyeglasses online',
         ].filter(Boolean)}
       />
-      <SiteHeader activeLink={category} onLinkClick={handleNavClick} />
+      <SiteHeader activeLink={category} onLinkClick={handleNavClick} breadcrumbs={pageBreadcrumbs} />
 
       <div className="trending-main-container">
         {/* ─── Left Sidebar Filters (Desktop) & Mobile Drawer (Mobile) ─── */}

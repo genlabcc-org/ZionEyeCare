@@ -6,6 +6,7 @@ import { useStore } from "../hooks/useStore";
 import { getUserInitials } from "../utils/avatarUtils";
 import { getNavPath } from "../services/categoryRoute";
 import LogoutModal from "./LogoutModal";
+import Breadcrumbs from "./Breadcrumbs";
 import "./SiteHeader.css";
 
 // ── Default static page nav items (About, Contact, FAQ) ──
@@ -351,7 +352,7 @@ const MobileNavItem = ({ item, onItemClick, onSubClick, defaultExpanded = false 
 };
 
 // ─── Main SiteHeader ───
-export default function SiteHeader({ activeLink = "", onLinkClick }) {
+export default function SiteHeader({ activeLink = "", onLinkClick, breadcrumbs }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -715,6 +716,11 @@ export default function SiteHeader({ activeLink = "", onLinkClick }) {
           </div>
         )}
       </header>
+
+      {/* ─── Page Breadcrumbs Navigation (all non-home pages) ─── */}
+      {location.pathname !== "/" && !location.pathname.startsWith("/admin") && (
+        <Breadcrumbs items={breadcrumbs} />
+      )}
 
       {/* ─── Backdrop Overlay when Mobile Menu Open ─── */}
       {menuOpen && (

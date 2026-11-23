@@ -1289,11 +1289,28 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
     });
   }, [validateOptionsSelection, displayName, payPrice, strikePrice, qty, dynamicThumbs, selectedVariant, displayImage, cat, displaySku, selectedProduct, selectedSize, selectedColor, selectedLensTier, canAddToCart, navigate]);
 
+  const detailBreadcrumbs = useMemo(() => {
+    const list = [
+      { label: 'Home', path: '/' },
+      { label: 'All Products', path: '/all-products' },
+    ];
+    if (cat && cat !== 'Briefs' && cat !== 'Eyewear') {
+      list.push({
+        label: cat,
+        path: `/category/${cat.toLowerCase().replace(/\s+/g, '-')}`
+      });
+    }
+    list.push({
+      label: displayName || 'Product Details'
+    });
+    return list;
+  }, [cat, displayName]);
+
   return (
     <div className="dp-page-root">
       {seoData && <SEO {...seoData} />}
       {/* ── HEADER ── */}
-      <SiteHeader activeLink="" onLinkClick={handleHeaderLinkClick} />
+      <SiteHeader activeLink="" onLinkClick={handleHeaderLinkClick} breadcrumbs={detailBreadcrumbs} />
 
       {/* ── PRODUCT DETAIL MAIN CONTAINER ── */}
       {loadingProduct ? (
@@ -1504,10 +1521,29 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
           {/* Action Buttons */}
           <div className="dp-action-buttons-group">
             <div className="dp-purchase-actions">
-              <button type="button" className="dp-lens-select-btn" disabled={!productLensOptions.length} onClick={() => { setLensDrawerOpen(true); setLensStep(1); }}>
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="7" cy="13" r="4" /><circle cx="17" cy="13" r="4" /><path d="M11 13h2M3 13l1-5h3M21 13l-1-5h-3" /></svg>
-                {productLensOptions.length ? "SELECT LENS" : "FRAME ONLY (WITHOUT LENSES)"}
-              </button>
+              {productLensOptions.length ? (
+                <button
+                  type="button"
+                  className="dp-lens-select-btn"
+                  disabled={!canAddToCart}
+                  onClick={() => { setLensDrawerOpen(true); setLensStep(1); }}
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><circle cx="7" cy="13" r="4" /><circle cx="17" cy="13" r="4" /><path d="M11 13h2M3 13l1-5h3M21 13l-1-5h-3" /></svg>
+                  SELECT LENS
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="dp-lens-select-btn"
+                  disabled={!canAddToCart}
+                  onClick={() => handleBuyNow()}
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                  </svg>
+                  BUY NOW (FRAME ONLY)
+                </button>
+              )}
             </div>
             <button
               type="button"
@@ -1522,7 +1558,7 @@ export default function ProductDetailsPage({ onBack = () => window.history.back(
 
           {!productLensOptions.length && (
             <div className="dp-frame-only-note">
-              <span>Sold as frame only (without lenses)</span>
+              <span>Sold as frame only</span>
             </div>
           )}
 
