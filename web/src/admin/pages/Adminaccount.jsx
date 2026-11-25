@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { supabase } from "../../lib/supabase";
+import { supabase, supabaseUrl, supabaseKey } from "../../lib/supabase";
+import { createClient } from "@supabase/supabase-js";
 import { authService } from "../../services/authService";
 import AdminModal from "../components/AdminModal";
 import "./Adminaccount.css";
@@ -307,51 +308,94 @@ const AdminAccount = () => {
         alert("Existing user found. Role updated to Admin successfully!");
       } else {
         // User does not exist in users table:
-        // Provision user via google-auth-sync edge function which creates auth.users & public.users records
-        const { data: syncData, error: syncError } = await supabase.functions.invoke("google-auth-sync", {
-          body: {
-            email: cleanEmail,
-            name: cleanName,
-            phone: cleanPhone || undefined
+        let newUserId = null;
+
+        // 1. Try provisioning via google-auth-sync edge function
+        try {
+          const { data: syncData, error: syncError } = await supabase.functions.invoke("google-auth-sync", {
+            body: {
+              email: cleanEmail,
+              name: cleanName,
+              phone: cleanPhone || undefined,
+            },
+          });
+
+          if (!syncError && syncData?.success && syncData?.userId) {
+            newUserId = syncData.userId;
           }
-        });
-
-        if (syncError || !syncData?.success) {
-          throw new Error(syncError?.message || syncData?.error || "Failed to create user in database.");
+        } catch (edgeErr) {
+          console.warn("Notice invoking google-auth-sync:", edgeErr);
         }
 
-        const newUserId = syncData.userId;
+        // 2. Fallback: create auth account via isolated client without overriding current admin session
+        if (!newUserId) {
+          try {
+            const isolatedClient = createClient(supabaseUrl, supabaseKey, {
+              auth: {
+                persistSession: false,
+                autoRefreshToken: false,
+                detectSessionInUrl: false,
+              },
+            });
 
-        // Set role to 'admin' in users table
-        const { error: roleError } = await supabase
-          .from("users")
-          .update({
-            role: "admin",
+            const tempPassword = `Zion#${Math.random().toString(36).slice(-8)}!${Date.now()}`;
+            const { data: signUpData, error: signUpError } = await isolatedClient.auth.signUp({
+              email: cleanEmail,
+              password: tempPassword,
+              options: {
+                data: {
+                  name: cleanName,
+                  phone: cleanPhone || null,
+                },
+              },
+            });
+
+            if (signUpData?.user?.id) {
+              newUserId = signUpData.user.id;
+            } else if (signUpError) {
+              console.warn("Notice from isolated signup:", signUpError.message);
+            }
+          } catch (signUpErr) {
+            console.warn("Isolated signup error:", signUpErr);
+          }
+        }
+
+        // 3. If newUserId was acquired, persist to public.users as admin
+        if (newUserId) {
+          const { error: upsertError } = await supabase
+            .from("users")
+            .upsert({
+              id: newUserId,
+              email: cleanEmail,
+              name: cleanName,
+              phone: cleanPhone || null,
+              role: "admin",
+              updated_at: new Date().toISOString(),
+            });
+
+          if (upsertError) {
+            console.warn("Notice upserting admin user:", upsertError.message);
+          }
+
+          const newPayload = {
+            id: newUserId,
             name: cleanName,
-            phone: cleanPhone || null,
-            updated_at: new Date().toISOString()
-          })
-          .eq("id", newUserId);
+            email: cleanEmail,
+            phone: cleanPhone,
+            role: "Admin",
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString(),
+          };
 
-        if (roleError) {
-          console.warn("Notice updating admin role:", roleError.message);
+          setAdmins((prev) => [newPayload, ...prev]);
+          setShowAddModal(false);
+          setEditingAdmin(null);
+          alert("New administrator added successfully!");
+        } else {
+          throw new Error(
+            `Could not automatically create account for "${cleanEmail}". If the user has already signed up or uses Google login, ask them to sign in once, or register them in Supabase Auth.`
+          );
         }
-
-        const newPayload = {
-          id: newUserId,
-          name: cleanName,
-          email: cleanEmail,
-          phone: cleanPhone,
-          role: "Admin",
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        };
-
-        setAdmins((prev) => [newPayload, ...prev]);
-
-        setShowAddModal(false);
-        setEditingAdmin(null);
-        alert("New administrator user created in database successfully!");
       }
     } catch (err) {
       console.error("Error saving admin:", err);

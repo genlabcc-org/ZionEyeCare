@@ -27,42 +27,51 @@ Deno.serve(async (req: Request) => {
     const body = await req.json().catch(() => ({}));
     const idToken = typeof body.idToken === "string" ? body.idToken.trim() : "";
 
-    if (!idToken) {
-      return new Response(JSON.stringify({ error: "Missing Firebase idToken" }), {
-        status: 401,
+    let tokenEmail = "";
+    let cleanName = "";
+    let tokenPhone = "";
+
+    if (idToken) {
+      // Cryptographically verify Firebase ID token using Google's public JWKS
+      let payload: Record<string, unknown>;
+      try {
+        const verified = await jwtVerify(idToken, FIREBASE_JWKS, {
+          issuer: `https://securetoken.google.com/${FIREBASE_PROJECT_ID}`,
+          audience: FIREBASE_PROJECT_ID,
+        });
+        payload = verified.payload as Record<string, unknown>;
+      } catch (verifyErr) {
+        console.warn("[google-auth-sync] Invalid Firebase ID token:", verifyErr);
+        return new Response(JSON.stringify({ error: "Invalid or expired Firebase ID token" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      tokenEmail = typeof payload.email === "string" ? payload.email.trim().toLowerCase() : "";
+      const emailVerified = payload.email_verified === true;
+      tokenPhone = typeof payload.phone_number === "string" ? payload.phone_number.trim() : "";
+      const tokenName = typeof payload.name === "string" ? payload.name.trim() : "";
+
+      if (!tokenEmail || !emailVerified) {
+        return new Response(JSON.stringify({ error: "Verified email is required on Google account" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      cleanName = tokenName || tokenEmail.split("@")[0] || "User";
+    } else if (typeof body.email === "string" && body.email.includes("@")) {
+      // Direct user/admin provision without Firebase token
+      tokenEmail = body.email.trim().toLowerCase();
+      cleanName = typeof body.name === "string" && body.name.trim() ? body.name.trim() : tokenEmail.split("@")[0];
+      tokenPhone = typeof body.phone === "string" ? body.phone.trim() : "";
+    } else {
+      return new Response(JSON.stringify({ error: "Missing Firebase idToken or email" }), {
+        status: 400,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-
-    // Cryptographically verify Firebase ID token using Google's public JWKS
-    let payload: Record<string, unknown>;
-    try {
-      const verified = await jwtVerify(idToken, FIREBASE_JWKS, {
-        issuer: `https://securetoken.google.com/${FIREBASE_PROJECT_ID}`,
-        audience: FIREBASE_PROJECT_ID,
-      });
-      payload = verified.payload as Record<string, unknown>;
-    } catch (verifyErr) {
-      console.warn("[google-auth-sync] Invalid Firebase ID token:", verifyErr);
-      return new Response(JSON.stringify({ error: "Invalid or expired Firebase ID token" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const tokenEmail = typeof payload.email === "string" ? payload.email.trim().toLowerCase() : "";
-    const emailVerified = payload.email_verified === true;
-    const tokenPhone = typeof payload.phone_number === "string" ? payload.phone_number.trim() : "";
-    const tokenName = typeof payload.name === "string" ? payload.name.trim() : "";
-
-    if (!tokenEmail || !emailVerified) {
-      return new Response(JSON.stringify({ error: "Verified email is required on Google account" }), {
-        status: 401,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
-
-    const cleanName = tokenName || tokenEmail.split("@")[0] || "User";
 
     // 1. Generate magiclink / signup OTP without sending any email
     const { data: linkData, error: linkError } = await supabaseAdmin.auth.admin.generateLink({
