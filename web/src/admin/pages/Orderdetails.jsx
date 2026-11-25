@@ -1284,7 +1284,7 @@ const OrderDetails = ({ order, onBack, onInvoicePrinted }) => {
                     {item.lensSelection && (
                       <>
                         <span>·</span>
-                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#eff6ff', color: '#002277', padding: '2px 8px', borderRadius: '4px', fontSize: '11.5px', fontWeight: '600' }}>
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', background: '#eff6ff', color: '#3B71C1', padding: '2px 8px', borderRadius: '4px', fontSize: '11.5px', fontWeight: '600' }}>
                           👓 Lens: {item.lensSelection.lensName || "Prescription Lens"}
                           {item.lensSelection.thicknessName ? ` · ${item.lensSelection.thicknessName}` : ''}
                           {item.lensAddonPrice > 0 ? ` (+₹${item.lensAddonPrice.toLocaleString('en-IN')})` : ' (Included)'}
@@ -1294,7 +1294,7 @@ const OrderDetails = ({ order, onBack, onInvoicePrinted }) => {
                   </div>
                 </div>
                 <div style={{ textAlign: 'right', flexShrink: 0 }}>
-                  <div className="od__item-price" style={{ fontWeight: '700', fontSize: '14.5px', color: '#002277' }}>
+                  <div className="od__item-price" style={{ fontWeight: '700', fontSize: '14.5px', color: '#3B71C1' }}>
                     {(item.quantity || 1) > 1
                       ? `${item.quantity || 1} × ₹${Number(item.price || 0).toLocaleString('en-IN')}`
                       : `₹${Number(item.price || 0).toLocaleString('en-IN')}`}
@@ -1321,7 +1321,7 @@ const OrderDetails = ({ order, onBack, onInvoicePrinted }) => {
           {totalLensSubtotal > 0 && (
             <div className="od__summary-row">
               <span>Lens Subtotal</span>
-              <span style={{ fontWeight: '600', color: '#002277' }}>
+              <span style={{ fontWeight: '600', color: '#3B71C1' }}>
                 +₹{totalLensSubtotal.toLocaleString('en-IN')}
               </span>
             </div>

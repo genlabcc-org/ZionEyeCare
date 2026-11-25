@@ -122,7 +122,7 @@ export const emailService = {
                 </td>
                 <td style="padding: 10px 8px; font-size: 13px; color: #4b5563; text-align: center;">${qty}</td>
                 <td style="padding: 10px 8px; font-size: 13px; color: #4b5563; text-align: right;">₹${price.toLocaleString('en-IN')}</td>
-                <td style="padding: 10px 8px; font-size: 13px; color: #002277; font-weight: 700; text-align: right;">₹${lineTotal.toLocaleString('en-IN')}</td>
+                <td style="padding: 10px 8px; font-size: 13px; color: #3B71C1; font-weight: 700; text-align: right;">₹${lineTotal.toLocaleString('en-IN')}</td>
               </tr>
             `;
           }).join('');
@@ -132,7 +132,7 @@ export const emailService = {
             <html>
             <body style="margin: 0; padding: 20px; background-color: #f8f9fa; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #111827;">
               <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
-                <div style="background-color: #002277; padding: 22px; text-align: center; color: #ffffff;">
+                <div style="background-color: #3B71C1; padding: 22px; text-align: center; color: #ffffff;">
                   <h1 style="margin: 0; font-size: 22px;">ZION EYE CARE</h1>
                   <p style="margin: 4px 0 0; font-size: 13px; opacity: 0.9;">New Order #${orderId}</p>
                 </div>
@@ -160,7 +160,7 @@ export const emailService = {
                       ${itemsRowsHtml}
                     </tbody>
                   </table>
-                  <div style="text-align: right; font-size: 14px; font-weight: 700; color: #002277; padding-top: 10px; border-top: 1px solid #e5e7eb;">
+                  <div style="text-align: right; font-size: 14px; font-weight: 700; color: #3B71C1; padding-top: 10px; border-top: 1px solid #e5e7eb;">
                     Grand Total: ₹${Number(totalPrice).toLocaleString('en-IN')}
                   </div>
                 </div>
@@ -264,7 +264,7 @@ export const emailService = {
         </head>
         <body style="margin: 0; padding: 20px; background-color: #f8f9fa; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #111827;">
           <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); border: 1px solid #e5e7eb;">
-            <div style="background-color: #002277; padding: 26px 28px; text-align: center; color: #ffffff;">
+            <div style="background-color: #3B71C1; padding: 26px 28px; text-align: center; color: #ffffff;">
               <h1 style="margin: 0; font-size: 24px; font-weight: 800; letter-spacing: 2px;">ZION EYE CARE</h1>
               <p style="margin: 6px 0 0; font-size: 13px; color: #93c5fd; letter-spacing: 0.5px; text-transform: uppercase;">
                 Contact Us Inquiry
@@ -275,7 +275,7 @@ export const emailService = {
                 <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #1e40af; font-weight: 700; margin-bottom: 4px;">
                   New Message Received
                 </div>
-                <div style="font-size: 16px; font-weight: 700; color: #002277;">
+                <div style="font-size: 16px; font-weight: 700; color: #3B71C1;">
                   ${fullName}
                 </div>
                 <div style="font-size: 12.5px; color: #64748b; margin-top: 2px;">
@@ -290,8 +290,8 @@ export const emailService = {
                 </tr>
                 <tr style="border-bottom: 1px solid #f1f3f5;">
                   <td style="padding: 10px 0; color: #6b7280; font-weight: 500;">Email:</td>
-                  <td style="padding: 10px 0; color: #002277; font-weight: 600;">
-                    <a href="mailto:${email}" style="color: #002277; text-decoration: none;">${email}</a>
+                  <td style="padding: 10px 0; color: #3B71C1; font-weight: 600;">
+                    <a href="mailto:${email}" style="color: #3B71C1; text-decoration: none;">${email}</a>
                   </td>
                 </tr>
                 <tr style="border-bottom: 1px solid #f1f3f5;">
@@ -306,14 +306,14 @@ export const emailService = {
                 <div style="font-size: 13px; font-weight: 700; color: #374151; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">
                   Message:
                 </div>
-                <div style="background-color: #f9fafb; border-left: 4px solid #002277; border-radius: 4px; padding: 16px 18px; font-size: 14px; line-height: 1.6; color: #1f2937; white-space: pre-wrap;">
+                <div style="background-color: #f9fafb; border-left: 4px solid #3B71C1; border-radius: 4px; padding: 16px 18px; font-size: 14px; line-height: 1.6; color: #1f2937; white-space: pre-wrap;">
 ${message}
                 </div>
               </div>
 
               <div style="text-align: center; margin: 26px 0 10px;">
                 <a href="mailto:${email}?subject=Re:%20Your%20inquiry%20to%20Zion%20Eye%20Care"
-                   style="display: inline-block; background-color: #002277; color: #ffffff; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 600;">
+                   style="display: inline-block; background-color: #3B71C1; color: #ffffff; padding: 12px 28px; border-radius: 6px; text-decoration: none; font-size: 14px; font-weight: 600;">
                   Reply to ${fullName}
                 </a>
               </div>
@@ -371,7 +371,6 @@ ${message}
           console.warn('[emailService] Direct Brevo attempt failed:', err);
         }
       }
-
       // 2. Try Supabase Edge Function
       try {
         const { data: fnData, error: fnError } = await supabase.functions.invoke('send-contact-email', {

@@ -52,7 +52,7 @@
   align-items: center;
   gap: 6px;
   background: #eff6ff;
-  color: var(--blue-primary, #002277);
+  color: var(--blue-primary, #3B71C1);
   font-size: 12px;
   font-weight: 600;
   padding: 6px 14px;
@@ -63,7 +63,7 @@
 .track-live-dot {
   width: 8px;
   height: 8px;
-  background: var(--blue-primary, #002277);
+  background: var(--blue-primary, #3B71C1);
   border-radius: 50%;
   box-shadow: 0 0 0 3px rgba(0, 34, 119, 0.2);
   animation: livePulse 1.8s infinite;
@@ -105,7 +105,7 @@
   width: 36px;
   height: 36px;
   border: 3px solid #e5e7eb;
-  border-top-color: var(--blue-primary, #002277);
+  border-top-color: var(--blue-primary, #3B71C1);
   border-radius: 50%;
   animation: trackSpin 0.75s linear infinite;
 }
@@ -131,7 +131,7 @@
 }
 
 .track-primary-btn {
-  background: var(--blue-primary, #002277);
+  background: var(--blue-primary, #3B71C1);
   color: #ffffff;
   border: none;
   padding: 10px 22px;
@@ -226,7 +226,7 @@
 .track-status--placed,
 .track-status--order\ placed {
   background: #eff6ff;
-  color: var(--blue-primary, #002277);
+  color: var(--blue-primary, #3B71C1);
   border: none;
 }
 
@@ -266,12 +266,12 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  color: var(--blue-primary, #002277);
+  color: var(--blue-primary, #3B71C1);
   font-size: 13.5px;
 }
 
 .track-est-banner svg {
-  stroke: var(--blue-primary, #002277);
+  stroke: var(--blue-primary, #3B71C1);
   flex-shrink: 0;
 }
 
@@ -327,12 +327,12 @@
 
 /* Stepper States */
 .track-timeline-item.is-done .track-node {
-  background: var(--blue-primary, #002277);
+  background: var(--blue-primary, #3B71C1);
   color: #ffffff;
 }
 
 .track-connector.is-done {
-  background: var(--blue-primary, #002277);
+  background: var(--blue-primary, #3B71C1);
 }
 
 .track-timeline-item.is-pending .track-node {
@@ -357,7 +357,7 @@
 .track-current-tag {
   font-size: 11px;
   background: #eff6ff;
-  color: var(--blue-primary, #002277);
+  color: var(--blue-primary, #3B71C1);
   border: none;
   border-radius: 9999px;
   padding: 2px 8px;
@@ -531,7 +531,7 @@
 .track-copy-btn {
   background: #eff6ff;
   border: none;
-  color: var(--blue-primary, #002277);
+  color: var(--blue-primary, #3B71C1);
   padding: 5px 12px;
   border-radius: 6px;
   font-size: 12px;
@@ -542,7 +542,7 @@
 }
 
 .track-copy-btn:hover {
-  background: var(--blue-primary, #002277);
+  background: var(--blue-primary, #3B71C1);
   color: #ffffff;
 }
 
@@ -605,7 +605,7 @@
 
 .track-img-placeholder {
   font-size: 20px;
-  color: var(--blue-primary, #002277);
+  color: var(--blue-primary, #3B71C1);
 }
 
 .track-product-details {
@@ -645,7 +645,7 @@
 .track-item-grand-price {
   font-size: 16px;
   font-weight: 700;
-  color: var(--blue-primary, #002277);
+  color: var(--blue-primary, #3B71C1);
 }
 
 .track-product-meta-tags {
@@ -703,7 +703,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  color: var(--blue-primary, #002277);
+  color: var(--blue-primary, #3B71C1);
 }
 
 .track-lens-heading {
@@ -711,7 +711,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: var(--blue-primary, #002277);
+  color: var(--blue-primary, #3B71C1);
 }
 
 .track-lens-cost-tag {
@@ -723,7 +723,7 @@
 
 .track-lens-cost-tag.is-addon {
   background: #eff6ff;
-  color: var(--blue-primary, #002277);
+  color: var(--blue-primary, #3B71C1);
 }
 
 .track-lens-cost-tag.is-free {
@@ -804,7 +804,7 @@
 }
 
 .track-bk-value--highlight {
-  color: var(--blue-primary, #002277);
+  color: var(--blue-primary, #3B71C1);
   font-weight: 700;
 }
 
@@ -821,7 +821,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--blue-primary, #002277);
+  color: var(--blue-primary, #3B71C1);
   flex-shrink: 0;
 }
 

@@ -478,7 +478,7 @@ export default function OrderTracking() {
             </div>
           ) : !order ? (
             <div className="track-not-found-card">
-              <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="var(--blue-primary, #002277)" strokeWidth="1.5">
+              <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="var(--blue-primary, #3B71C1)" strokeWidth="1.5">
                 <circle cx="12" cy="12" r="10" />
                 <line x1="12" y1="8" x2="12" y2="12" />
                 <line x1="12" y1="16" x2="12.01" y2="16" />
@@ -531,7 +531,7 @@ export default function OrderTracking() {
 
                     const boxBg = isDeliveryCancelled ? "#fef2f2" : isNDR ? "#fffbeb" : "#f8f9fa";
                     const textColor = isDeliveryCancelled ? "#991b1b" : isNDR ? "#92400e" : "#1e293b";
-                    const statusColor = isDeliveryCancelled ? "#dc2626" : isNDR ? "#d97706" : "var(--blue-primary, #002277)";
+                    const statusColor = isDeliveryCancelled ? "#dc2626" : isNDR ? "#d97706" : "var(--blue-primary, #3B71C1)";
 
                     return (
                       <div
@@ -729,7 +729,7 @@ export default function OrderTracking() {
                                 className="track-img-placeholder"
                                 style={{ display: rawImgUrl ? "none" : "flex" }}
                               >
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--blue-primary, #002277)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--blue-primary, #3B71C1)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
                                   <circle cx="6" cy="12" r="4" />
                                   <circle cx="18" cy="12" r="4" />
                                   <line x1="10" y1="12" x2="14" y2="12" />
@@ -917,7 +917,7 @@ export default function OrderTracking() {
                     <div className="track-sum-row">
                       <span>Lens Price</span>
                       {totalLensPrice > 0 ? (
-                        <span style={{ fontWeight: "600", color: "#002277" }}>+{fmtINR(totalLensPrice)}</span>
+                        <span style={{ fontWeight: "600", color: "#3B71C1" }}>+{fmtINR(totalLensPrice)}</span>
                       ) : (
                         <span className="track-free-text">{hasAnyLens ? "₹0 (Included)" : "₹0"}</span>
                       )}

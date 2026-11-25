@@ -36,7 +36,7 @@
   font-size: 11px;
   font-weight: 700;
   color: #ffffff;
-  background: var(--blue-primary, #002277);
+  background: var(--blue-primary, #3B71C1);
   padding: 1px 6px;
   border-radius: 12px;
   line-height: 1.3;
@@ -152,7 +152,7 @@
   font-size: 10px;
   font-weight: 700;
   color: #ffffff;
-  background: var(--blue-primary, #002277);
+  background: var(--blue-primary, #3B71C1);
   border-radius: 10px;
   min-width: 16px;
   height: 16px;
@@ -219,7 +219,7 @@
 
 .filter-sort-option.active {
   background: rgba(0, 34, 119, 0.05);
-  color: var(--blue-primary, #002277);
+  color: var(--blue-primary, #3B71C1);
   font-weight: 600;
   border-color: rgba(0, 34, 119, 0.12);
 }
@@ -237,14 +237,14 @@
 }
 
 .filter-sort-option.active .filter-radio-dot {
-  border-color: var(--blue-primary, #002277);
+  border-color: var(--blue-primary, #3B71C1);
 }
 
 .filter-radio-dot-inner {
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--blue-primary, #002277);
+  background: var(--blue-primary, #3B71C1);
 }
 
 .filter-sort-label {
@@ -276,14 +276,14 @@
 }
 
 .filter-pill-tag:hover {
-  border-color: var(--blue-primary, #002277);
-  color: var(--blue-primary, #002277);
+  border-color: var(--blue-primary, #3B71C1);
+  color: var(--blue-primary, #3B71C1);
   background: rgba(0, 34, 119, 0.03);
 }
 
 .filter-pill-tag.active {
-  background: var(--blue-primary, #002277);
-  border-color: var(--blue-primary, #002277);
+  background: var(--blue-primary, #3B71C1);
+  border-color: var(--blue-primary, #3B71C1);
   color: #ffffff;
   font-weight: 600;
 }
@@ -343,12 +343,12 @@
 }
 
 .filter-item-row:hover .filter-custom-check {
-  border-color: var(--blue-primary, #002277);
+  border-color: var(--blue-primary, #3B71C1);
 }
 
 .filter-item-row.active .filter-custom-check {
-  background: var(--blue-primary, #002277);
-  border-color: var(--blue-primary, #002277);
+  background: var(--blue-primary, #3B71C1);
+  border-color: var(--blue-primary, #3B71C1);
 }
 
 .filter-item-text {
@@ -383,7 +383,7 @@
   border: none;
   font-size: 11.5px;
   font-weight: 600;
-  color: var(--blue-primary, #002277);
+  color: var(--blue-primary, #3B71C1);
   cursor: pointer;
   padding: 4px 6px;
   text-align: left;
@@ -426,14 +426,14 @@
 }
 
 .filter-size-chip:hover {
-  border-color: var(--blue-primary, #002277);
-  color: var(--blue-primary, #002277);
+  border-color: var(--blue-primary, #3B71C1);
+  color: var(--blue-primary, #3B71C1);
   background: rgba(0, 34, 119, 0.02);
 }
 
 .filter-size-chip.active {
-  background: var(--blue-primary, #002277) !important;
-  border-color: var(--blue-primary, #002277) !important;
+  background: var(--blue-primary, #3B71C1) !important;
+  border-color: var(--blue-primary, #3B71C1) !important;
   color: #ffffff !important;
   font-weight: 600;
 }
@@ -520,7 +520,7 @@ body.filter-drawer-open {
   font-size: 11px;
   font-weight: 700;
   color: #ffffff;
-  background: var(--blue-primary, #002277);
+  background: var(--blue-primary, #3B71C1);
   padding: 1px 6px;
   border-radius: 12px;
 }
@@ -598,7 +598,7 @@ body.filter-drawer-open {
   padding: 12px 18px;
   border: none;
   border-radius: 8px;
-  background: var(--blue-primary, #002277);
+  background: var(--blue-primary, #3B71C1);
   color: #ffffff;
   font-family: inherit;
   font-size: 13.5px;

@@ -29,7 +29,7 @@
   font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-size: 12px;
   font-weight: 600;
-  color: var(--blue-primary, #002277);
+  color: var(--blue-primary, #3B71C1);
   background-color: #eff6ff;
   padding: 3px 12px;
   border-radius: 9999px;
@@ -73,7 +73,7 @@
 }
 
 .ao-empty-btn {
-  background-color: var(--blue-primary, #002277);
+  background-color: var(--blue-primary, #3B71C1);
   color: #ffffff;
   border: none;
   border-radius: 8px;
@@ -154,7 +154,7 @@
 .ao-order-price {
   font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   font-weight: 700;
-  color: var(--blue-primary, #002277);
+  color: var(--blue-primary, #3B71C1);
   font-size: 15px;
   flex-shrink: 0;
 }
@@ -331,7 +331,7 @@
 }
 
 .ao-shipment-track-link {
-  color: var(--blue-primary, #002277);
+  color: var(--blue-primary, #3B71C1);
   font-weight: 600;
   text-decoration: none;
   font-size: 12px;
@@ -367,7 +367,7 @@
 
 .ao-status-badge--shipped {
   background-color: #dbeafe;
-  color: var(--blue-primary, #002277);
+  color: var(--blue-primary, #3B71C1);
 }
 
 .ao-status-badge--pending,
@@ -460,7 +460,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--blue-primary, #002277);
+  background-color: var(--blue-primary, #3B71C1);
   color: #ffffff;
   border: none;
   border-radius: 6px;
@@ -487,7 +487,7 @@
 }
 
 .ao-show-more-btn {
-  background-color: var(--blue-primary, #002277);
+  background-color: var(--blue-primary, #3B71C1);
   color: #ffffff;
   border: none;
   border-radius: 8px;
@@ -598,7 +598,7 @@
 }
 
 .inv__modal-print-btn {
-  background: var(--blue-primary, #002277);
+  background: var(--blue-primary, #3B71C1);
   color: #ffffff;
   border: none;
   border-radius: 6px;

@@ -57,7 +57,7 @@
 }
 
 .site-breadcrumbs-link:hover {
-  color: var(--blue-primary, #002277);
+  color: var(--blue-primary, #3B71C1);
   text-decoration: underline;
 }
 

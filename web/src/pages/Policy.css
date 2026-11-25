@@ -3,7 +3,7 @@
 ═══════════════════════════════════════════════════════════════ */
 
 :root {
-  --policy-blue-primary: var(--blue-primary, #002277);
+  --policy-blue-primary: var(--blue-primary, #3B71C1);
   --policy-blue-dark: var(--blue-dark, #001f4d);
   --policy-blue-hover: var(--blue-hover, #00185e);
   --policy-blue-soft: #e2ecf9;

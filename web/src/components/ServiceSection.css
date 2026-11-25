@@ -97,13 +97,13 @@
 }
 
 .service-appointment-link:hover {
-  border-color: var(--blue-primary, #002277);
-  color: var(--blue-primary, #002277);
+  border-color: var(--blue-primary, #3B71C1);
+  color: var(--blue-primary, #3B71C1);
 }
 
 .service-appointment-icon {
   align-items: center;
-  background: var(--blue-primary, #002277);
+  background: var(--blue-primary, #3B71C1);
   border-radius: 50%;
   color: #fff;
   display: inline-flex;
