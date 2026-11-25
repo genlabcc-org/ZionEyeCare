@@ -757,10 +757,11 @@ export default function ProductPage({ category = "Trending" }) {
       list.push({ name: 'All Products', label: 'All Products', path: '/all-products' });
     } else {
       list.push({ name: 'All Products', label: 'All Products', path: '/all-products' });
+      const catSlug = `/category/${category.toLowerCase().replace(/\s+/g, '-')}`;
       list.push({
         name: category,
         label: category,
-        path: subcategoryParam ? `/category/${category.toLowerCase().replace(/\s+/g, '-')}` : undefined,
+        path: subcategoryParam ? catSlug : undefined,
       });
     }
     if (subcategoryParam) {

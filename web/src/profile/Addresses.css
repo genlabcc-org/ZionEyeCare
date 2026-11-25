@@ -30,7 +30,7 @@
 }
 
 .addr-top-add-btn:hover {
-  background-color: #001a5e;
+  background-color: var(--blue-hover, #315fa4);
 }
 
 .addr-top-add-btn:active {
@@ -66,7 +66,7 @@
 }
 
 .addr-empty-add-btn:hover {
-  background-color: #001a5e;
+  background-color: var(--blue-hover, #315fa4);
 }
 
 .addr-empty-add-btn:active {
@@ -568,5 +568,51 @@
 
   .addr-section-title {
     font-size: 24px;
+  }
+}
+
+@media (max-width: 480px) {
+  .addr-header-row {
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+
+  .addr-section-title {
+    font-size: 20px;
+  }
+
+  .addr-top-add-btn {
+    padding: 7px 16px;
+    font-size: 13px;
+  }
+
+  .addr-saved-card {
+    padding: 16px 14px;
+    border-radius: 12px;
+  }
+
+  .addr-form-card {
+    padding: 18px 14px;
+    border-radius: 12px;
+    margin-top: 18px;
+  }
+
+  .addr-form-title {
+    font-size: 17px;
+  }
+
+  .addr-form-actions {
+    flex-direction: column;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .addr-add-btn,
+  .addr-cancel-btn {
+    width: 100%;
+    text-align: center;
+    justify-content: center;
+    box-sizing: border-box;
   }
 }

@@ -6,6 +6,8 @@
   flex-direction: column;
   background-color: #ffffff;
   font-family: var(--font-body);
+  overflow-x: hidden;
+  width: 100%;
 }
 
 .pl-main {
@@ -14,6 +16,7 @@
   margin: 0 auto;
   width: 100%;
   padding: 40px 24px 80px;
+  box-sizing: border-box;
 }
 
 /* Title */
@@ -33,6 +36,7 @@
   align-items: center;
   gap: 18px;
   margin-bottom: 24px;
+  min-width: 0;
 }
 
 .pl-avatar {
@@ -55,6 +59,8 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
+  min-width: 0;
+  flex: 1;
 }
 
 .pl-user-name {
@@ -62,12 +68,15 @@
   font-weight: 700;
   color: #000000;
   line-height: 1.2;
+  word-break: break-word;
 }
 
 .pl-user-meta {
   font-size: 13.5px;
   font-weight: 400;
   color: #6b7280;
+  word-break: break-word;
+  overflow-wrap: anywhere;
 }
 
 /* Divider */
@@ -112,8 +121,8 @@
 }
 
 .pl-tab--active:hover {
-  background-color: #001a5e !important;
-  border-color: #001a5e !important;
+  background-color: var(--blue-hover, #315fa4) !important;
+  border-color: var(--blue-hover, #315fa4) !important;
 }
 
 /* ── Responsive ─────────────────────────────────────────── */
@@ -122,12 +131,30 @@
     padding: 24px 16px 60px;
   }
 
+  .pl-title {
+    font-size: 24px;
+    margin-bottom: 18px;
+  }
+
+  .pl-user-info {
+    gap: 14px;
+    margin-bottom: 20px;
+  }
+
+  .pl-avatar {
+    width: 52px;
+    height: 52px;
+    font-size: 18px;
+  }
+
   .pl-tabs {
     gap: 8px;
     overflow-x: auto;
     flex-wrap: nowrap;
-    padding-bottom: 6px;
+    padding-bottom: 8px;
     scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    -ms-overflow-style: none;
   }
 
   .pl-tabs::-webkit-scrollbar {
@@ -138,5 +165,50 @@
     padding: 7px 18px;
     white-space: nowrap;
     flex-shrink: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .pl-main {
+    padding: 20px 14px 48px;
+  }
+
+  .pl-title {
+    font-size: 20px;
+    margin-bottom: 14px;
+  }
+
+  .pl-user-info {
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  .pl-avatar {
+    width: 46px;
+    height: 46px;
+    font-size: 16px;
+  }
+
+  .pl-user-name {
+    font-size: 16px;
+  }
+
+  .pl-user-meta {
+    font-size: 12px;
+    line-height: 1.4;
+  }
+
+  .pl-divider {
+    margin-bottom: 20px;
+  }
+
+  .pl-tabs {
+    margin-bottom: 22px;
+    gap: 8px;
+  }
+
+  .pl-tab {
+    padding: 6px 14px;
+    font-size: 13px;
   }
 }

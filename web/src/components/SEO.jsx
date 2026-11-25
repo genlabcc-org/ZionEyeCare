@@ -65,9 +65,10 @@ export default function SEO({
     canonicalEl.setAttribute('href', currentCanonical);
 
     // 4. OpenGraph Meta Tags
-    const resolvedImage = ogImage.startsWith('http')
-      ? ogImage
-      : `${SITE_URL}${ogImage.startsWith('/') ? '' : '/'}${ogImage}`;
+    const safeOgImage = ogImage && typeof ogImage === 'string' ? ogImage : DEFAULT_OG_IMAGE;
+    const resolvedImage = safeOgImage.startsWith('http')
+      ? safeOgImage
+      : `${SITE_URL}${safeOgImage.startsWith('/') ? '' : '/'}${safeOgImage}`;
 
     setMetaTag('property', 'og:site_name', 'Zion Eye Care');
     setMetaTag('property', 'og:locale', 'en_IN');
@@ -119,16 +120,34 @@ export default function SEO({
     }
 
     // BreadcrumbList Schema
-    if (breadcrumbs && breadcrumbs.length > 0) {
+    if (breadcrumbs && Array.isArray(breadcrumbs) && breadcrumbs.length > 0) {
       const breadcrumbSchema = {
         '@context': 'https://schema.org',
         '@type': 'BreadcrumbList',
-        itemListElement: breadcrumbs.map((crumb, index) => ({
-          '@type': 'ListItem',
-          position: index + 1,
-          name: crumb.name,
-          item: crumb.path.startsWith('http') ? crumb.path : `${SITE_URL}${crumb.path}`,
-        })),
+        itemListElement: breadcrumbs.map((crumb, index) => {
+          if (!crumb) return null;
+          if (typeof crumb === 'string') {
+            return {
+              '@type': 'ListItem',
+              position: index + 1,
+              name: crumb,
+              item: currentCanonical,
+            };
+          }
+          const rawPath = crumb.path || crumb.url || crumb.link;
+          let resolvedItem = currentCanonical;
+          if (rawPath && typeof rawPath === 'string') {
+            resolvedItem = rawPath.startsWith('http')
+              ? rawPath
+              : `${SITE_URL}${rawPath.startsWith('/') ? '' : '/'}${rawPath}`;
+          }
+          return {
+            '@type': 'ListItem',
+            position: index + 1,
+            name: crumb.name || crumb.label || `Page ${index + 1}`,
+            item: resolvedItem,
+          };
+        }).filter(Boolean),
       };
       schemasToInject.push(breadcrumbSchema);
     }

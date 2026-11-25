@@ -114,6 +114,8 @@
   display: block;
   width: 32px;
   height: 25px;
+  color: var(--blue-primary, #3B71C1);
+  fill: var(--blue-primary, #3B71C1);
 }
 
 .testimonial-card-text {

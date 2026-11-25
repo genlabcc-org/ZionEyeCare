@@ -87,7 +87,7 @@
 
 .ao-empty-btn:hover {
   opacity: 0.9;
-  background-color: #001a5e;
+  background-color: var(--blue-hover, #315fa4);
 }
 
 /* ── ORDER ITEMS LIST ─────────────────────────────────────── */
@@ -422,7 +422,7 @@
 
 .ao-track-btn:hover {
   opacity: 0.9;
-  background-color: #001a5e;
+  background-color: var(--blue-hover, #315fa4);
 }
 
 /* ── SHOW MORE BUTTON ─────────────────────────────────────── */
@@ -447,7 +447,7 @@
 
 .ao-show-more-btn:hover {
   opacity: 0.9;
-  background-color: #001a5e;
+  background-color: var(--blue-hover, #315fa4);
 }
 
 /* ── INVOICE MODAL ────────────────────────────────────────── */
@@ -561,7 +561,7 @@
 
 .inv__modal-print-btn:hover {
   opacity: 0.9;
-  background-color: #001a5e;
+  background-color: var(--blue-hover, #315fa4);
 }
 
 /* ── RESPONSIVE ───────────────────────────────────────────── */
@@ -587,5 +587,51 @@
   .ao-order-actions {
     width: 100%;
     justify-content: flex-end;
+  }
+}
+
+@media (max-width: 480px) {
+  .ao-card {
+    padding: 14px 12px;
+    border-radius: 12px;
+  }
+
+  .ao-card-header {
+    margin-bottom: 14px;
+    padding-bottom: 14px;
+  }
+
+  .ao-card-title {
+    font-size: 17px;
+  }
+
+  .ao-order-block {
+    padding: 12px 12px;
+    border-radius: 10px;
+    gap: 10px;
+  }
+
+  .ao-order-top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .ao-order-price {
+    align-self: flex-start;
+  }
+
+  .ao-order-actions {
+    flex-wrap: wrap;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .ao-action-btn,
+  .ao-track-btn {
+    flex: 1;
+    min-width: 110px;
+    justify-content: center;
+    text-align: center;
   }
 }

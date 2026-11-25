@@ -275,7 +275,7 @@ select {
 }
 
 .cart-empty-shop-btn {
-  background: var(--blue-primary);
+  background: var(--blue-primary, #3B71C1);
   color: #fff;
   padding: 12px 28px;
   border-radius: 6px;
@@ -286,7 +286,7 @@ select {
 }
 
 .cart-empty-shop-btn:hover {
-  background: #00195c;
+  background: var(--blue-hover, #315fa4);
   transform: translateY(-1px);
 }
 
@@ -334,15 +334,16 @@ select {
   outline: none;
   transition: all 0.15s ease-in-out;
   flex-shrink: 0;
+  accent-color: var(--blue-primary, #3B71C1);
 }
 
 .cart-checkbox:hover {
-  border-color: #9ca3af;
+  border-color: var(--blue-primary, #3B71C1);
 }
 
 .cart-checkbox:checked {
-  background-color: var(--blue-primary);
-  border-color: var(--blue-primary);
+  background-color: var(--blue-primary, #3B71C1);
+  border-color: var(--blue-primary, #3B71C1);
 }
 
 .cart-checkbox:checked::after {
@@ -1122,7 +1123,7 @@ select {
 .checkout-btn {
   width: 100%;
   height: 38px;
-  background-color: #092c85;
+  background-color: var(--blue-primary, #3B71C1);
   color: #ffffff;
   border: none;
   border-radius: 6px;
@@ -1137,7 +1138,7 @@ select {
 }
 
 .checkout-btn:hover:not(:disabled) {
-  background-color: #061f5c;
+  background-color: var(--blue-hover, #315fa4);
 }
 
 .checkout-btn:disabled {

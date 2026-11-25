@@ -945,7 +945,7 @@ export default function CheckoutPage() {
             contact: profile?.phone || "",
           },
           theme: {
-            color: "#092c85",
+            color: "#3B71C1",
           },
           modal: {
             ondismiss: function () {

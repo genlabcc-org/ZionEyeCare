@@ -147,7 +147,7 @@
 }
 
 .track-primary-btn:hover {
-  background: #001a5e;
+  background: var(--blue-hover, #315fa4);
   opacity: 0.95;
 }
 
