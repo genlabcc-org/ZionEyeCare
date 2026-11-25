@@ -52,18 +52,18 @@ function buildHtmlTemplate(data: {
 
   const itemsHtml = (items && items.length > 0)
     ? items
-        .map((it, idx) => {
-          const name = it.product_name || it.name || "Product";
-          const qty = it.quantity || it.qty || 1;
-          const price = Number(it.price) || 0;
-          const lineTotal = price * qty;
-          const sku = it.sku || "N/A";
-          const variant = [
-            it.size ? `Size: ${it.size}` : null,
-            it.color ? `Color: ${it.color}` : null,
-          ].filter(Boolean).join(" · ");
+      .map((it, idx) => {
+        const name = it.product_name || it.name || "Product";
+        const qty = it.quantity || it.qty || 1;
+        const price = Number(it.price) || 0;
+        const lineTotal = price * qty;
+        const sku = it.sku || "N/A";
+        const variant = [
+          it.size ? `Size: ${it.size}` : null,
+          it.color ? `Color: ${it.color}` : null,
+        ].filter(Boolean).join(" · ");
 
-          return `
+        return `
             <tr style="border-bottom: 1px solid #f1f3f5;">
               <td style="padding: 12px 8px; font-size: 13px; color: #111827; font-weight: 600;">
                 <div>${idx + 1}. ${name}</div>
@@ -75,8 +75,8 @@ function buildHtmlTemplate(data: {
               <td style="padding: 12px 8px; font-size: 13px; color: #002277; font-weight: 700; text-align: right;">₹${lineTotal.toLocaleString("en-IN")}</td>
             </tr>
           `;
-        })
-        .join("")
+      })
+      .join("")
     : `
       <tr>
         <td colspan="4" style="padding: 12px; font-size: 13px; color: #4b5563; white-space: pre-wrap;">

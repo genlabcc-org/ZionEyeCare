@@ -31,13 +31,13 @@ export const emailService = {
       const formattedAddress = typeof address === 'string'
         ? address
         : [
-            address.name || customerName,
-            address.mobile ? `Phone: ${address.mobile}` : null,
-            address.flat ? `Address: ${address.flat}` : null,
-            address.area ? address.area : null,
-            address.landmark ? `Landmark: ${address.landmark}` : null,
-            address.city ? `${address.city}, ${address.state || ''} - ${address.pincode || ''}` : null,
-          ].filter(Boolean).join(', ');
+          address.name || customerName,
+          address.mobile ? `Phone: ${address.mobile}` : null,
+          address.flat ? `Address: ${address.flat}` : null,
+          address.area ? address.area : null,
+          address.landmark ? `Landmark: ${address.landmark}` : null,
+          address.city ? `${address.city}, ${address.state || ''} - ${address.pincode || ''}` : null,
+        ].filter(Boolean).join(', ');
 
       // Extract SKU IDs and Categories for separate rows
       const skuList = items
