@@ -308,7 +308,7 @@ export const emailService = {
                 </div>
                 <div style="background-color: #f9fafb; border-left: 4px solid #3B71C1; border-radius: 4px; padding: 16px 18px; font-size: 14px; line-height: 1.6; color: #1f2937; white-space: pre-wrap;">
 ${message}
-                </div>
+                </div>  
               </div>
 
               <div style="text-align: center; margin: 26px 0 10px;">
