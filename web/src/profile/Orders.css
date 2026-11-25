@@ -162,8 +162,8 @@
 /* Middle line: Thumbnails and summary */
 .ao-order-items-row {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  align-items: flex-start;
+  gap: 14px;
   width: 100%;
 }
 
@@ -172,33 +172,87 @@
   align-items: center;
   gap: 8px;
   flex-shrink: 0;
+  margin-top: 2px;
 }
 
 .ao-order-thumb-wrap {
-  width: 44px;
-  height: 44px;
+  width: 56px;
+  height: 56px;
   border-radius: 8px;
   overflow: hidden;
   border: none;
   background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  box-sizing: border-box;
   flex-shrink: 0;
 }
 
 .ao-order-thumb-img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
+  object-position: center;
+  display: block;
 }
 
 .ao-order-summary {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.ao-order-item-names {
   font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-size: 13.5px;
-  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+  color: #111827;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.ao-order-summary-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ao-item-sku-color-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 12.5px;
+  color: #6b7280;
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.ao-item-title-prefix {
+  font-weight: 600;
+  color: #374151;
+  margin-right: 2px;
+}
+
+.ao-item-sku-tag,
+.ao-item-color-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  padding: 0;
+  border: none;
+  color: #6b7280;
+}
+
+.ao-item-sku-tag strong,
+.ao-item-color-tag strong {
+  color: #111827;
+  font-weight: 600;
 }
 
 /* Shipment tracking box - Clean card inside minimal block, NO borders */
@@ -615,6 +669,12 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 6px;
+  }
+
+  .ao-order-thumb-wrap {
+    width: 48px;
+    height: 48px;
+    padding: 3px;
   }
 
   .ao-order-price {

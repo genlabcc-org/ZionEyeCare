@@ -42,10 +42,15 @@ export default function OrderTracking() {
             try {
               const { data: items } = await supabase
                 .from("order_items")
-                .select("*")
+                .select("*, products(product_id, name, image_url, images, sku)")
                 .eq("order_id", orderId);
               if (items && items.length > 0) {
-                data.order_items = items;
+                data.order_items = items.map((it) => {
+                  if ((!it.sku || it.sku === 'N/A') && it.products?.sku) {
+                    it.sku = it.products.sku;
+                  }
+                  return it;
+                });
               }
             } catch (err) {
               console.warn("Could not query order_items directly:", err);
@@ -694,6 +699,10 @@ export default function OrderTracking() {
                       const hasLens = Boolean(item.lensSelection) || lensPrice > 0;
 
                       const rawImgUrl = item.image_url ? getOriginalImageUrl(item.image_url) : null;
+                      const itemSku = item.sku && item.sku !== 'N/A'
+                        ? item.sku
+                        : (item.sku_id || item.product_sku || (item.products?.sku) || (item.product_id ? (String(item.product_id).length > 8 ? `ZEC-${String(item.product_id).slice(-6).toUpperCase()}` : String(item.product_id)) : ''));
+                      const itemColor = item.color || item.selectedColor || item.color_name || '';
 
                       return (
                         <div key={i} className="track-product-card">
@@ -744,18 +753,23 @@ export default function OrderTracking() {
                               </div>
 
                               <div className="track-product-meta-tags">
+                                {itemSku && (
+                                  <span className="track-meta-chip track-meta-chip--sku">
+                                    SKU: <strong>{itemSku}</strong>
+                                  </span>
+                                )}
                                 <span className="track-meta-chip">Qty: <strong>{qty}</strong></span>
                                 {item.size && (
                                   <span className="track-meta-chip">Size: <strong>{item.size}</strong></span>
                                 )}
-                                {item.color && (
+                                {itemColor && (
                                   <span className="track-meta-chip">
                                     Color:
                                     <span
                                       className="track-color-swatch"
-                                      style={{ backgroundColor: item.color }}
+                                      style={{ backgroundColor: itemColor }}
                                     />
-                                    <strong>{getColorName(item.color)}</strong>
+                                    <strong>{getColorName(itemColor)}</strong>
                                   </span>
                                 )}
                               </div>

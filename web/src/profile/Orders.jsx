@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { orderService } from "../services/orderService";
 import { productService } from "../services/productService";
 import { useStore } from "../hooks/useStore";
+import { getColorName } from "../utils/colorUtils";
 import ProfileLayout from "./ProfileLayout";
 import "./Orders.css";
 
@@ -50,6 +51,25 @@ export default function Orders() {
   const findProduct = (item) =>
     (item.product_id && productsMap[`id:${item.product_id}`]) ||
     productsMap[`name:${String(item.product_name || '').trim().toLowerCase()}`];
+
+  const getItemSku = (item) => {
+    if (item.sku && item.sku !== 'N/A') return item.sku;
+    if (item.sku_id) return item.sku_id;
+    if (item.product_sku) return item.product_sku;
+    const prod = findProduct(item);
+    if (prod?.sku) return prod.sku;
+    const pId = item.product_id || item.productId || item.id;
+    if (pId) {
+      const s = String(pId);
+      return s.length > 8 ? `ZEC-${s.slice(-6).toUpperCase()}` : s;
+    }
+    return '';
+  };
+
+  const getItemColor = (item) => {
+    const c = item.color || item.selectedColor || item.color_name;
+    return c ? getColorName(c) : '';
+  };
 
   const handleItemClick = (item) => {
     const product = findProduct(item);
@@ -243,7 +263,33 @@ export default function Orders() {
                     </div>
 
                     <div className="ao-order-summary">
-                      {itemsSummary}
+                      <div className="ao-order-item-names">
+                        {itemsSummary}
+                      </div>
+                      <div className="ao-order-summary-meta">
+                        {orderItems.map((item, iIdx) => {
+                          const sku = getItemSku(item);
+                          const color = getItemColor(item);
+                          if (!sku && !color) return null;
+                          return (
+                            <div key={iIdx} className="ao-item-sku-color-row">
+                              {orderItems.length > 1 && (
+                                <span className="ao-item-title-prefix">{item.product_name}:</span>
+                              )}
+                              {sku && (
+                                <span className="ao-item-sku-tag">
+                                  SKU: <strong>{sku}</strong>
+                                </span>
+                              )}
+                              {color && (
+                                <span className="ao-item-color-tag">
+                                  Color: <strong>{color}</strong>
+                                </span>
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
                     </div>
                   </div>
 

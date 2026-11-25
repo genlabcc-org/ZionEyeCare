@@ -449,6 +449,7 @@ export default function CheckoutPage() {
 
   // Live stock overrides fetched directly from database
   const [stockOverrides, setStockOverrides] = useState({});
+  const [skuOverrides, setSkuOverrides] = useState({});
 
   useEffect(() => {
     const fetchLiveStock = async () => {
@@ -457,11 +458,12 @@ export default function CheckoutPage() {
       try {
         const { data: prods } = await supabase
           .from('products')
-          .select('id:product_id, stock, product_variants(id:variant_id, color, size, stock)')
+          .select('id:product_id, sku, stock, product_variants(id:variant_id, color, size, sku, stock)')
           .in('product_id', pIds);
 
         if (prods && prods.length > 0) {
           const map = {};
+          const sMap = {};
           rawCheckoutItems.forEach(item => {
             const pId = item.productId || item.product_id || item.id;
             const p = prods.find(prod => String(prod.id) === String(pId));
@@ -483,9 +485,11 @@ export default function CheckoutPage() {
                 ? Math.max(0, parseInt(matched.stock, 10) || 0)
                 : Math.max(0, parseInt(p.stock, 10) || 0);
               map[item.id || pId] = stockVal;
+              sMap[item.id || pId] = matched?.sku || p.sku || item.sku || '';
             }
           });
           setStockOverrides(map);
+          setSkuOverrides(sMap);
         }
       } catch (err) {
         console.warn('Failed to verify live stock in checkout:', err);
@@ -509,6 +513,7 @@ export default function CheckoutPage() {
 
     return {
       ...item,
+      sku: item.sku || skuOverrides[key] || skuOverrides[item.id] || '',
       stock: stockLimit,
       qty: isOutOfStock ? 0 : realQty,
       requestedQty: rawQty,
@@ -1002,6 +1007,7 @@ export default function CheckoutPage() {
                     const colorStyle = getColorStyle(itemColor);
                     const colorLabel = getColorName(itemColor);
                     const isWhiteColor = colorStyle?.toUpperCase() === '#FFFFFF' || String(itemColor).toLowerCase() === 'white';
+                    const itemSku = item.sku || item.sku_id || item.skuId || item.product_sku || (item.productId ? (String(item.productId).length > 8 ? `ZEC-${String(item.productId).slice(-6).toUpperCase()}` : String(item.productId)) : '');
 
                     return (
                       <div key={item.id || item.productId || idx} className="checkout-product-preview-card">
@@ -1026,6 +1032,12 @@ export default function CheckoutPage() {
 
                           {/* Selected Color, Size & Qty Badges */}
                           <div className="checkout-product-badges-row">
+                            {itemSku && (
+                              <span className="checkout-product-badge checkout-badge-sku">
+                                <span className="checkout-badge-label">SKU:</span>
+                                <strong className="checkout-badge-val">{itemSku}</strong>
+                              </span>
+                            )}
                             {itemColor && (
                               <span className="checkout-product-badge">
                                 <span className="checkout-badge-label">Color:</span>

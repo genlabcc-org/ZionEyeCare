@@ -171,6 +171,7 @@ export default function CartPage() {
                     const isOutOfStock = stockCount !== null && stockCount === 0;
                     const currentQty = Math.max(1, item.qty || 1);
                     const isMaxStockReached = stockCount !== null && currentQty >= stockCount;
+                    const itemSku = item.sku || item.sku_id || item.skuId || item.product_sku || (item.productId ? (String(item.productId).length > 8 ? `ZEC-${String(item.productId).slice(-6).toUpperCase()}` : String(item.productId)) : '');
 
                     return (
                       <div key={item.id} className={`cart-item ${isOutOfStock ? 'cart-item-out-of-stock' : ''}`}>
@@ -229,15 +230,26 @@ export default function CartPage() {
 
                           <div className="cart-item-meta">
                             <span className="cart-item-category">{item.category || "Item"}</span>
-                            {item.size && <span className="cart-item-meta-dot">•</span>}
-                            {item.size && <span className="cart-item-size">Size: <strong>{item.size}</strong></span>}
-                            {item.color && <span className="cart-item-meta-dot">•</span>}
-                            {item.color && (
-                              <span className="cart-item-color">
-                                Color: <span className="cart-color-dot" style={{ backgroundColor: item.color }} /> <strong>{getColorName(item.color)}</strong>
+                            {itemSku && (
+                              <span className="cart-item-sku">
+                                SKU: <strong>{itemSku}</strong>
                               </span>
                             )}
-                            {item.lensSelection && <><span className="cart-item-meta-dot">•</span><span className="cart-item-lens">Lens: <strong>{item.lensSelection.lensName}{item.lensSelection.thicknessName ? ` · ${item.lensSelection.thicknessName}` : ""}</strong>{lensPrice > 0 ? ` (+₹${lensPrice.toLocaleString("en-IN")})` : ""}</span></>}
+                            {item.size && (
+                              <span className="cart-item-size">
+                                Size: <strong>{item.size}</strong>
+                              </span>
+                            )}
+                            {item.color && (
+                              <span className="cart-item-color">
+                                Color: <strong>{getColorName(item.color)}</strong>
+                              </span>
+                            )}
+                            {item.lensSelection && (
+                              <span className="cart-item-lens">
+                                Lens: <strong>{item.lensSelection.lensName}{item.lensSelection.thicknessName ? ` (${item.lensSelection.thicknessName})` : ""}</strong>{lensPrice > 0 ? ` (+₹${lensPrice.toLocaleString("en-IN")})` : ""}
+                              </span>
+                            )}
                           </div>
                         </div>
 

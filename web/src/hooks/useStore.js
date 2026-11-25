@@ -595,6 +595,7 @@ export const useStore = create((set, get) => ({
           id: `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
           productId: product.productId || product.id,
           name: product.name,
+          sku: product.sku || product.sku_id || product.selectedVariant?.sku || '',
           price: parsePrice(product.price) + (resolvedLensPrice > 0 && !product.framePrice ? resolvedLensPrice : 0),
           framePrice: parsePrice(product.framePrice ?? product.price),
           originalPrice: parsePrice(product.originalPrice || product.original || product.compare_price || Math.round(parsePrice(product.price) * 1.3)),
