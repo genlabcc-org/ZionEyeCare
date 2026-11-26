@@ -1258,3 +1258,101 @@
   letter-spacing: normal;
   display: inline-block;
 }
+
+/* ── Product Card Image Background Radio Group ── */
+.cmp-image-fit-radios {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  width: 100%;
+}
+
+.cmp-fit-radio-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  background: #ffffff;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease, box-shadow 0.15s ease;
+  user-select: none;
+  box-sizing: border-box;
+  min-height: 42px;
+}
+
+.cmp-fit-radio-option:hover {
+  border-color: #cbd5e1;
+  background: #f8fafc;
+}
+
+.cmp-fit-radio-option--active {
+  border-color: var(--admin-primary, #3B71C1);
+  background: rgba(59, 113, 193, 0.06);
+  box-shadow: 0 0 0 1px var(--admin-primary, #3B71C1);
+}
+
+.cmp-fit-radio-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+
+.cmp-fit-radio-dot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1.8px solid #cbd5e1;
+  background: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: border-color 0.15s ease;
+  box-sizing: border-box;
+}
+
+.cmp-fit-radio-option--active .cmp-fit-radio-dot {
+  border-color: var(--admin-primary, #3B71C1);
+}
+
+.cmp-fit-radio-option--active .cmp-fit-radio-dot::after {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--admin-primary, #3B71C1);
+}
+
+.cmp-fit-radio-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.cmp-fit-radio-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1e293b;
+  line-height: 1.25;
+}
+
+.cmp-fit-radio-option--active .cmp-fit-radio-title {
+  color: var(--admin-primary, #3B71C1);
+}
+
+.cmp-fit-radio-desc {
+  font-size: 11px;
+  color: #64748b;
+  line-height: 1.2;
+}
+
+@media (max-width: 640px) {
+  .cmp-image-fit-radios {
+    grid-template-columns: 1fr;
+  }
+}

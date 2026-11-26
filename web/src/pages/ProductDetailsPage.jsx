@@ -200,51 +200,62 @@ const RelatedProducts = memo(({ relatedItems, onProductClick }) => {
                 <img
                   src={productService.getResizedImageUrl(cardImgUrl, 'card')}
                   alt={displayTitle}
-                  className="dp-rel-img"
+                  className={`dp-rel-img${(p.fit === 'cover' || p.imageFit === 'cover') ? ' dp-rel-img--cover' : ''}`}
                   loading="lazy"
                 />
               </div>
               <div className="dp-rel-details">
                 <div className="dp-rel-details-top-row">
                   <h4 className="dp-rel-name" title={displayTitle}>{displayTitle}</h4>
-                  {productColors.length > 0 && (
-                    <div className="dp-rel-card-colors" aria-label="Available colors">
-                      {productColors.map((color) => {
-                        const bg = getColorStyle(color);
-                        const cName = getColorName(color) || color;
-                        const isWhite =
-                          bg.toUpperCase() === "#FFFFFF" ||
-                          bg.toLowerCase() === "white" ||
-                          String(color).trim().toLowerCase() === "white" ||
-                          String(color).trim().toUpperCase() === "#FFFFFF";
-                        const isActive =
-                          activeColor &&
-                          String(activeColor).trim().toLowerCase() === String(color).trim().toLowerCase();
+                  {productColors.length > 0 && (() => {
+                    const MAX_VISIBLE_COLORS = 4;
+                    const visibleColors = productColors.slice(0, MAX_VISIBLE_COLORS);
+                    const remainingColors = productColors.length - MAX_VISIBLE_COLORS;
 
-                        return (
-                          <button
-                            key={color}
-                            type="button"
-                            className={`dp-rel-color-swatch-btn${isActive ? " active" : ""}`}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedRelColors((prev) => ({
-                                ...prev,
-                                [cardKey]: color,
-                              }));
-                            }}
-                            title={cName}
-                            aria-label={`Color ${cName}`}
-                          >
-                            <span
-                              className={`dp-rel-color-dot${isWhite ? " dp-rel-color-dot--white" : ""}`}
-                              style={{ backgroundColor: bg }}
-                            />
-                          </button>
-                        );
-                      })}
-                    </div>
-                  )}
+                    return (
+                      <div className="dp-rel-card-colors" aria-label="Available colors">
+                        {visibleColors.map((color) => {
+                          const bg = getColorStyle(color);
+                          const cName = getColorName(color) || color;
+                          const isWhite =
+                            bg.toUpperCase() === "#FFFFFF" ||
+                            bg.toLowerCase() === "white" ||
+                            String(color).trim().toLowerCase() === "white" ||
+                            String(color).trim().toUpperCase() === "#FFFFFF";
+                          const isActive =
+                            activeColor &&
+                            String(activeColor).trim().toLowerCase() === String(color).trim().toLowerCase();
+
+                          return (
+                            <button
+                              key={color}
+                              type="button"
+                              className={`dp-rel-color-swatch-btn${isActive ? " active" : ""}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedRelColors((prev) => ({
+                                  ...prev,
+                                  [cardKey]: color,
+                                }));
+                              }}
+                              title={cName}
+                              aria-label={`Color ${cName}`}
+                            >
+                              <span
+                                className={`dp-rel-color-dot${isWhite ? " dp-rel-color-dot--white" : ""}`}
+                                style={{ backgroundColor: bg }}
+                              />
+                            </button>
+                          );
+                        })}
+                        {remainingColors > 0 && (
+                          <span className="dp-rel-color-more" title={`${remainingColors} more color${remainingColors > 1 ? "s" : ""}`}>
+                            +{remainingColors}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 <div className="dp-rel-price-row">

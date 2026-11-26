@@ -136,6 +136,13 @@
   display: block;
 }
 
+.trending-img.trending-img--cover {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+}
+
 /* Floating Add To Cart Pill */
 .trending-cart-pill-btn {
   position: absolute;
@@ -270,11 +277,20 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  flex-wrap: wrap;
-  gap: 4px 5px;
+  flex-wrap: nowrap;
+  gap: 5px;
   flex-shrink: 0;
   margin-left: auto;
-  max-width: 105px;
+}
+
+.trending-color-more {
+  font-family: 'Outfit', 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  color: #64748b;
+  margin-left: 1px;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .trending-color-swatch-btn {
@@ -665,19 +681,23 @@
   }
 
   .trending-card-colors {
-    gap: 3px;
-    flex-wrap: wrap;
-    max-width: 48%;
+    gap: 4px;
+    flex-wrap: nowrap;
+    max-width: none;
   }
 
   .trending-color-swatch-btn {
-    width: 18px;
-    height: 18px;
+    width: 12px;
+    height: 12px;
   }
 
   .trending-color-dot {
-    width: 13px;
-    height: 13px;
+    width: 100%;
+    height: 100%;
+  }
+
+  .trending-color-more {
+    font-size: 10px;
   }
 }
 
@@ -739,18 +759,23 @@
   }
 
   .trending-card-colors {
-    gap: 2.5px;
-    max-width: 45%;
+    gap: 3px;
+    flex-wrap: nowrap;
+    max-width: none;
   }
 
   .trending-color-swatch-btn {
-    width: 16px;
-    height: 16px;
+    width: 11px;
+    height: 11px;
   }
 
   .trending-color-dot {
-    width: 12px;
-    height: 12px;
+    width: 100%;
+    height: 100%;
+  }
+
+  .trending-color-more {
+    font-size: 9.5px;
   }
 }
 

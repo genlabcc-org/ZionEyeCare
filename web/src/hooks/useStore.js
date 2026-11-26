@@ -279,7 +279,7 @@ export const useStore = create((set, get) => ({
   // Caching Products by Category
   fetchProductsByCategory: async (categoryName) => {
     const cachedProducts = get().products[categoryName];
-    if (cachedProducts && cachedProducts.every((product) => product.gender != null)) return cachedProducts;
+    if (cachedProducts && cachedProducts.every((product) => product.gender != null && product.fit != null)) return cachedProducts;
     set({ loadingProducts: true });
     try {
       const productsData = await productService.getProductsByCategoryName(categoryName);
@@ -361,6 +361,8 @@ export const useStore = create((set, get) => ({
           category: categoryNameResolved,
           category_id: p.category_id || null,
           gender: p.gender || 'universal',
+          fit: p.fit === 'cover' ? 'cover' : 'contain',
+          imageFit: p.fit === 'cover' ? 'cover' : 'contain',
           subcategory: p.subcategory || p.subcategories?.name || null,
           subcategory_id: p.subcategory_id || null,
           stock: totalStock > 0 ? 'in-stock' : 'out-of-stock',

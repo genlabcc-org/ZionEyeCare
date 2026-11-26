@@ -109,7 +109,14 @@ export const addProductService = {
     const coverImages = firstWithImages ? firstWithImages.images : (productData.images || []);
     const coverImageUrl = coverImages[0] || productData.image_url || null;
 
-    const cleanDescription = String(productData.description || '').split('\n<!--CARE_INSTRUCTIONS-->\n')[0];
+    const { fit: requestedFit, ...restProductData } = productData;
+    const isCoverFit = requestedFit === 'cover';
+    const baseDescription = String(productData.description || '')
+      .split('\n<!--CARE_INSTRUCTIONS-->\n')[0]
+      .replace(/\n?<!--IMAGE_FIT:(cover|contain)-->/g, '');
+    const cleanDescription = isCoverFit
+      ? `${baseDescription}\n<!--IMAGE_FIT:cover-->`
+      : baseDescription;
     const cleanCare = String(productData.care_instructions || '').trim() || null;
 
     const baseSlug = (productData.name || 'product')
@@ -119,7 +126,7 @@ export const addProductService = {
       .replace(/^-+|-+$/g, '') || 'product';
 
     const payload = {
-      ...productData,
+      ...restProductData,
       slug: productData.slug || `${baseSlug}-${Date.now().toString(36)}`,
       description: cleanDescription,
       care_instructions: cleanCare,
@@ -204,11 +211,18 @@ export const addProductService = {
     const fallbackComparePrice = validComparePrices.length > 0 ? Math.max(...validComparePrices) : null;
     const totalStock = (variants || []).reduce((sum, v) => sum + (parseInt(v.stockQuantity ?? v.stock) || 0), 0);
 
-    const cleanDescription = String(productData.description || '').split('\n<!--CARE_INSTRUCTIONS-->\n')[0];
+    const { fit: requestedFit, ...restProductData } = productData;
+    const isCoverFit = requestedFit === 'cover';
+    const baseDescription = String(productData.description || '')
+      .split('\n<!--CARE_INSTRUCTIONS-->\n')[0]
+      .replace(/\n?<!--IMAGE_FIT:(cover|contain)-->/g, '');
+    const cleanDescription = isCoverFit
+      ? `${baseDescription}\n<!--IMAGE_FIT:cover-->`
+      : baseDescription;
     const cleanCare = String(productData.care_instructions || '').trim() || null;
 
     const updatePayload = {
-      ...productData,
+      ...restProductData,
       description: cleanDescription,
       care_instructions: cleanCare,
       price: productData.price != null && !isNaN(parseFloat(productData.price)) ? parseFloat(productData.price) : fallbackPrice,

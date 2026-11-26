@@ -182,6 +182,14 @@
   transition: transform 0.3s ease !important;
 }
 
+.new-arrival-img.new-arrival-img--cover {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  filter: none !important;
+}
+
 .new-arrival-card:hover .new-arrival-img {
   transform: scale(1.035) !important;
 }

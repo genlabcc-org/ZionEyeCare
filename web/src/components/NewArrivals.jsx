@@ -45,6 +45,7 @@ export default function NewArrivals({ onProductClick }) {
           .select(`
             product_id,
             name,
+            description,
             price,
             compare_price,
             discount_price,
@@ -146,6 +147,7 @@ export default function NewArrivals({ onProductClick }) {
 
           const fallback = DEFAULT_COLOR_PALETTES[pIdx % DEFAULT_COLOR_PALETTES.length];
           const finalColors = extractedColors.length > 0 ? extractedColors : fallback;
+          const normalizedProduct = productService.normalizeProductCare(p);
 
           return {
             id: p.product_id,
@@ -158,7 +160,9 @@ export default function NewArrivals({ onProductClick }) {
             has_variants: hasVariants,
             price: basePrice,
             compare_price: baseComparePrice,
-            rawProduct: p,
+            fit: normalizedProduct?.fit || 'contain',
+            imageFit: normalizedProduct?.fit || 'contain',
+            rawProduct: normalizedProduct,
           };
         });
 
@@ -238,8 +242,8 @@ export default function NewArrivals({ onProductClick }) {
               const currentImage = activeImages[product.id] || product.img;
               const activeSwatchIdx = activeColors[product.id] ?? 0;
               const swatches = product.colors || [];
-              const visibleSwatches = swatches.slice(0, 3);
-              const remainingCount = swatches.length - 3;
+              const visibleSwatches = swatches.slice(0, 4);
+              const remainingCount = swatches.length - 4;
               const isWishlisted = !!wishlist[product.id];
 
               const selectedSwatch = swatches[activeSwatchIdx];
@@ -282,7 +286,7 @@ export default function NewArrivals({ onProductClick }) {
                     <img
                       src={productService.getResizedImageUrl(currentImage, 'card')}
                       alt={product.name}
-                      className="new-arrival-img"
+                      className={`new-arrival-img${product.fit === 'cover' ? ' new-arrival-img--cover' : ''}`}
                       loading="lazy"
                       decoding="async"
                       onError={(e) => {

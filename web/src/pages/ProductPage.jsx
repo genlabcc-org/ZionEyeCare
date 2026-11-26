@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useStore } from "../hooks/useStore";
 import SiteHeader from "../components/SiteHeader";
@@ -12,8 +12,7 @@ import { getColorName, getColorStyle } from "../utils/colorUtils";
 import ProductFilter from "../components/ProductFilter";
 import "./ProductPage.css";
 
-const DESKTOP_ITEMS_PER_PAGE = 9;
-const MOBILE_ITEMS_PER_PAGE = 10;
+const SCROLL_BATCH_SIZE = 12;
 const EMPTY_PRODUCTS = [];
 
 const getProductColors = (product) => {
@@ -79,8 +78,6 @@ export default function ProductPage({ category = "Trending" }) {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const itemsPerPage = isMobile ? MOBILE_ITEMS_PER_PAGE : DESKTOP_ITEMS_PER_PAGE;
-
   // Filter states
   const [sortBy, setSortBy] = useState("featured"); // "price-low-high", "price-high-low", "featured"
   const [selectedCategories, setSelectedCategories] = useState([]);
@@ -90,7 +87,8 @@ export default function ProductPage({ category = "Trending" }) {
   const [selectedGenders, setSelectedGenders] = useState(() => genderParam.trim() ? [genderParam.trim()] : []);
   const [selectedFabrics, setSelectedFabrics] = useState([]);
   const [selectedSizes, setSelectedSizes] = useState([]);
-  const [currentPage, setCurrentPage] = useState(1);
+  const [visibleCount, setVisibleCount] = useState(SCROLL_BATCH_SIZE);
+  const loadMoreRef = useRef(null);
   const [mobileFilterOpen, setMobileFilterOpen] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [toastType, setToastType] = useState("success");
@@ -132,7 +130,7 @@ export default function ProductPage({ category = "Trending" }) {
     setSelectedFabrics([]);
     setSelectedSizes([]);
     setSortBy("featured");
-    setCurrentPage(1);
+    setVisibleCount(SCROLL_BATCH_SIZE);
   }, [category, subcategoryParam, genderParam]);
 
   const showToast = (message, type = "success") => {
@@ -150,14 +148,14 @@ export default function ProductPage({ category = "Trending" }) {
 
   const handlePriceSortToggle = (type) => {
     setSortBy(prev => (prev === type ? "featured" : type));
-    setCurrentPage(1);
+    setVisibleCount(SCROLL_BATCH_SIZE);
   };
 
   const handleCategoryToggle = (catName) => {
     setSelectedCategories(prev =>
       prev.includes(catName) ? prev.filter(c => c !== catName) : [...prev, catName]
     );
-    setCurrentPage(1);
+    setVisibleCount(SCROLL_BATCH_SIZE);
   };
 
   const handleSubcategoryToggle = (subName) => {
@@ -173,26 +171,26 @@ export default function ProductPage({ category = "Trending" }) {
       }
       return next;
     });
-    setCurrentPage(1);
+    setVisibleCount(SCROLL_BATCH_SIZE);
   };
 
   const handleGenderToggle = (gender) => {
     setSelectedGenders((current) => current.includes(gender) ? current.filter((item) => item !== gender) : [...current, gender]);
-    setCurrentPage(1);
+    setVisibleCount(SCROLL_BATCH_SIZE);
   };
 
   const handleFabricToggle = (fabric) => {
     setSelectedFabrics(prev =>
       prev.includes(fabric) ? prev.filter(f => f !== fabric) : [...prev, fabric]
     );
-    setCurrentPage(1);
+    setVisibleCount(SCROLL_BATCH_SIZE);
   };
 
   const handleSizeToggle = (size) => {
     setSelectedSizes(prev =>
       prev.includes(size) ? prev.filter(s => s !== size) : [...prev, size]
     );
-    setCurrentPage(1);
+    setVisibleCount(SCROLL_BATCH_SIZE);
   };
 
   const handleClearFilters = () => {
@@ -202,7 +200,7 @@ export default function ProductPage({ category = "Trending" }) {
     setSelectedFabrics([]);
     setSelectedSizes([]);
     setSortBy("featured");
-    setCurrentPage(1);
+    setVisibleCount(SCROLL_BATCH_SIZE);
     if (searchParams.has("sub")) {
       const nextParams = new URLSearchParams(searchParams);
       nextParams.delete("sub");
@@ -643,28 +641,30 @@ export default function ProductPage({ category = "Trending" }) {
     return expanded;
   }, [products, subcategoryParam, searchQueryParam, selectedCategories, selectedGenders, selectedSubcategories, selectedFabrics, selectedSizes, sortBy, subcategoryLookup, isProductInCategory]);
 
-  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / itemsPerPage));
+  const currentItems = useMemo(() => {
+    return filteredProducts.slice(0, visibleCount);
+  }, [filteredProducts, visibleCount]);
+
+  const hasMoreItems = visibleCount < filteredProducts.length;
 
   useEffect(() => {
-    if (currentPage > totalPages) {
-      setCurrentPage(totalPages);
+    if (!hasMoreItems) return;
+    const node = loadMoreRef.current;
+    if (!node || typeof IntersectionObserver === "undefined") {
+      setVisibleCount(filteredProducts.length);
+      return;
     }
-  }, [totalPages, currentPage]);
-
-  const currentItems = useMemo(() => {
-    const start = (currentPage - 1) * itemsPerPage;
-    return filteredProducts.slice(start, start + itemsPerPage);
-  }, [filteredProducts, currentPage, itemsPerPage]);
-
-  const handlePageChange = (direction) => {
-    if (direction === "prev" && currentPage > 1) {
-      setCurrentPage(prev => prev - 1);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    } else if (direction === "next" && currentPage < totalPages) {
-      setCurrentPage(prev => prev + 1);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
-  };
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setVisibleCount((prev) => Math.min(prev + SCROLL_BATCH_SIZE, filteredProducts.length));
+        }
+      },
+      { root: null, rootMargin: "450px 0px", threshold: 0.01 }
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [hasMoreItems, filteredProducts.length]);
 
   const handleProductCardClick = (product, activeColor = null, cardImgUrl = null, price = null, comparePrice = null) => {
     const pid = product?.product_id || product?.productId || product?.id;
@@ -727,15 +727,6 @@ export default function ProductPage({ category = "Trending" }) {
       showToast("Failed to add to cart", "error");
     }
   };
-
-  // Generate pagination list
-  const pageNumbers = useMemo(() => {
-    const pages = [];
-    for (let i = 1; i <= totalPages; i++) {
-      pages.push(i);
-    }
-    return pages;
-  }, [totalPages]);
 
   const pageTitle = useMemo(() => {
     if (searchQueryParam) return `Search: "${searchQueryParam}" | Zion Eye Care Clinic`;
@@ -976,7 +967,7 @@ export default function ProductPage({ category = "Trending" }) {
                         <img
                           src={productService.getResizedImageUrl(cardImgUrl, 'card')}
                           alt={displayTitle}
-                          className="trending-img"
+                          className={`trending-img${(product.fit === 'cover' || product.imageFit === 'cover') ? ' trending-img--cover' : ''}`}
                           loading="lazy"
                         />
                         {(() => {
@@ -1035,38 +1026,58 @@ export default function ProductPage({ category = "Trending" }) {
                       <div className="trending-details-box">
                         <div className="trending-details-top-row">
                           <h4 className="trending-product-name" title={displayTitle}>{displayTitle}</h4>
-                          {productColors.length > 0 && (
-                            <div className="trending-card-colors" aria-label="Available colors">
-                              {productColors.map((color) => {
-                                const bg = getColorStyle(color);
-                                const cName = getColorName(color) || color;
-                                const isWhite =
-                                  bg.toUpperCase() === "#FFFFFF" ||
-                                  bg.toLowerCase() === "white" ||
-                                  String(color).trim().toLowerCase() === "white" ||
-                                  String(color).trim().toUpperCase() === "#FFFFFF";
-                                const isActive =
-                                  activeColor &&
-                                  activeColor.toLowerCase() === String(color).trim().toLowerCase();
+                          {productColors.length > 0 && (() => {
+                            const MAX_VISIBLE_COLORS = 4;
+                            const firstFour = productColors.slice(0, MAX_VISIBLE_COLORS);
+                            const visibleColors =
+                              productColors.length > MAX_VISIBLE_COLORS &&
+                              activeColor &&
+                              !firstFour.some((c) => String(c).trim().toLowerCase() === String(activeColor).trim().toLowerCase())
+                                ? [...firstFour.slice(0, MAX_VISIBLE_COLORS - 1), activeColor]
+                                : firstFour;
+                            const remainingColors = productColors.length - MAX_VISIBLE_COLORS;
 
-                                return (
-                                  <button
-                                    key={color}
-                                    type="button"
-                                    className={`trending-color-swatch-btn${isActive ? " active" : ""}`}
-                                    onClick={(e) => handleCardColorClick(e, product, color)}
-                                    title={cName}
-                                    aria-label={`Color ${cName}`}
+                            return (
+                              <div className="trending-card-colors" aria-label="Available colors">
+                                {visibleColors.map((color) => {
+                                  const bg = getColorStyle(color);
+                                  const cName = getColorName(color) || color;
+                                  const isWhite =
+                                    bg.toUpperCase() === "#FFFFFF" ||
+                                    bg.toLowerCase() === "white" ||
+                                    String(color).trim().toLowerCase() === "white" ||
+                                    String(color).trim().toUpperCase() === "#FFFFFF";
+                                  const isActive =
+                                    activeColor &&
+                                    activeColor.toLowerCase() === String(color).trim().toLowerCase();
+
+                                  return (
+                                    <button
+                                      key={color}
+                                      type="button"
+                                      className={`trending-color-swatch-btn${isActive ? " active" : ""}`}
+                                      onClick={(e) => handleCardColorClick(e, product, color)}
+                                      title={cName}
+                                      aria-label={`Color ${cName}`}
+                                    >
+                                      <span
+                                        className={`trending-color-dot${isWhite ? " trending-color-dot--white" : ""}`}
+                                        style={{ backgroundColor: bg }}
+                                      />
+                                    </button>
+                                  );
+                                })}
+                                {remainingColors > 0 && (
+                                  <span
+                                    className="trending-color-more"
+                                    title={`${remainingColors} more color${remainingColors > 1 ? "s" : ""}`}
                                   >
-                                    <span
-                                      className={`trending-color-dot${isWhite ? " trending-color-dot--white" : ""}`}
-                                      style={{ backgroundColor: bg }}
-                                    />
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          )}
+                                    +{remainingColors}
+                                  </span>
+                                )}
+                              </div>
+                            );
+                          })()}
                         </div>
 
                         <div className="trending-product-price-row">
@@ -1092,51 +1103,13 @@ export default function ProductPage({ category = "Trending" }) {
                 })}
               </div>
 
-              {/* ─── Pagination Bar ─── */}
-              {totalPages > 1 && (
-                <div className="trending-pagination-container">
-                  <button
-                    type="button"
-                    onClick={() => handlePageChange("prev")}
-                    disabled={currentPage === 1}
-                    className="trending-page-nav-pill"
-                  >
-                    <svg viewBox="0 0 24 24" fill="none" width="14" height="14" stroke="currentColor" strokeWidth="2.2">
-                      <line x1="19" y1="12" x2="5" y2="12" />
-                      <polyline points="12 19 5 12 12 5" />
-                    </svg>
-                    <span>Previous</span>
-                  </button>
-
-                  <div className="trending-page-numbers-group">
-                    {pageNumbers.map(page => (
-                      <button
-                        key={page}
-                        type="button"
-                        onClick={() => {
-                          setCurrentPage(page);
-                          window.scrollTo({ top: 0, behavior: "smooth" });
-                        }}
-                        className={`trending-page-number-btn ${currentPage === page ? "active" : ""}`}
-                      >
-                        {page}
-                      </button>
-                    ))}
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => handlePageChange("next")}
-                    disabled={currentPage === totalPages}
-                    className="trending-page-nav-pill"
-                  >
-                    <span>Next</span>
-                    <svg viewBox="0 0 24 24" fill="none" width="14" height="14" stroke="currentColor" strokeWidth="2.2">
-                      <line x1="5" y1="12" x2="19" y2="12" />
-                      <polyline points="12 5 19 12 12 19" />
-                    </svg>
-                  </button>
-                </div>
+              {/* ─── Infinite Scroll Sentinel ─── */}
+              {hasMoreItems && (
+                <div
+                  ref={loadMoreRef}
+                  style={{ height: "1px", width: "100%" }}
+                  aria-hidden="true"
+                />
               )}
             </>
           )}

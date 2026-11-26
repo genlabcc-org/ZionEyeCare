@@ -223,6 +223,7 @@ const ProductForm = ({
   const [sku, setSku] = useState(() => initialDraft?.sku || generateVariantSKU());
   const [frameShape, setFrameShape] = useState(() => initialDraft?.frameShape || "");
   const [frameMeasurements, setFrameMeasurements] = useState(() => initialDraft?.frameMeasurements || "");
+  const [imageFit, setImageFit] = useState(() => initialDraft?.imageFit || "contain");
   const [gender, setGender] = useState(() => initialDraft?.gender || "");
   const [category, setCategory] = useState(() => initialDraft?.category || "");
 
@@ -383,6 +384,7 @@ const ProductForm = ({
         sku,
         frameShape,
         frameMeasurements,
+        imageFit,
         gender,
         category,
         commonColors,
@@ -414,6 +416,7 @@ const ProductForm = ({
     sku,
     frameShape,
     frameMeasurements,
+    imageFit,
     gender,
     category,
     commonColors,
@@ -469,6 +472,7 @@ const ProductForm = ({
         setSku(product.sku || generateVariantSKU());
         setFrameShape(product.frame_shape || "");
         setFrameMeasurements(product.frame_measurements || "");
+        setImageFit(product.fit === "cover" ? "cover" : "contain");
         setGender(product.gender || "");
         setLensOptions(Array.isArray(product.lens_options) ? product.lens_options : []);
         setCategory(product.category_id != null ? String(product.category_id) : "");
@@ -1214,6 +1218,7 @@ const ProductForm = ({
     setSku(generateVariantSKU());
     setFrameShape("");
     setFrameMeasurements("");
+    setImageFit("contain");
     setGender("");
     setCategory("");
     setCommonColors([]);
@@ -1397,6 +1402,7 @@ const ProductForm = ({
       sku: sku || undefined,
       frame_shape: frameShape.trim() || null,
       frame_measurements: frameMeasurements.trim() || null,
+      fit: imageFit === "cover" ? "cover" : "contain",
       gender: gender || "universal",
       category_id: parseInt(category) || null,
       is_active: showOnStore,
@@ -1573,6 +1579,45 @@ const ProductForm = ({
               ))}
             </select>
           </label>
+
+          <div className="cmp-field">
+            <span className="cmp-label">Product Card Image Background</span>
+            <div className="cmp-image-fit-radios" role="radiogroup" aria-label="Product Card Image Background">
+              <label
+                className={`cmp-fit-radio-option ${imageFit !== "cover" ? "cmp-fit-radio-option--active" : ""}`}
+              >
+                <input
+                  type="radio"
+                  name="imageFit"
+                  value="contain"
+                  checked={imageFit !== "cover"}
+                  onChange={() => setImageFit("contain")}
+                />
+                <span className="cmp-fit-radio-dot" />
+                <span className="cmp-fit-radio-text">
+                  <span className="cmp-fit-radio-title">No Background (Fit)</span>
+                  <span className="cmp-fit-radio-desc">Centered inside card</span>
+                </span>
+              </label>
+
+              <label
+                className={`cmp-fit-radio-option ${imageFit === "cover" ? "cmp-fit-radio-option--active" : ""}`}
+              >
+                <input
+                  type="radio"
+                  name="imageFit"
+                  value="cover"
+                  checked={imageFit === "cover"}
+                  onChange={() => setImageFit("cover")}
+                />
+                <span className="cmp-fit-radio-dot" />
+                <span className="cmp-fit-radio-text">
+                  <span className="cmp-fit-radio-title">With Background (Cover Card)</span>
+                  <span className="cmp-fit-radio-desc">Fills full product card</span>
+                </span>
+              </label>
+            </div>
+          </div>
         </div>
 
 

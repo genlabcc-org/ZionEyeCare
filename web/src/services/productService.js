@@ -7,22 +7,34 @@ import { compressImage } from '../utils/imageCompression';
 // };
 
 const CARE_DELIMITER = '\n<!--CARE_INSTRUCTIONS-->\n';
+const IMAGE_FIT_COVER_TAG = '\n<!--IMAGE_FIT:cover-->';
+const IMAGE_FIT_REGEX = /\n?<!--IMAGE_FIT:(cover|contain)-->/g;
 
 export const productService = {
   /**
-   * Unpacks description and care_instructions from a product row.
+   * Unpacks description, care_instructions, and image fit mode from a product row.
    */
   normalizeProductCare(row) {
     if (!row || typeof row !== 'object') return row;
     const rawDesc = typeof row.description === 'string'
       ? row.description
       : (typeof row.desc === 'string' ? row.desc : '');
-    let cleanDescription = row.description;
+    const hasCoverMarker = /<!--IMAGE_FIT:cover-->/.test(rawDesc);
+    const resolvedFit =
+      row.fit === 'cover' || row.imageFit === 'cover' || hasCoverMarker
+        ? 'cover'
+        : 'contain';
+    let cleanDescription = typeof row.description === 'string'
+      ? row.description.replace(IMAGE_FIT_REGEX, '')
+      : row.description;
     let extractedCare = '';
-    if (rawDesc.includes(CARE_DELIMITER)) {
-      const [descPart, ...careParts] = rawDesc.split(CARE_DELIMITER);
+    const strippedRaw = rawDesc.replace(IMAGE_FIT_REGEX, '');
+    if (strippedRaw.includes(CARE_DELIMITER)) {
+      const [descPart, ...careParts] = strippedRaw.split(CARE_DELIMITER);
       cleanDescription = descPart;
       extractedCare = careParts.join(CARE_DELIMITER).trim();
+    } else if (typeof cleanDescription === 'string') {
+      cleanDescription = strippedRaw;
     }
     const care = String(row.care_instructions || row.careInstructions || extractedCare || '').trim();
     return {
@@ -30,6 +42,8 @@ export const productService = {
       ...(row.description !== undefined || rawDesc ? { description: cleanDescription } : {}),
       ...(row.desc !== undefined ? { desc: cleanDescription } : {}),
       care_instructions: care,
+      fit: resolvedFit,
+      imageFit: resolvedFit,
     };
   },
 
