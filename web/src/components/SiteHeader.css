@@ -275,6 +275,24 @@
   object-fit: contain;
   flex-shrink: 0;
   display: block;
+  border-radius: 4px !important;
+}
+
+.nav-sub-gender-icon {
+  background: none !important;
+  color: #374151;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: color 0.15s ease;
+}
+
+.nav-popup-item:hover .nav-sub-gender-icon,
+.mobile-nav-subitem:hover .nav-sub-gender-icon,
+.mobile-nav-subitem:active .nav-sub-gender-icon {
+  background: none !important;
+  color: var(--blue-primary, #3B71C1);
 }
 
 .nav-popup-item.nav-popup-item--list .nav-popup-item-label {
@@ -848,6 +866,7 @@ body.menu-open {
   object-fit: contain;
   flex-shrink: 0;
   display: block;
+  border-radius: 4px !important;
 }
 
 .mobile-nav-subitem-text {

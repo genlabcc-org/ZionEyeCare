@@ -22,7 +22,6 @@ const buildCategoryNavItems = (categories = []) =>
   (categories || [])
     .filter((c) => c && c.is_active !== false)
     .map((c) => {
-      const categoryImage = c.image_url || c.categoryImage || c.image || c.icon || null;
       const genders = [...new Set((c.products || [])
         .map((product) => String(product?.gender || "universal").toLowerCase())
         .filter((gender) => ["men", "women", "universal"].includes(gender)))];
@@ -36,8 +35,6 @@ const buildCategoryNavItems = (categories = []) =>
         id: c.category_id ?? c.id,
         name: c.name,
         slug: c.slug || (c.name ? c.name.toLowerCase().replace(/\s+/g, "-") : ""),
-        icon: categoryImage,
-        image_url: categoryImage,
         hasDropdown: subs.length > 0,
         isMegaMenu: subs.length > 4,
         subcategories: subs,
@@ -45,6 +42,46 @@ const buildCategoryNavItems = (categories = []) =>
         fromDb: true,
       };
     });
+
+// ─── Subcategory / Gender Icon Component ───
+const SubcategoryIcon = ({ sub }) => {
+  const key = String(sub?.gender || sub?.name || "").toLowerCase().trim();
+
+  if (key === "men" || key === "male") {
+    return (
+      <span className="nav-sub-gender-icon" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+      </span>
+    );
+  }
+
+  if (key === "women" || key === "female") {
+    return (
+      <span className="nav-sub-gender-icon" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+          <circle cx="12" cy="7" r="3.6" />
+          <path d="M8.5 7.5c-.2 2.2-1 3.8-1.8 4.8" />
+          <path d="M15.5 7.5c.2 2.2 1 3.8 1.8 4.8" />
+          <path d="M6.5 21l1.8-5.5a3.8 3.8 0 0 1 3.7-2.7 3.8 3.8 0 0 1 3.7 2.7L17.5 21" />
+        </svg>
+      </span>
+    );
+  }
+
+  return (
+    <span className="nav-sub-gender-icon" aria-hidden="true">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+        <circle cx="9" cy="7" r="3.5" />
+        <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+        <path d="M16 3.13a3.5 3.5 0 0 1 0 6.75" />
+      </svg>
+    </span>
+  );
+};
 
 // ─── Account / Login Dropdown Component ───
 const LoginDropdown = () => {
@@ -218,16 +255,6 @@ const DesktopNavItem = ({ item, onItemClick, onSubClick, isActive }) => {
         className={`nav-link ${isActive ? "active" : ""} ${hasDropdown ? "has-dropdown" : ""}`}
         onClick={handleMainClick}
       >
-        {item.icon && (
-          <img
-            src={item.icon}
-            alt={item.name}
-            className="nav-category-icon"
-            onError={(e) => {
-              e.currentTarget.style.display = "none";
-            }}
-          />
-        )}
         <span>{item.name}</span>
         {hasDropdown && (
           <svg
@@ -255,16 +282,7 @@ const DesktopNavItem = ({ item, onItemClick, onSubClick, isActive }) => {
               className={`nav-popup-item ${item.isMegaMenu ? "nav-popup-item--grid" : "nav-popup-item--list"}`}
               onClick={(e) => handleSubSelect(sub, e)}
             >
-              {sub.icon && (
-                <img
-                  src={sub.icon}
-                  alt=""
-                  className={item.isMegaMenu ? "nav-popup-item-icon" : "nav-popup-list-icon"}
-                  onError={(e) => {
-                    e.currentTarget.style.display = "none";
-                  }}
-                />
-              )}
+              <SubcategoryIcon sub={sub} />
               <span className="nav-popup-item-label">{sub.name}</span>
               {!item.isMegaMenu && (
                 <svg
@@ -313,19 +331,7 @@ const MobileNavItem = ({ item, onItemClick, onSubClick, defaultExpanded = false 
         className={`mobile-nav-link ${expanded ? "expanded" : ""}`}
         onClick={handleMainClick}
       >
-        <span className="mobile-nav-link-main">
-          {item.icon && (
-            <img
-              src={item.icon}
-              alt={item.name}
-              className="mobile-nav-category-icon"
-              onError={(e) => {
-                e.currentTarget.style.display = "none";
-              }}
-            />
-          )}
-          <span className="mobile-nav-label">{item.name}</span>
-        </span>
+        <span className="mobile-nav-label">{item.name}</span>
         {hasDropdown && (
           <span className={`mobile-nav-circle-btn ${expanded ? "open" : ""}`} aria-hidden="true">
             <svg
@@ -357,16 +363,7 @@ const MobileNavItem = ({ item, onItemClick, onSubClick, defaultExpanded = false 
               className="mobile-nav-subitem"
               onClick={() => onSubClick(item, sub)}
             >
-              {sub.icon && (
-                <img
-                  src={sub.icon}
-                  alt=""
-                  className="mobile-nav-subitem-icon"
-                  onError={(e) => {
-                    e.currentTarget.style.display = "none";
-                  }}
-                />
-              )}
+              <SubcategoryIcon sub={sub} />
               <span className="mobile-nav-subitem-text">{sub.name}</span>
             </button>
           ))}
