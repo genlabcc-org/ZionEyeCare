@@ -22,6 +22,7 @@ const buildCategoryNavItems = (categories = []) =>
   (categories || [])
     .filter((c) => c && c.is_active !== false)
     .map((c) => {
+      const categoryImage = c.image_url || c.categoryImage || c.image || c.icon || null;
       const genders = [...new Set((c.products || [])
         .map((product) => String(product?.gender || "universal").toLowerCase())
         .filter((gender) => ["men", "women", "universal"].includes(gender)))];
@@ -35,6 +36,8 @@ const buildCategoryNavItems = (categories = []) =>
         id: c.category_id ?? c.id,
         name: c.name,
         slug: c.slug || (c.name ? c.name.toLowerCase().replace(/\s+/g, "-") : ""),
+        icon: categoryImage,
+        image_url: categoryImage,
         hasDropdown: subs.length > 0,
         isMegaMenu: subs.length > 4,
         subcategories: subs,
@@ -215,6 +218,16 @@ const DesktopNavItem = ({ item, onItemClick, onSubClick, isActive }) => {
         className={`nav-link ${isActive ? "active" : ""} ${hasDropdown ? "has-dropdown" : ""}`}
         onClick={handleMainClick}
       >
+        {item.icon && (
+          <img
+            src={item.icon}
+            alt={item.name}
+            className="nav-category-icon"
+            onError={(e) => {
+              e.currentTarget.style.display = "none";
+            }}
+          />
+        )}
         <span>{item.name}</span>
         {hasDropdown && (
           <svg
@@ -300,7 +313,19 @@ const MobileNavItem = ({ item, onItemClick, onSubClick, defaultExpanded = false 
         className={`mobile-nav-link ${expanded ? "expanded" : ""}`}
         onClick={handleMainClick}
       >
-        <span className="mobile-nav-label">{item.name}</span>
+        <span className="mobile-nav-link-main">
+          {item.icon && (
+            <img
+              src={item.icon}
+              alt={item.name}
+              className="mobile-nav-category-icon"
+              onError={(e) => {
+                e.currentTarget.style.display = "none";
+              }}
+            />
+          )}
+          <span className="mobile-nav-label">{item.name}</span>
+        </span>
         {hasDropdown && (
           <span className={`mobile-nav-circle-btn ${expanded ? "open" : ""}`} aria-hidden="true">
             <svg

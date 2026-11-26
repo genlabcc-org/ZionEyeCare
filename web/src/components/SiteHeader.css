@@ -112,10 +112,19 @@
   position: relative;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
   letter-spacing: -0.01em;
   white-space: nowrap;
   transition: color 0.15s ease;
+}
+
+.nav-category-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  flex-shrink: 0;
+  display: block;
+  border-radius: 4px !important;
 }
 
 .nav-link:hover,
@@ -751,6 +760,22 @@ body.menu-open {
 
 .mobile-nav-link:active {
   background-color: rgba(81, 173, 232, 0.08);
+}
+
+.mobile-nav-link-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.mobile-nav-category-icon {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  flex-shrink: 0;
+  display: block;
+  border-radius: 4px !important;
 }
 
 .mobile-nav-label {

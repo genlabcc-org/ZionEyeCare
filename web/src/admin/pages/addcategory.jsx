@@ -157,7 +157,7 @@ export default function AddCategory({ onBack, onPublish, onSaveDraft, initialDat
     setImageUrl((prev) => {
       if (prev?.startsWith("blob:")) URL.revokeObjectURL(prev);
       return null;
-    });
+    }); 
     setRawFile(null);
   };
 
